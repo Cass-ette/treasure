@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>基金管理 - 投资管理系统</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background-color: #f5f5f5; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 15px; }
+        h1 { color: #333; margin: 0; }
+        .nav-btn { background-color: #2196F3; color: white; padding: 10px 20px; border: none; border-radius: 3px; cursor: pointer; text-decoration: none; display: inline-block; margin-right: 10px; }
+        .nav-btn:hover { background-color: #0b7dda; }
+        .content { background-color: white; padding: 20px; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 30px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background-color: #f2f2f2; }
+        .form-container { margin-top: 20px; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
+        .form-group input, .form-group select { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 3px; }
+        .form-actions { margin-top: 20px; }
+        .btn { padding: 10px 15px; border: none; border-radius: 3px; cursor: pointer; text-decoration: none; display: inline-block; }
+        .btn-primary { background-color: #2196F3; color: white; }
+        .btn-primary:hover { background-color: #0b7dda; }
+        .btn-danger { background-color: #f44336; color: white; }
+        .btn-danger:hover { background-color: #d32f2f; }
+        .btn-secondary { background-color: #ccc; color: white; }
+        .btn-secondary:hover { background-color: #aaa; }
+        .message { padding: 15px; margin-bottom: 20px; border-radius: 3px; }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+        .loading { display: inline-block; width: 16px; height: 16px; border: 2px solid #f3f3f3; border-top: 2px solid #3498db; border-radius: 50%; animation: spin 1s linear infinite; margin-left: 10px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const codeInput = document.getElementById('code');
+            const nameInput = document.getElementById('name');
+            const latestNavInput = document.getElementById('latest_nav');
+            const navDateInput = document.getElementById('nav_date');
+            const loadingIndicator = document.createElement('span');
+            loadingIndicator.className = 'loading';
+            loadingIndicator.style.display = 'none';
+            codeInput.parentNode.appendChild(loadingIndicator);
+            
+            // 防抖函数
+            function debounce(func, wait) {
+                let timeout;
+                return function() {
+                    const context = this;
+                    const args = arguments;
+                    clearTimeout(timeout);
+                    timeout = setTimeout(() => func.apply(context, args), wait);
+                };
+            }
+            
+            // 处理基金代码输入完成事件
+            const handleCodeInput = debounce(function() {
+                const fundCode = codeInput.value.trim();
+                
+                // 基金代码通常为6位数字
+                if (fundCode.length === 6 && /^\d+$/.test(fundCode)) {
+                    loadingIndicator.style.display = 'inline-block';
+                    
+                    // 发送AJAX请求查询基金信息
+                    fetch(`/get_fund_info?code=${fundCode}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            loadingIndicator.style.display = 'none';
+                            
+                            if (data.success) {
+                                // 填充基金名称
+                                nameInput.value = data.name || '';
+                                // 填充最新净值和日期
+                                if (data.latest_nav) {
+                                    latestNavInput.value = data.latest_nav;
+                                }
+                                if (data.nav_date) {
+                                    navDateInput.value = data.nav_date;
+                                }
+                                // 显示成功消息
+                                showMessage('基金信息获取成功', 'success');
+                            } else {
+                                // 显示错误消息
+                                showMessage(data.message || '获取基金信息失败', 'error');
+                            }
+                        })
+                        .catch(error => {
+                            loadingIndicator.style.display = 'none';
+                            console.error('获取基金信息出错:', error);
+                            showMessage('获取基金信息时发生错误', 'error');
+                        });
+                }
+            }, 500);
+            
+            // 添加事件监听
+            codeInput.addEventListener('blur', handleCodeInput);
+            codeInput.addEventListener('keydown', function(event) {
+                if (event.key === 'Enter') {
+                    handleCodeInput();
+                }
+            });
+            
+            // 显示消息函数
+            function showMessage(text, type) {
+                // 检查是否已存在消息元素
+                let messageElement = document.querySelector('.message.auto');
+                if (!messageElement) {
+                    messageElement = document.createElement('div');
+                    messageElement.className = 'message auto';
+                    const contentDiv = document.querySelector('.content');
+                    const firstChild = contentDiv.firstChild;
+                    contentDiv.insertBefore(messageElement, firstChild);
+                }
+                
+                messageElement.className = 'message auto ' + type;
+                messageElement.textContent = text;
+                
+                // 3秒后自动隐藏
+                setTimeout(() => {
+                    if (messageElement) {
+                        messageElement.style.opacity = '0';
+                        messageElement.style.transition = 'opacity 0.5s ease-out';
+                        setTimeout(() => {
+                            if (messageElement.parentNode) {
+                                messageElement.parentNode.removeChild(messageElement);
+                            }
+                        }, 500);
+                    }
+                }, 3000);
+            }
+        });
+    </script>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>基金管理</h1>
+            <div>
+                <a href="{{ url_for('dashboard') }}" class="nav-btn">返回仪表盘</a>
+                <a href="{{ url_for('logout') }}" class="nav-btn">退出登录</a>
+            </div>
+        </div>
+        
+        <div class="content">
+            <!-- 消息显示 -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="message {{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            <!-- 操作提示 -->
+            <div class="message info" style="background-color: #e3f2fd; color: #0d47a1;">
+                <strong>提示：</strong>删除基金前，请确保该基金没有关联的持仓记录。您可以在仪表盘查看持仓情况。
+            </div>
+            
+            <!-- 添加/编辑基金表单 -->
+            <div class="form-container">
+                <h2>{{ '编辑基金' if editing_fund else '添加新基金' }}</h2>
+                <form method="post">
+                    <input type="hidden" name="fund_id" value="{{ editing_fund.id if editing_fund else '' }}">
+                    
+                    <div class="form-group">
+                        <label for="code">基金代码 *</label>
+                        <input type="text" id="code" name="code" value="{{ editing_fund.code if editing_fund else '' }}" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="name">基金名称</label>
+                        <input type="text" id="name" name="name" value="{{ editing_fund.name if editing_fund else '' }}">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="fund_type">基金类型</label>
+                        <input type="text" id="fund_type" name="fund_type" value="{{ editing_fund.fund_type if editing_fund else '' }}">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="latest_nav">最新净值</label>
+                        <input type="number" id="latest_nav" name="latest_nav" step="0.0001" value="{{ editing_fund.latest_nav if editing_fund else '' }}">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="nav_date">净值日期</label>
+                        <input type="date" id="nav_date" name="nav_date" value="{{ editing_fund.nav_date.strftime('%Y-%m-%d') if editing_fund and editing_fund.nav_date else '' }}">
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">{{ '保存修改' if editing_fund else '添加基金' }}</button>
+                        {% if editing_fund %}
+                            <a href="{{ url_for('manage_funds') }}" class="btn btn-secondary">取消</a>
+                        {% endif %}
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="content">
+            <h2>基金列表</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>基金代码</th>
+                        <th>基金名称</th>
+                        <th>基金类型</th>
+                        <th>最新净值</th>
+                        <th>净值日期</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for fund in funds %}
+                    <tr>
+                        <td>{{ fund.code }}</td>
+                        <td>{{ fund.name }}</td>
+                        <td>{{ fund.fund_type }}</td>
+                        <td>{{ fund.latest_nav if fund.latest_nav else '-' }}</td>
+                        <td>{{ fund.nav_date.strftime('%Y-%m-%d') if fund.nav_date else '-' }}</td>
+                        <td>
+                            <a href="{{ url_for('manage_funds', edit=fund.id) }}" class="btn btn-primary">编辑</a>
+                            {% if fund.positions and fund.positions|length > 0 %}
+                                <button class="btn btn-secondary" title="该基金有相关持仓，无法删除" disabled>删除(有持仓)</button>
+                            {% else %}
+                                <form action="{{ url_for('delete_fund', fund_id=fund.id) }}" method="post" style="display: inline;">
+                                    <button type="submit" class="btn btn-danger" onclick="return confirm('确定要删除这个基金吗？删除后无法恢复！')">删除</button>
+                                </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" style="text-align: center;">暂无基金数据</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理持仓 - 投资管理系统</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            line-height: 1.6;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .nav {
+            margin-bottom: 20px;
+        }
+        .nav a {
+            margin-right: 15px;
+            text-decoration: none;
+            color: #0066cc;
+        }
+        .nav a:hover {
+            text-decoration: underline;
+        }
+        .message {
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        form {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            max-width: 600px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .cancel-btn {
+            background-color: #f44336;
+            margin-left: 10px;
+        }
+        .cancel-btn:hover {
+            background-color: #d32f2f;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        .action-btn {
+            padding: 5px 10px;
+            text-decoration: none;
+            border-radius: 4px;
+            margin-right: 5px;
+            font-size: 14px;
+        }
+        .edit-btn {
+            background-color: #2196F3;
+            color: white;
+        }
+        .delete-btn {
+            background-color: #f44336;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="nav">
+        <a href="{{ url_for('dashboard') }}">返回仪表盘</a>
+        <a href="{{ url_for('manage_funds') }}">管理基金</a>
+        <a href="{{ url_for('logout') }}">退出登录</a>
+    </div>
+    
+    <h1>管理持仓</h1>
+    
+    <!-- 消息显示区域 -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="message {{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    
+    <!-- 添加/编辑持仓表单 -->
+    <form method="POST">
+        <input type="hidden" name="position_id" value="{{ editing_position.id if editing_position else '' }}">
+        {{ form.csrf_token if form else '' }}
+        
+        <label for="user_id">用户：</label>
+        <select id="user_id" name="user_id" required>
+            <option value="">请选择用户</option>
+            {% for user in users %}
+                <option value="{{ user.id }}" {% if editing_position and editing_position.user_id == user.id %}selected{% endif %}>{{ user.username }}</option>
+            {% endfor %}
+        </select>
+        
+        <label for="fund_id">基金：</label>
+        <select id="fund_id" name="fund_id" required>
+            <option value="">请选择基金</option>
+            {% for fund in funds %}
+                <option value="{{ fund.id }}" {% if editing_position and editing_position.fund_id == fund.id %}selected{% endif %}>{{ fund.code }} - {{ fund.name }}</option>
+            {% endfor %}
+        </select>
+        
+        <label for="shares">持有份额：</label>
+        <input type="number" id="shares" name="shares" step="0.0001" min="0" value="{{ editing_position.shares if editing_position else '' }}" required>
+        
+        <label for="cost_price">成本价：</label>
+        <input type="number" id="cost_price" name="cost_price" step="0.0001" min="0" value="{{ editing_position.cost_price if editing_position else '' }}" required>
+        
+        <button type="submit">{{ '更新持仓' if editing_position else '添加持仓' }}</button>
+        {% if editing_position %}
+            <a href="{{ url_for('manage_positions') }}" class="action-btn cancel-btn">取消</a>
+        {% endif %}
+    </form>
+    
+    <!-- 持仓列表 -->
+    <h2>持仓列表</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>用户</th>
+                <th>基金</th>
+                <th>持有份额</th>
+                <th>成本价</th>
+                <th>创建时间</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if positions %}
+                {% for position in positions %}
+                    <tr>
+                        <td>{{ position.user.username }}</td>
+                        <td>{{ position.fund.code }} - {{ position.fund.name }}</td>
+                        <td>{{ position.shares }}</td>
+                        <td>{{ position.cost_price }}</td>
+                        <td>{{ position.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                        <td>
+                            <a href="{{ url_for('manage_positions', edit=position.id) }}" class="action-btn edit-btn">编辑</a>
+                            <form method="POST" action="{{ url_for('delete_position', position_id=position.id) }}" style="display: inline;">
+                                {{ form.csrf_token if form else '' }}
+                                <button type="submit" class="action-btn delete-btn" onclick="return confirm('确定要删除该持仓吗？');">删除</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="6">暂无持仓数据</td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</body>
+</html>

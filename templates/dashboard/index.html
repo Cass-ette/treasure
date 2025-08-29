@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+
+{% block title %}仪表盘 - 多账户投资管理系统{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h4>账户概览</h4>
+            </div>
+            <div class="card-body">
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <div class="card bg-info text-white">
+                            <div class="card-body text-center">
+                                <h5 class="card-title">总本金</h5>
+                                <p class="card-text fs-3">{{ total_principal }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card bg-success text-white">
+                            <div class="card-body text-center">
+                                <h5 class="card-title">当前总市值</h5>
+                                <p class="card-text fs-3">{{ total_value }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card {% if total_profit >= 0 %}bg-success{% else %}bg-danger{% endif %} text-white">
+                            <div class="card-body text-center">
+                                <h5 class="card-title">总盈亏</h5>
+                                <p class="card-text fs-3">{{ total_profit }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <h5>盈亏趋势</h5>
+                    <canvas id="profitChart" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h4>持仓分布</h4>
+            </div>
+            <div class="card-body">
+                <canvas id="positionChart" height="200"></canvas>
+            </div>
+        </div>
+        
+        {% if current_user.is_main_account %}
+        <div class="card">
+            <div class="card-header">
+                <h4>次级账户列表</h4>
+            </div>
+            <div class="card-body">
+                <ul class="list-group">
+                    {% for account in sub_accounts %}^
+                        <li class="list-group-item">
+                            <div class="d-flex justify-content-between">
+                                <span>{{ account.username }}</span>
+                                <span class="{% if account.latest_profit >= 0 %}text-success{% else %}text-danger{% endif %}">
+                                    {{ account.latest_profit }}
+                                </span>
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block js %}
+<script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+<script>
+    // 盈亏趋势图
+    const profitCtx = document.getElementById('profitChart').getContext('2d');
+    const profitChart = new Chart(profitCtx, {
+        type: 'line',
+        data: {
+            labels: {{ profit_dates|safe }},
+            datasets: [{
+                label: '盈亏金额',
+                data: {{ profit_values|safe }},
+                borderColor: '#36A2EB',
+                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                tension: 0.1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                }
+            }
+        }
+    });
+    
+    // 持仓分布图
+    const positionCtx = document.getElementById('positionChart').getContext('2d');
+    const positionChart = new Chart(positionCtx, {
+        type: 'pie',
+        data: {
+            labels: {{ fund_names|safe }},
+            datasets: [{
+                data: {{ fund_values|safe }},
+                backgroundColor: [
+                    '#FF6384',
+                    '#36A2EB',
+                    '#FFCE56',
+                    '#4BC0C0',
+                    '#9966FF',
+                    '#FF9F40'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}
