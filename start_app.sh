@@ -115,8 +115,12 @@ source .venv/bin/activate
     fi
     
     # 启动应用
-    echo -e "${green}\n应用将在 http://127.0.0.1:5000 启动"
-    echo -e "默认账户："
+    echo -e "${green}\n应用已配置为绑定到所有网卡地址（0.0.0.0:5000）"
+    echo -e "您可以通过以下方式访问："
+    echo -e "- 本地访问：http://127.0.0.1:5000"
+    echo -e "- 局域网访问：http://服务器局域网IP:5000"
+    echo -e "- 公网访问：http://服务器公网IP:5000（需确保防火墙已开放5000端口）"
+    echo -e "\n默认账户："
     echo -e "- 管理员账户：username=admin, password=admin123"
     echo -e "- 次级账户：username=user1/user2/user3, password=user123"
     echo -e "按 Ctrl+C 停止应用${reset}\n"

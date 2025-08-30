@@ -79,6 +79,8 @@ chmod +x start_app.sh
 - 初始化数据库
 - 创建管理员账户
 
+> **注意：** 应用已配置为绑定到所有网卡地址（0.0.0.0:5000），支持公网访问。如需从公网访问，请确保服务器防火墙已开放5000端口（详细配置请参考LINUX_DEPLOYMENT_GUIDE.md文件中的防火墙配置部分）。
+
 ### 2. 手动配置步骤（备选方案）
 
 如果您不使用启动脚本，也可以手动执行以下步骤：
@@ -125,11 +127,69 @@ python -m app.run
 
 应用启动后，可以通过以下方式访问：
 - 如果在本地 Linux 环境：http://127.0.0.1:5000
-- 如果在远程服务器：http://服务器IP:5000
+- 如果在远程服务器：http://服务器IP:5000（需确保防火墙已开放5000端口）
 
 默认账户信息：
 - 管理员账户：username=admin, password=admin123
 - 次级账户：username=user1/user2/user3, password=user123
+
+## 第五步：更新项目
+
+### 从本地Windows上传更新到GitHub
+
+当您在Windows上对项目进行了修改（如我们刚才的配置更新）后，可以按照以下步骤将更改上传到GitHub：
+
+1. **在Windows本地提交更改**：
+   
+   打开Windows的命令提示符或PowerShell，进入项目目录：
+   
+   ```bash
+   cd e:\桌面\treasure
+   
+   # 检查更改的文件
+   git status
+   
+   # 添加所有更改的文件
+   git add .
+   
+   # 提交更改
+   git commit -m "更新系统配置以支持公网访问"
+   
+   # 推送到GitHub
+   git push origin main
+   ```
+   
+   > 注意：如果您使用的是不同的分支名称（如master），请将`main`替换为您的分支名称。
+
+### 在Linux服务器上获取更新
+
+当您已将更改推送到GitHub后，可以在Linux服务器上执行以下命令获取最新更新：
+
+1. **进入项目目录**：
+   ```bash
+   cd /path/to/your/repository
+   ```
+
+2. **拉取最新代码**：
+   ```bash
+   git pull origin main
+   ```
+
+3. **重启应用以应用更新**：
+   
+   如果您使用启动脚本：
+   ```bash
+   # 先停止正在运行的应用（如果需要）
+   # 按Ctrl+C停止或使用其他方式
+   
+   # 重新运行启动脚本
+   ./start_app.sh
+   ```
+
+   如果您使用Systemd服务管理应用：
+   ```bash
+   sudo systemctl restart treasure.service
+   ```
 
 ## 常见问题解决
 

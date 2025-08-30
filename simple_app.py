@@ -867,8 +867,12 @@ def start_scheduler():
 
 if __name__ == '__main__':
     print("正在启动简化版投资管理系统...")
-    print("访问 http://127.0.0.1:5000 进行登录")
-    print("可用账户信息：")
+    print("应用已配置为绑定到所有网卡地址（0.0.0.0:5000）")
+    print("您可以通过以下方式访问：")
+    print("- 本地访问：http://127.0.0.1:5000")
+    print("- 局域网访问：http://服务器局域网IP:5000")
+    print("- 公网访问：http://服务器公网IP:5000（需确保防火墙已开放5000端口）")
+    print("\n可用账户信息：")
     print("- 管理员账户：username=admin, password=admin123")
     print("- 次级账户：username=user1/user2/user3, password=user123")
     

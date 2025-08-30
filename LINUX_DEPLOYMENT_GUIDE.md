@@ -112,12 +112,19 @@ python -m app.run
    - 会允许执行任意代码（通过调试器）
 
 2. **配置防火墙**：
-   ```bash
-   # 只允许特定IP访问应用端口
-   ufw allow from 您的IP地址 to any port 5000
+   如果您要允许公网访问，请确保服务器防火墙已开放5000端口。以下是常见Linux发行版的防火墙配置方法：
    
-   # 或限制访问源IP范围
-   ufw allow from 192.168.1.0/24 to any port 5000
+   ```bash
+   # Ubuntu/Debian (使用UFW防火墙)
+   sudo ufw allow 5000/tcp  # 允许所有IP访问5000端口
+   # 或者只允许特定IP访问
+   # sudo ufw allow from 您的IP地址 to any port 5000
+   sudo ufw status  # 检查防火墙状态
+   sudo ufw enable  # 如果防火墙未启用，请启用它
+   
+   # CentOS/RHEL (使用firewalld)
+   sudo firewall-cmd --zone=public --add-port=5000/tcp --permanent
+   sudo firewall-cmd --reload
    ```
 
 3. **使用HTTPS**：
