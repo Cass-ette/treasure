@@ -1,9 +1,25 @@
-Flask==2.3.2
+# 基础依赖
+Flask==2.3.3
 Werkzeug==2.3.8
 Flask-SQLAlchemy==3.0.3
 Flask-Login==0.6.3
+
+# 数据处理依赖
+numpy==1.24.2
+pandas==1.5.3  # 推荐版本，在Linux上兼容性更好
+openpyxl==3.1.2
+
+# 网络请求和解析
+schedule==1.2.0
 requests==2.31.0
 beautifulsoup4==4.12.2
-schedule==1.2.0
-pandas==2.0.3
-openpyxl==3.1.2
+
+# 可选依赖 - 基金数据爬取
+# 在Linux上可能需要特殊处理，建议手动安装
+# akshare==1.7.52
+
+# 生产环境部署依赖
+# gunicorn==20.1.0  # 用于生产环境部署
+
+# 注意：在Linux环境中，如果遇到依赖安装问题，可以尝试以下兼容版本：
+# pip install numpy==1.24.2 pandas==1.5.3 akshare==1.7.52

@@ -1,5 +1,5 @@
-import schedule
 import time
+import schedule
 from threading import Thread
 from app.services.fund_service import FundService
 from app.services.calculation import CalculationService

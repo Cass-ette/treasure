@@ -857,10 +857,6 @@ def start_scheduler():
     print("[定时任务] 启动基金净值自动更新调度器")
     # 每天下午15:30（基金净值通常在此时更新）执行自动更新
     schedule.every().day.at("15:30").do(batch_update_all_funds)
-    # 添加19:30的更新时间点
-    schedule.every().day.at("19:30").do(batch_update_all_funds)
-    # 添加22:00的更新时间点
-    schedule.every().day.at("22:00").do(batch_update_all_funds)
     
     # 如果需要测试，可以取消下面一行的注释，每分钟执行一次
     # schedule.every(1).minutes.do(batch_update_all_funds)
