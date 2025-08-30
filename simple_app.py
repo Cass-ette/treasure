@@ -876,4 +876,6 @@ if __name__ == '__main__':
     scheduler_thread = threading.Thread(target=start_scheduler, daemon=True)
     scheduler_thread.start()
     
-    app.run(debug=True)
+    # 绑定到所有网卡地址，支持公网访问
+    # 注意：在生产环境中，请确保配置了适当的安全措施
+    app.run(host='0.0.0.0', debug=True)

@@ -89,6 +89,8 @@ source .venv/bin/activate
 python simple_app.py
 ```
 
+> 注意：应用默认配置为绑定到所有网卡地址（0.0.0.0），可以通过公网IP访问。
+
 ### 模块化版本部署
 
 模块化版本功能更完整，但依赖较多：
@@ -100,6 +102,34 @@ pip install -r requirements.txt
 # 启动应用
 python -m app.run
 ```
+
+## 公网访问安全注意事项
+
+如果您计划将应用部署到公网环境，请务必注意以下安全措施：
+
+1. **不要在公网环境中使用debug=True模式**：
+   - debug模式会暴露应用的敏感信息
+   - 会允许执行任意代码（通过调试器）
+
+2. **配置防火墙**：
+   ```bash
+   # 只允许特定IP访问应用端口
+   ufw allow from 您的IP地址 to any port 5000
+   
+   # 或限制访问源IP范围
+   ufw allow from 192.168.1.0/24 to any port 5000
+   ```
+
+3. **使用HTTPS**：
+   - 通过Nginx配置SSL证书
+   - 使用Let's Encrypt等免费证书服务
+
+4. **修改默认密码**：
+   - 登录系统后立即修改管理员密码
+   - 为所有用户设置强密码
+
+5. **生产环境推荐使用Nginx+Gunicorn组合**：
+   - 提供更好的安全性和性能
 
 ## 使用 Gunicorn + Nginx 进行生产环境部署
 
