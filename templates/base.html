@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" id="html-lang">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,7 +11,7 @@
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container-fluid">
-            <a class="navbar-brand" href="{{ url_for('dashboard.index') }}">多账户投资管理系统</a>
+            <a class="navbar-brand" href="{{ url_for('dashboard') }}" id="nav-brand">多账户投资管理系统</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -19,34 +19,116 @@
                 <ul class="navbar-nav ms-auto">
                     {% if current_user.is_authenticated %}
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('dashboard.index') }}">仪表盘</a>
+                            <a class="nav-link" href="{{ url_for('dashboard') }}" id="nav-dashboard">仪表盘</a>
                         </li>
                         {% if current_user.is_main_account %}
                             <li class="nav-item">
-                                <a class="nav-link" href="{{ url_for('accounts.list') }}">账户管理</a>
+                                <a class="nav-link" href="{{ url_for('dashboard') }}" id="nav-accounts">账户管理</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="{{ url_for('funds.list') }}">基金管理</a>
+                                <a class="nav-link" href="{{ url_for('manage_funds') }}" id="nav-funds">基金管理</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="{{ url_for('transactions.list') }}">交易记录</a>
+                                <a class="nav-link" href="{{ url_for('dashboard') }}" id="nav-transactions">交易记录</a>
                             </li>
                         {% endif %}
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('reports.index') }}">报表中心</a>
+                            <a class="nav-link" href="{{ url_for('upload_image') }}" id="nav-image-recognition">图片识别</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('auth.logout') }}">退出登录</a>
+                            <a class="nav-link" href="{{ url_for('logout') }}" id="nav-logout">退出登录</a>
                         </li>
                     {% else %}
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('auth.login') }}">登录</a>
+                            <a class="nav-link" href="{{ url_for('login') }}" id="nav-login">登录</a>
                         </li>
                     {% endif %}
                 </ul>
             </div>
         </div>
     </nav>
+
+    <script>
+        // 导航栏语言切换功能
+        document.addEventListener('DOMContentLoaded', function() {
+            const body = document.body;
+            const htmlElement = document.getElementById('html-lang');
+            
+            // 中英文翻译映射
+            const translations = {
+                '多账户投资管理系统': 'Multi-Account Investment Management System',
+                '仪表盘': 'Dashboard',
+                '账户管理': 'Account Management',
+                '基金管理': 'Fund Management',
+                '交易记录': 'Transaction Records',
+                '图片识别': 'Image Recognition',
+                '退出登录': 'Logout',
+                '登录': 'Login'
+            };
+            
+            // 存储原始中文文本以便恢复
+            const originalTexts = {};
+            const navElements = [
+                'nav-brand', 'nav-dashboard', 'nav-accounts', 'nav-funds', 
+                'nav-transactions', 'nav-image-recognition', 'nav-logout', 'nav-login'
+            ];
+            
+            // 存储原始文本
+            navElements.forEach(id => {
+                const element = document.getElementById(id);
+                if (element && element.textContent) {
+                    originalTexts[id] = element.textContent;
+                }
+            });
+            
+            // 检查当前语言模式并应用翻译
+            function applyLanguage() {
+                // 更可靠的模式检测 - 检查body类和URL参数
+                const isInternational = body.classList.contains('international-mode') || 
+                                       new URLSearchParams(window.location.search).get('lang') === 'en';
+                
+                if (isInternational) {
+                    // 更新HTML语言属性
+                    htmlElement.setAttribute('lang', 'en-US');
+                    
+                    // 应用英文到所有导航栏元素
+                    document.title = translations['多账户投资管理系统'] || document.title;
+                    
+                    navElements.forEach(id => {
+                        const element = document.getElementById(id);
+                        if (element && originalTexts[id]) {
+                            // 使用原始存储的文本作为键来查找翻译
+                            element.textContent = translations[originalTexts[id]] || originalTexts[id];
+                        }
+                    });
+                } else {
+                    // 恢复中文
+                    htmlElement.setAttribute('lang', 'zh-CN');
+                    document.title = originalTexts['nav-brand'] || '多账户投资管理系统';
+                    
+                    // 恢复所有原始中文文本
+                    navElements.forEach(id => {
+                        const element = document.getElementById(id);
+                        if (element && originalTexts[id]) {
+                            element.textContent = originalTexts[id];
+                        }
+                    });
+                }
+            }
+            
+            // 初始应用语言 - 添加延迟确保所有元素都已加载
+            setTimeout(applyLanguage, 100);
+            
+            // 监听模式切换事件
+            window.addEventListener('languageChange', applyLanguage);
+            
+            // 额外添加窗口加载完成事件监听
+            window.addEventListener('load', applyLanguage);
+            
+            // 监听URL变化
+            window.addEventListener('popstate', applyLanguage);
+        });
+    </script>
 
     <div class="container mt-4">
         {% with messages = get_flashed_messages(with_categories=true) %}

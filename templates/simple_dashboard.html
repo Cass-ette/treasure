@@ -48,6 +48,7 @@
             <a href="{{ url_for('crawl_fund_nav') }}" id="crawl-fund-nav-link" class="manage-funds">爬取基金净值</a>
             <a href="{{ url_for('manage_positions') }}" id="manage-positions-link" class="manage-funds">管理持仓</a>
             {% endif %}
+            <a href="{{ url_for('upload_image') }}" id="image-processing-link" class="manage-funds">图片识别</a>
             <a href="{{ url_for('logout') }}" id="logout-link" class="logout">退出登录</a>
         </div>
         
@@ -69,11 +70,11 @@
         
         <div class="positions">
             <h3 id="positions-title">持仓概览</h3>
-            <table>
+            <table id="positions-table">
                 <tr>
                     <th id="fund-name-header">基金名称</th>
                     <th id="cost-header">成本</th>
-                    <th id="value-header">市值</th>
+                    <th id="value-header" style="cursor: pointer;">市值 <span id="sort-icon" style="font-size: 0.8em;">↓</span></th>
                     <th id="profit-header">盈亏</th>
                     <th id="return-header">收益率</th>
                     <th id="proportion-header">占比</th>
@@ -167,6 +168,7 @@
                 manageFundsLink: document.getElementById('manage-funds-link'),
                 crawlFundNavLink: document.getElementById('crawl-fund-nav-link'),
                 managePositionsLink: document.getElementById('manage-positions-link'),
+                imageProcessingLink: document.getElementById('image-processing-link'),
                 principalTitle: document.getElementById('principal-title'),
                 marketValueTitle: document.getElementById('market-value-title'),
                 profitTitle: document.getElementById('profit-title'),
@@ -192,6 +194,7 @@
                 '管理基金': 'Manage Funds',
                 '爬取基金净值': 'Crawl Fund NAV',
                 '管理持仓': 'Manage Positions',
+                '图片识别': 'Image Recognition',
                 '总本金': 'Total Principal',
                 '总市值': 'Total Market Value',
                 '总盈亏': 'Total Profit/Loss',
@@ -212,6 +215,34 @@
                 '仪表盘 - 投资管理系统': 'Dashboard - Investment Management System'
             };
             
+            // 按市值从大到小排序持仓表格
+            function sortPositionsTable() {
+                const table = document.getElementById('positions-table');
+                const tbody = table.getElementsByTagName('tbody')[0];
+                const rows = Array.from(tbody.getElementsByTagName('tr'));
+                
+                // 按市值从大到小排序
+                rows.sort((a, b) => {
+                    const valueA = parseFloat(a.cells[2].textContent.replace('¥', '').replace(',', ''));
+                    const valueB = parseFloat(b.cells[2].textContent.replace('¥', '').replace(',', ''));
+                    return valueB - valueA;
+                });
+                
+                // 重新排列表格行
+                rows.forEach(row => tbody.appendChild(row));
+            }
+            
+            // 页面加载完成后自动排序
+            window.addEventListener('DOMContentLoaded', function() {
+                // 等待表格数据渲染完成
+                setTimeout(() => {
+                    sortPositionsTable();
+                }, 100);
+            });
+            
+            // 为市值表头添加点击排序功能
+            document.getElementById('value-header').addEventListener('click', sortPositionsTable);
+            
             // 切换语言的函数
             function toggleLanguage(isInternational) {
                 if (isInternational) {
@@ -222,6 +253,7 @@
                     if (elements.manageFundsLink) elements.manageFundsLink.textContent = translations[elements.manageFundsLink.textContent];
                     if (elements.crawlFundNavLink) elements.crawlFundNavLink.textContent = translations[elements.crawlFundNavLink.textContent];
                     if (elements.managePositionsLink) elements.managePositionsLink.textContent = translations[elements.managePositionsLink.textContent];
+                    if (elements.imageProcessingLink) elements.imageProcessingLink.textContent = translations[elements.imageProcessingLink.textContent];
                     elements.principalTitle.textContent = translations[elements.principalTitle.textContent];
                     elements.marketValueTitle.textContent = translations[elements.marketValueTitle.textContent];
                     elements.profitTitle.textContent = translations[elements.profitTitle.textContent];
@@ -229,7 +261,10 @@
                     elements.positionsTitle.textContent = translations[elements.positionsTitle.textContent];
                     elements.fundNameHeader.textContent = translations[elements.fundNameHeader.textContent];
                     elements.costHeader.textContent = translations[elements.costHeader.textContent];
-                    elements.valueHeader.textContent = translations[elements.valueHeader.textContent];
+                    // 特殊处理市值表头，保留排序图标
+                    const sortIcon = document.getElementById('sort-icon');
+                    elements.valueHeader.textContent = translations['市值'] + ' ';
+                    elements.valueHeader.appendChild(sortIcon);
                     elements.profitHeader.textContent = translations[elements.profitHeader.textContent];
                     elements.returnHeader.textContent = translations[elements.returnHeader.textContent];
                     elements.proportionHeader.textContent = translations[elements.proportionHeader.textContent];
@@ -249,6 +284,7 @@
                     if (elements.manageFundsLink) elements.manageFundsLink.textContent = '管理基金';
                     if (elements.crawlFundNavLink) elements.crawlFundNavLink.textContent = '爬取基金净值';
                     if (elements.managePositionsLink) elements.managePositionsLink.textContent = '管理持仓';
+                    if (elements.imageProcessingLink) elements.imageProcessingLink.textContent = '图片识别';
                     elements.principalTitle.textContent = '总本金';
                     elements.marketValueTitle.textContent = '总市值';
                     elements.profitTitle.textContent = '总盈亏';
@@ -256,7 +292,10 @@
                     elements.positionsTitle.textContent = '持仓概览';
                     elements.fundNameHeader.textContent = '基金名称';
                     elements.costHeader.textContent = '成本';
-                    elements.valueHeader.textContent = '市值';
+                    // 特殊处理市值表头，保留排序图标
+                    const sortIcon = document.getElementById('sort-icon');
+                    elements.valueHeader.textContent = '市值 ';
+                    elements.valueHeader.appendChild(sortIcon);
                     elements.profitHeader.textContent = '盈亏';
                     elements.returnHeader.textContent = '收益率';
                     elements.proportionHeader.textContent = '占比';

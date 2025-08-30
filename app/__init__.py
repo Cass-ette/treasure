@@ -14,7 +14,7 @@ login_manager.login_view = 'auth.login'
 from app.models import User, Fund, Position, Transaction, Agreement, Profit
 
 # 导入路由蓝图
-from app.routes import auth, accounts, funds, transactions, reports, dashboard
+from app.routes import auth, accounts, funds, transactions, reports, dashboard, image_processing
 
 # 用户加载器回调函数，用于 Flask-Login
 @login_manager.user_loader
@@ -29,5 +29,6 @@ def register_blueprints():
     app.register_blueprint(funds)
     app.register_blueprint(transactions)
     app.register_blueprint(reports)
+    app.register_blueprint(image_processing)
 
 register_blueprints()

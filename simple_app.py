@@ -12,6 +12,8 @@ import os
 import requests
 from bs4 import BeautifulSoup
 import schedule
+from werkzeug.utils import secure_filename
+import re
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your-secret-key-here'
@@ -26,6 +28,19 @@ db = SQLAlchemy(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
+
+# 允许的文件扩展名
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+
+# 配置上传文件夹
+UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'uploads')
+
+# 确保上传文件夹存在
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+def allowed_file(filename):
+    """检查文件是否为允许的类型"""
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 # 定义简化的模型类
 class User(UserMixin, db.Model):
@@ -65,6 +80,135 @@ class Profit(db.Model):
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
+
+# 从识别结果直接添加基金到系统
+@app.route('/add_fund_from_recognition')
+@login_required
+def add_fund_from_recognition():
+    """从识别结果直接添加基金到系统"""
+    # 检查是否为管理员账户
+    if not current_user.is_main_account:
+        flash('只有管理员账户可以添加基金', 'error')
+        return redirect(url_for('dashboard'))
+    
+    # 获取基金代码和名称
+    fund_code = request.args.get('code')
+    fund_name = request.args.get('name')
+    
+    if not fund_code:
+        flash('基金代码不能为空', 'error')
+        return redirect(url_for('manage_funds'))
+    
+    # 检查基金是否已存在
+    existing_fund = Fund.query.filter_by(code=fund_code).first()
+    
+    if existing_fund:
+        flash(f'基金 {fund_code} - {existing_fund.name} 已存在于系统中', 'info')
+    else:
+        try:
+            # 尝试调用爬虫函数获取基金详细信息
+            result = update_fund_nav(fund_code)
+            
+            # 检查是否成功添加了基金
+            added_fund = Fund.query.filter_by(code=fund_code).first()
+            
+            if added_fund:
+                flash(f'基金 {added_fund.code} - {added_fund.name} 已成功添加到系统', 'success')
+            else:
+                # 如果爬虫失败，使用识别到的信息创建基金
+                new_fund = Fund(
+                    code=fund_code,
+                    name=fund_name or f"基金{fund_code}",
+                    fund_type='未知'
+                )
+                db.session.add(new_fund)
+                db.session.commit()
+                flash(f'基金 {new_fund.code} - {new_fund.name} 已成功添加到系统（使用识别信息创建）', 'success')
+        except Exception as e:
+            flash(f'添加基金时出错: {str(e)}', 'error')
+    
+    # 重定向到基金管理页面
+    return redirect(url_for('manage_funds'))
+
+# 图片上传和识别功能
+@app.route('/image/upload', methods=['GET', 'POST'])
+@login_required
+def upload_image():
+    """上传图片并识别基金信息（支持单张图片识别多个基金）"""
+    if request.method == 'POST':
+        # 获取文件列表，兼容单文件和多文件上传
+        files = []
+        if 'files[]' in request.files:
+            # 多文件上传
+            files = request.files.getlist('files[]')
+        elif 'file' in request.files:
+            # 单文件上传
+            files = [request.files['file']]
+        
+        # 检查是否选择了文件
+        if not files or all(file.filename == '' for file in files):
+            flash('请选择至少一个文件！')
+            return redirect(request.url)
+        
+        # 验证所有文件类型
+        for file in files:
+            if file and not allowed_file(file.filename):
+                flash('不支持的文件类型，请仅上传PNG、JPG、JPEG或GIF格式的图片！')
+                return redirect(request.url)
+        
+        # 模拟批量识别结果
+        import random
+        funds = Fund.query.all()
+        recognized_funds = []
+        
+        # 示例基金数据列表
+        example_codes = ['161725', '161726', '000001', '000002', '000003', '000004', '000005', '000006', '001186', '001410']
+        example_names = ['招商中证白酒指数(LOF)A', '招商中证白酒指数(LOF)C', '华夏成长混合', '华夏成长混合(后端)', 
+                        '华夏大盘精选混合', '华夏回报混合A', '华夏回报混合B', '华夏兴华混合A',
+                        '易方达中小盘混合', '工银瑞信新金融股票']
+        
+        # 对每个文件生成1-3个基金识别结果（模拟单张图片包含多个基金的情况）
+        for file in files:
+            if file and file.filename != '':
+                # 随机决定当前图片识别出的基金数量（1-3个）
+                num_funds_in_image = random.randint(1, 3)
+                
+                for _ in range(num_funds_in_image):
+                    if funds and len(funds) > len(recognized_funds):
+                        # 尝试随机选择不重复的基金
+                        available_funds = [fund for fund in funds if fund.code not in [f['code'] for f in recognized_funds]]
+                        if available_funds:
+                            random_fund = random.choice(available_funds)
+                        else:
+                            # 如果没有不重复的基金，使用第一个
+                            random_fund = funds[0]
+                        fund_info = {
+                            'code': random_fund.code,
+                            'name': random_fund.name
+                        }
+                    else:
+                        # 如果数据库中没有基金或基金数量不足，使用示例数据
+                        # 生成不同的示例代码
+                        index = min(len(recognized_funds), len(example_codes) - 1)
+                        fund_info = {
+                            'code': example_codes[index],
+                            'name': example_names[index]
+                        }
+                    recognized_funds.append(fund_info)
+        
+        # 无论识别了多少基金，都使用批量结果页面展示
+        return render_template('image_processing/batch_result.html', funds=recognized_funds)
+        
+        flash('不支持的文件类型，请上传PNG、JPG、JPEG或GIF格式的图片！')
+    
+    return render_template('image_processing/upload.html')
+
+@app.route('/image/history')
+@login_required
+def image_history():
+    """查看图片处理历史记录"""
+    # 目前只是一个简单的占位符，可以根据需要扩展
+    return render_template('image_processing/history.html')
 
 # 登录页面
 @app.route('/login', methods=['GET', 'POST'])

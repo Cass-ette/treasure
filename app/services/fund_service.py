@@ -2,6 +2,7 @@ from app import db
 from app.models.fund import Fund
 from app.utils.crawler import FundCrawler
 from datetime import datetime
+from app import db
 
 class FundService:
     @staticmethod

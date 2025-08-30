@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block title %}基金信息识别结果{% endblock %}
+
+{% block css %}
+<style>
+    .result-container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        background-color: #f9f9f9;
+    }
+    .result-item {
+        margin-bottom: 15px;
+        padding: 10px;
+        background-color: white;
+        border-radius: 4px;
+    }
+    .result-label {
+        font-weight: bold;
+        color: #333;
+    }
+    .btn-group {
+        display: flex;
+        gap: 10px;
+        margin-top: 20px;
+    }
+    .btn {
+        flex: 1;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="result-container">
+    <h2 class="text-center mb-4" id="page-title">基金信息识别结果</h2>
+    
+    <div class="result-item">
+        <p><span class="result-label" id="fund-code-label">基金代码：</span><span id="fund-code-value">{{ fund_info.code or '未识别' }}</span></p>
+    </div>
+    
+    <div class="result-item">
+        <p><span class="result-label" id="fund-name-label">基金名称：</span><span id="fund-name-value">{{ fund_info.name or '未识别' }}</span></p>
+    </div>
+    
+    <div class="btn-group">
+        <a href="{{ url_for('upload_image') }}" class="btn btn-primary" id="recognize-again-btn">再次识别</a>
+        {% if fund_info.code %}
+            <a href="{{ url_for('add_fund_from_recognition', code=fund_info.code, name=fund_info.name) }}" class="btn btn-success" id="add-to-fund-btn">直接添加到基金管理</a>
+            <a href="{{ url_for('manage_funds') }}" class="btn btn-secondary" id="view-funds-btn">查看基金列表</a>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    // 国际模式语言切换功能
+    document.addEventListener('DOMContentLoaded', function() {
+        const body = document.body;
+        const pageTitle = document.title;
+        
+        // 中英文翻译映射
+        const translations = {
+            '基金信息识别结果': 'Fund Information Recognition Result',
+            '基金代码：': 'Fund Code:',
+            '基金名称：': 'Fund Name:',
+            '未识别': 'Not recognized',
+            '再次识别': 'Recognize Again',
+            '直接添加到基金管理': 'Add Directly to Fund Management',
+            '查看基金列表': 'View Fund List',
+            '基金信息识别结果 - 投资管理系统': 'Fund Information Recognition Result - Investment Management System'
+        };
+        
+        // 检查当前语言模式并应用翻译
+        function applyLanguage() {
+            const isInternational = body.classList.contains('international-mode');
+            
+            if (isInternational) {
+                // 应用英文
+                document.title = translations['基金信息识别结果 - 投资管理系统'];
+                document.getElementById('page-title').textContent = translations['基金信息识别结果'];
+                document.getElementById('fund-code-label').textContent = translations['基金代码：'];
+                document.getElementById('fund-name-label').textContent = translations['基金名称：'];
+                
+                // 翻译未识别文本
+                const fundCodeValue = document.getElementById('fund-code-value');
+                if (fundCodeValue.textContent === '未识别') {
+                    fundCodeValue.textContent = translations['未识别'];
+                }
+                
+                const fundNameValue = document.getElementById('fund-name-value');
+                if (fundNameValue.textContent === '未识别') {
+                    fundNameValue.textContent = translations['未识别'];
+                }
+                
+                // 翻译按钮
+                document.getElementById('recognize-again-btn').textContent = translations['再次识别'];
+                
+                // 检查并翻译条件性显示的按钮
+                const addToFundBtn = document.getElementById('add-to-fund-btn');
+                if (addToFundBtn) {
+                    addToFundBtn.textContent = translations['直接添加到基金管理'];
+                }
+                
+                const viewFundsBtn = document.getElementById('view-funds-btn');
+                if (viewFundsBtn) {
+                    viewFundsBtn.textContent = translations['查看基金列表'];
+                }
+            }
+        }
+        
+        // 初始应用语言
+        applyLanguage();
+        
+        // 监听模式切换事件
+        window.addEventListener('languageChange', applyLanguage);
+    });
+</script>
+{% endblock %}

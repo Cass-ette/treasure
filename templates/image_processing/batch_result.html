@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+
+{% block title %}批量基金信息识别结果{% endblock %}
+
+{% block css %}
+<style>
+    .result-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        background-color: #f9f9f9;
+    }
+    .fund-card {
+        margin-bottom: 15px;
+        padding: 15px;
+        background-color: white;
+        border-radius: 4px;
+        border-left: 4px solid #2196F3;
+    }
+    .fund-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+    .fund-title {
+        font-weight: bold;
+        color: #333;
+        margin: 0;
+    }
+    .fund-info {
+        margin: 5px 0;
+    }
+    .fund-info-label {
+        font-weight: bold;
+        color: #666;
+    }
+    .btn-group {
+        display: flex;
+        gap: 10px;
+        margin-top: 20px;
+    }
+    .btn {
+        flex: 1;
+    }
+    .batch-actions {
+        margin-top: 20px;
+        text-align: center;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="result-container">
+    <h2 class="text-center mb-4" id="page-title">批量基金信息识别结果</h2>
+    
+    <p class="text-center mb-4" id="result-count">成功识别了 <strong>{{ funds|length }}</strong> 个基金信息</p>
+    
+    {% for fund in funds %}
+    <div class="fund-card">
+        <div class="fund-header">
+            <h4 class="fund-title" id="fund-title-{{ loop.index }}">基金 {{ loop.index }}</h4>
+            <a href="{{ url_for('add_fund_from_recognition', code=fund.code, name=fund.name) }}" class="btn btn-success btn-sm" id="add-fund-btn-{{ loop.index }}">添加到基金管理</a>
+        </div>
+        <div class="fund-info">
+            <span class="fund-info-label" id="fund-code-label-{{ loop.index }}">基金代码：</span>{{ fund.code }}
+        </div>
+        <div class="fund-info">
+            <span class="fund-info-label" id="fund-name-label-{{ loop.index }}">基金名称：</span>{{ fund.name }}
+        </div>
+    </div>
+    {% endfor %}
+    
+    <div class="batch-actions">
+        <a href="{{ url_for('upload_image') }}" class="btn btn-primary" id="batch-recognize-btn">再次批量识别</a>
+        <a href="{{ url_for('manage_funds') }}" class="btn btn-secondary" id="view-funds-btn">查看基金列表</a>
+    </div>
+</div>
+
+<script>
+    // 国际模式语言切换功能
+    document.addEventListener('DOMContentLoaded', function() {
+        const body = document.body;
+        const pageTitle = document.title;
+        
+        // 中英文翻译映射
+        const translations = {
+            '批量基金信息识别结果': 'Batch Fund Information Recognition Results',
+            '成功识别了 {{ funds|length }} 个基金信息': 'Successfully recognized {{ funds|length }} fund information',
+            '基金 ': 'Fund ',
+            '基金代码：': 'Fund Code:',
+            '基金名称：': 'Fund Name:',
+            '添加到基金管理': 'Add to Fund Management',
+            '再次批量识别': 'Batch Recognize Again',
+            '查看基金列表': 'View Fund List',
+            '批量基金信息识别结果 - 投资管理系统': 'Batch Fund Information Recognition Results - Investment Management System'
+        };
+        
+        // 检查当前语言模式并应用翻译
+        function applyLanguage() {
+            const isInternational = body.classList.contains('international-mode');
+            
+            if (isInternational) {
+                // 应用英文
+                document.title = translations['批量基金信息识别结果 - 投资管理系统'];
+                document.getElementById('page-title').textContent = translations['批量基金信息识别结果'];
+                document.getElementById('result-count').textContent = translations['成功识别了 {{ funds|length }} 个基金信息'];
+                
+                // 翻译所有基金卡片
+                const fundCount = {{ funds|length }};
+                for (let i = 1; i <= fundCount; i++) {
+                    const fundTitle = document.getElementById('fund-title-' + i);
+                    if (fundTitle) {
+                        fundTitle.textContent = translations['基金 '] + i;
+                    }
+                    const fundCodeLabel = document.getElementById('fund-code-label-' + i);
+                    if (fundCodeLabel) {
+                        fundCodeLabel.textContent = translations['基金代码：'];
+                    }
+                    const fundNameLabel = document.getElementById('fund-name-label-' + i);
+                    if (fundNameLabel) {
+                        fundNameLabel.textContent = translations['基金名称：'];
+                    }
+                    const addFundBtn = document.getElementById('add-fund-btn-' + i);
+                    if (addFundBtn) {
+                        addFundBtn.textContent = translations['添加到基金管理'];
+                    }
+                }
+                
+                // 翻译批量操作按钮
+                document.getElementById('batch-recognize-btn').textContent = translations['再次批量识别'];
+                document.getElementById('view-funds-btn').textContent = translations['查看基金列表'];
+            }
+        }
+        
+        // 初始应用语言
+        applyLanguage();
+        
+        // 监听模式切换事件
+        window.addEventListener('languageChange', applyLanguage);
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block title %}图片处理历史记录{% endblock %}
+
+{% block css %}
+<style>
+    .history-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        background-color: #f9f9f9;
+    }
+    .no-history {
+        text-align: center;
+        padding: 40px 20px;
+        color: #666;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="history-container">
+    <h2 class="text-center mb-4">图片处理历史记录</h2>
+    
+    <div class="no-history">
+        <p>暂无图片处理历史记录</p>
+        <a href="{{ url_for('upload_image') }}" class="btn btn-primary mt-3">上传新图片</a>
+    </div>
+    
+    <!-- 未来可以扩展为显示历史记录列表 -->
+    <!-- 
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>处理时间</th>
+                <th>基金代码</th>
+                <th>基金名称</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- 历史记录数据将在这里显示 -->
+        </tbody>
+    </table> 
+    -->
+</div>
+{% endblock %}

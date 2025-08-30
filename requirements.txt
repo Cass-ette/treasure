@@ -21,5 +21,9 @@ beautifulsoup4==4.12.2
 # 生产环境部署依赖
 # gunicorn==20.1.0  # 用于生产环境部署
 
+# OCR相关依赖 - 用于图片识别功能
+pytesseract==0.3.10
+Pillow==10.0.0
+
 # 注意：在Linux环境中，如果遇到依赖安装问题，可以尝试以下兼容版本：
 # pip install numpy==1.24.2 pandas==1.5.3 akshare==1.7.52

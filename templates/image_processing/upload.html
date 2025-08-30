@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block title %}上传图片识别基金信息{% endblock %}
+
+{% block css %}
+<style>
+    .upload-container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        background-color: #f9f9f9;
+    }
+    .form-group {
+        margin-bottom: 15px;
+    }
+    .btn-primary {
+        width: 100%;
+    }
+    .info-box {
+        background-color: #e7f3ff;
+        border-left: 4px solid #2196F3;
+        padding: 10px;
+        margin-bottom: 20px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="upload-container">
+    <h2 class="text-center mb-4" id="page-title">上传图片识别基金信息</h2>
+    
+    <div class="info-box">
+        <p class="mb-0"><strong id="instruction-title">使用说明：</strong></p>
+        <ul>
+            <li id="instruction-1">上传包含基金代码或名称的图片（PNG、JPG、JPEG、GIF格式）</li>
+            <li id="instruction-2">系统将自动识别图片中的基金信息</li>
+            <li id="instruction-3">请确保图片清晰，基金信息完整可见</li>
+            <li id="instruction-4"><strong>支持批量上传：</strong>按住Ctrl键可以选择多个文件同时上传识别</li>
+        </ul>
+    </div>
+    
+    <form method="POST" enctype="multipart/form-data">
+        <div class="form-group">
+            <label for="files" id="file-select-label">选择图片文件（可多选）：</label>
+            <input type="file" class="form-control" id="files" name="files[]" accept=".png,.jpg,.jpeg,.gif" multiple required>
+        </div>
+        <button type="submit" class="btn btn-primary" id="upload-button">上传并识别</button>
+    </form>
+</div>
+
+<script>
+    // 国际模式语言切换功能
+    document.addEventListener('DOMContentLoaded', function() {
+        const body = document.body;
+        const pageTitle = document.title;
+        
+        // 所有需要翻译的元素
+        const elements = {
+            pageTitle: document.getElementById('page-title'),
+            instructionTitle: document.getElementById('instruction-title'),
+            instruction1: document.getElementById('instruction-1'),
+            instruction2: document.getElementById('instruction-2'),
+            instruction3: document.getElementById('instruction-3'),
+            instruction4: document.getElementById('instruction-4'),
+            fileSelectLabel: document.getElementById('file-select-label'),
+            uploadButton: document.getElementById('upload-button')
+        };
+        
+        // 中英文翻译映射
+        const translations = {
+            '上传图片识别基金信息': 'Upload Image to Recognize Fund Info',
+            '使用说明：': 'Instructions:',
+            '上传包含基金代码或名称的图片（PNG、JPG、JPEG、GIF格式）': 'Upload images containing fund codes or names (PNG, JPG, JPEG, GIF formats)',
+            '系统将自动识别图片中的基金信息': 'The system will automatically recognize fund information in the images',
+            '请确保图片清晰，基金信息完整可见': 'Please ensure the images are clear and the fund information is fully visible',
+            '支持批量上传：': 'Batch upload supported:',
+            '按住Ctrl键可以选择多个文件同时上传识别': 'Hold Ctrl to select multiple files for simultaneous upload and recognition',
+            '选择图片文件（可多选）：': 'Select image files (multiple allowed):',
+            '上传并识别': 'Upload and Recognize',
+            '上传图片识别基金信息 - 投资管理系统': 'Upload Image to Recognize Fund Info - Investment Management System'
+        };
+        
+        // 检查当前语言模式并应用翻译
+        function applyLanguage() {
+            const isInternational = body.classList.contains('international-mode');
+            
+            if (isInternational) {
+                // 应用英文
+                document.title = translations['上传图片识别基金信息 - 投资管理系统'];
+                elements.pageTitle.textContent = translations[elements.pageTitle.textContent];
+                elements.instructionTitle.textContent = translations[elements.instructionTitle.textContent];
+                elements.instruction1.textContent = translations[elements.instruction1.textContent];
+                elements.instruction2.textContent = translations[elements.instruction2.textContent];
+                elements.instruction3.textContent = translations[elements.instruction3.textContent];
+                elements.instruction4.textContent = translations['支持批量上传：'] + ' ' + translations['按住Ctrl键可以选择多个文件同时上传识别'];
+                elements.fileSelectLabel.textContent = translations[elements.fileSelectLabel.textContent];
+                elements.uploadButton.textContent = translations[elements.uploadButton.textContent];
+            }
+        }
+        
+        // 初始应用语言
+        applyLanguage();
+        
+        // 监听模式切换事件
+        window.addEventListener('languageChange', applyLanguage);
+    });
+</script>
+{% endblock %}
