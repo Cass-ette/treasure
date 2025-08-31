@@ -31,6 +31,7 @@
         .success { background-color: #d4edda; color: #155724; }
         .error { background-color: #f8d7da; color: #721c24; }
         .loading { display: inline-block; width: 16px; height: 16px; border: 2px solid #f3f3f3; border-top: 2px solid #3498db; border-radius: 50%; animation: spin 1s linear infinite; margin-left: 10px; }
+        .loading-small { display: inline-block; width: 12px; height: 12px; border: 2px solid #f3f3f3; border-top: 2px solid #3498db; border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
     <script>
@@ -130,6 +131,32 @@
                     }
                 }, 3000);
             }
+            
+            // 获取前三十日平均净值
+            function fetchAverageNavs() {
+                const avgNavCells = document.querySelectorAll('.avg-nav-cell');
+                
+                avgNavCells.forEach(cell => {
+                    const fundId = cell.getAttribute('data-fund-id');
+                    
+                    fetch(`/get_fund_30_day_average?fund_id=${fundId}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success && data.average_nav) {
+                                cell.innerHTML = data.average_nav.toFixed(4);
+                            } else {
+                                cell.textContent = '暂无数据';
+                            }
+                        })
+                        .catch(error => {
+                            console.error('获取前三十日平均净值出错:', error);
+                            cell.textContent = '获取失败';
+                        });
+                });
+            }
+            
+            // 页面加载完成后获取前三十日平均净值
+            fetchAverageNavs();
         });
     </script>
 </head>
@@ -209,6 +236,7 @@
                         <th>基金类型</th>
                         <th>最新净值</th>
                         <th>净值日期</th>
+                        <th>前三十日平均净值</th>
                         <th>操作</th>
                     </tr>
                 </thead>
@@ -220,6 +248,9 @@
                         <td>{{ fund.fund_type }}</td>
                         <td>{{ fund.latest_nav if fund.latest_nav else '-' }}</td>
                         <td>{{ fund.nav_date.strftime('%Y-%m-%d') if fund.nav_date else '-' }}</td>
+                        <td class="avg-nav-cell" data-fund-id="{{ fund.id }}">
+                            <span class="loading-small"></span>
+                        </td>
                         <td>
                             <a href="{{ url_for('manage_funds', edit=fund.id) }}" class="btn btn-primary">编辑</a>
                             {% if fund.positions and fund.positions|length > 0 %}

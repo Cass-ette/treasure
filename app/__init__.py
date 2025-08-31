@@ -3,6 +3,9 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 import os
 
+# 导入Flask
+from flask import Flask
+
 app = Flask(__name__)
 app.config.from_object('app.config.Config')
 
@@ -11,7 +14,7 @@ login_manager = LoginManager(app)
 login_manager.login_view = 'auth.login'
 
 # 导入模型
-from app.models import User, Fund, Position, Transaction, Agreement, Profit
+from app.models import User, Fund, Position, Transaction, Agreement, Profit, FundNavHistory
 
 # 导入路由蓝图
 from app.routes import auth, accounts, funds, transactions, reports, dashboard, image_processing

@@ -1,11 +1,10 @@
-from . import app
-from app import app
-from app.utils.scheduler import Scheduler
+# 此文件是为了兼容原有的启动方式，实际功能已移至simple_app.py
+import sys
+import os
 
-if __name__ == '__main__':
-    # 启动定时任务
-    Scheduler.start()
-    
-    # 运行Flask应用，绑定到所有网卡地址，支持公网访问
-    # 注意：在生产环境中，请确保配置了适当的安全措施
-    app.run(host='0.0.0.0', debug=True)
+# 添加项目根目录到Python路径
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+# 导入并运行simple_app.py
+print("正在使用simple_app.py作为正式版本启动...")
+exec(open(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'simple_app.py')).read())

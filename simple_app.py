@@ -1,7 +1,18 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+"""
+投资管理系统 - 正式版应用
 
-"""简化版的Flask应用，用于展示模拟数据"""
+这是投资管理系统的正式版本，用于管理基金账户、持仓和盈亏统计。
+"""
+
+# Banner
+try:
+    with open('banner.txt', 'r', encoding='utf-8') as f:
+        print(f.read())
+except Exception as e:
+    # 如果无法读取banner文件，显示简化的启动信息
+    print("投资管理系统启动中...")
 
 from flask import Flask, render_template, redirect, url_for, flash, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
@@ -728,10 +739,22 @@ def update_fund_nav(fund_code):
                         except ValueError:
                             continue
                 
-                # 如果日期仍然未找到，使用当前日期作为后备
+                # 如果日期仍然未找到，获取最近的交易日作为后备
                 if not date_match:
-                    print("未能提取日期，使用当前日期作为后备")
-                    date_match = type('obj', (object,), {'group': lambda s, x=1: datetime.now().strftime('%Y-%m-%d')})
+                    print("未能提取日期，使用最近的交易日作为后备")
+                    # 获取最近的交易日
+                    from app.services.fund_service import FundService
+                    today = datetime.now().date()
+                    nav_date_str = today.strftime('%Y-%m-%d')
+                    # 如果今天不是交易日，查找最近的交易日
+                    if not FundService.is_market_day(today):
+                        # 向前查找最近的交易日
+                        for i in range(1, 8):  # 最多向前查找7天
+                            check_date = today - timedelta(days=i)
+                            if FundService.is_market_day(check_date):
+                                nav_date_str = check_date.strftime('%Y-%m-%d')
+                                break
+                    date_match = type('obj', (object,), {'group': lambda s, x=1: nav_date_str})
                 
                 if nav_match and date_match:
                     latest_nav = float(nav_match.group(1))
@@ -753,6 +776,22 @@ def update_fund_nav(fund_code):
                             fund.fund_type = fund_type
                             print(f"更新基金类型为: {fund_type}")
                         db.session.commit()
+                        
+                        # 将净值信息保存到历史记录
+                        # 检查是否已经存在该日期的净值记录
+                        existing_history = FundNavHistory.query.filter_by(
+                            fund_id=fund.id,
+                            date=nav_date
+                        ).first()
+                        if not existing_history:
+                            nav_history = FundNavHistory(
+                                fund_id=fund.id,
+                                nav=latest_nav,
+                                date=nav_date
+                            )
+                            db.session.add(nav_history)
+                            db.session.commit()
+                            print(f"成功保存基金 {fund.code} 的净值历史记录: {nav_date.strftime('%Y-%m-%d')}, {latest_nav}")
                         
                         # 如果净值有变化，计算收益率
                         if old_nav and old_nav != latest_nav:
@@ -802,7 +841,18 @@ def update_fund_nav(fund_code):
                     
                     if nav_match:
                         latest_nav = float(nav_match.group(1))
-                        nav_date = datetime.now()  # 新浪财经可能需要不同的日期提取方式
+                        # 获取最近的交易日作为日期
+                        from app.services.fund_service import FundService
+                        today = datetime.now().date()
+                        nav_date = datetime.now()
+                        # 如果今天不是交易日，查找最近的交易日
+                        if not FundService.is_market_day(today):
+                            # 向前查找最近的交易日
+                            for i in range(1, 8):  # 最多向前查找7天
+                                check_date = today - timedelta(days=i)
+                                if FundService.is_market_day(check_date):
+                                    nav_date = datetime.combine(check_date, datetime.min.time())
+                                    break
                         
                         # 更新数据库
                         fund = Fund.query.filter_by(code=fund_code).first()
@@ -819,6 +869,22 @@ def update_fund_nav(fund_code):
                                 fund.fund_type = fund_type
                                 print(f"更新基金类型为: {fund_type}")
                             db.session.commit()
+                            
+                            # 将净值信息保存到历史记录
+                            # 检查是否已经存在该日期的净值记录
+                            existing_history = FundNavHistory.query.filter_by(
+                                fund_id=fund.id,
+                                date=nav_date
+                            ).first()
+                            if not existing_history:
+                                nav_history = FundNavHistory(
+                                    fund_id=fund.id,
+                                    nav=latest_nav,
+                                    date=nav_date
+                                )
+                                db.session.add(nav_history)
+                                db.session.commit()
+                                print(f"成功保存基金 {fund.code} 的净值历史记录: {nav_date.strftime('%Y-%m-%d')}, {latest_nav}")
                             
                             if old_nav and old_nav != latest_nav:
                                 calculate_returns(fund.id, old_nav, latest_nav)
@@ -917,6 +983,99 @@ def get_fund_info():
         return jsonify({
             'success': False,
             'message': f'获取基金信息时发生错误: {str(e)}'
+        })
+
+# 定义FundNavHistory模型类，与app/models/fund_nav_history.py保持一致
+class FundNavHistory(db.Model):
+    __tablename__ = 'fund_nav_history'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    fund_id = db.Column(db.Integer, db.ForeignKey('fund.id'), nullable=False)
+    nav = db.Column(db.Float, nullable=False)
+    date = db.Column(db.DateTime, nullable=False)
+    
+    @staticmethod
+    def get_latest_navs(fund_id, max_days=30):
+        """获取基金最近指定天数的净值历史数据（排除周末）"""
+        # 计算起始日期 - 留出足够的天数来排除周末和获取尽可能多的历史数据
+        end_date = datetime.now().date()
+        start_date = end_date - timedelta(days=max_days * 3)  # 留出更多天数以确保能获取到足够的交易日数据
+        
+        # 查询指定日期范围内的净值记录
+        nav_records = FundNavHistory.query.filter(
+            FundNavHistory.fund_id == fund_id,
+            FundNavHistory.date >= start_date,
+            FundNavHistory.date <= end_date
+        ).order_by(FundNavHistory.date.desc()).all()
+        
+        # 筛选出最近的交易日记录
+        trading_days = []
+        for record in nav_records:
+            if record.date.weekday() < 5:  # 周一到周五为交易日
+                trading_days.append(record)
+                if len(trading_days) >= max_days:
+                    break
+        
+        # 按日期升序排列，以便计算
+        trading_days.sort(key=lambda x: x.date)
+        
+        return trading_days
+
+# 获取基金前三十日平均净值的API接口
+@app.route('/get_fund_30_day_average')
+@login_required
+def get_fund_30_day_average():
+    """获取基金前三十日平均净值的API接口"""
+    # 检查是否为管理员账户
+    if not current_user.is_main_account:
+        return jsonify({
+            'success': False,
+            'message': '只有管理员账户可以执行此操作'
+        })
+    
+    fund_id = request.args.get('fund_id')
+    if not fund_id or not fund_id.isdigit():
+        return jsonify({
+            'success': False,
+            'message': '基金ID必须是有效的数字'
+        })
+    
+    try:
+        # 获取基金
+        fund = Fund.query.get(int(fund_id))
+        if not fund:
+            return jsonify({
+                'success': False,
+                'message': '基金不存在'
+            })
+        
+        # 获取最近30个交易日的净值数据
+        nav_records = FundNavHistory.get_latest_navs(int(fund_id), 30)
+        
+        if not nav_records:
+            return jsonify({
+                'success': False,
+                'message': '暂无净值历史数据'
+            })
+        
+        # 计算平均净值（使用实际可用的交易日数据）
+        total_nav = sum(record.nav for record in nav_records)
+        average_nav = total_nav / len(nav_records)
+        
+        # 返回结果，包括实际使用的交易日数量
+        return jsonify({
+            'success': True,
+            'average_nav': average_nav,
+            'trading_days_count': len(nav_records),
+            'message': f'基于最近{len(nav_records)}个交易日计算的平均净值'
+        })
+    except Exception as e:
+        print(f"获取前三十日平均净值时出错: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({
+            'success': False,
+            'message': f'获取前三十日平均净值时发生错误: {str(e)}'
         })
 
 # 更新次级账户本金

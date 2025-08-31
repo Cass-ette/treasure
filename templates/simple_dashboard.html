@@ -4,8 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>仪表盘 - 投资管理系统</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background-color: #f5f5f5; }
+        /* 饼图容器样式 */
+        #positionPieChart {
+            height: 400px;
+        }
         .container { max-width: 1200px; margin: 0 auto; }
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 15px; }
         h1 { color: #333; margin: 0; }
@@ -55,21 +60,25 @@
         <div class="cards">
             <div class="card">
                 <h3 id="principal-title">总本金</h3>
-                <div class="value">¥{{ "%.4f"|format(total_principal) }}</div>
-            </div>
-            <div class="card">
-                <h3 id="market-value-title">总市值</h3>
-                <div class="value">¥{{ "%.4f"|format(total_value) }}</div>
-            </div>
-            <div class="card">
-                <h3 id="profit-title">总盈亏</h3>
-                <div class="value {{ 'profit' if total_profit > 0 else 'loss' }}">¥{{ "%.4f"|format(total_profit) }}</div>
-                <div class="yield-rate {{ 'profit' if total_profit > 0 else 'loss' }}"><span id="yield-rate-label">收益率: </span>{{ "%.4f"|format((total_profit/total_principal)*100 if total_principal > 0 else 0) }}%</div>
+                <div class="value">¥{{ "%.2f"|format(total_principal) }}</div>
+        </div>
+        <div class="card">
+            <h3 id="market-value-title">总市值</h3>
+            <div class="value">¥{{ "%.2f"|format(total_value) }}</div>
+        </div>
+        <div class="card">
+            <h3 id="profit-title">总盈亏</h3>
+            <div class="value {{ 'profit' if total_profit > 0 else 'loss' }}">¥{{ "%.2f"|format(total_profit) }}</div>
+            <div class="yield-rate {{ 'profit' if total_profit > 0 else 'loss' }}"><span id="yield-rate-label">收益率: </span>{{ "%.2f"|format((total_profit/total_principal)*100 if total_principal > 0 else 0) }}%</div>
             </div>
         </div>
         
         <div class="positions">
             <h3 id="positions-title">持仓概览</h3>
+            <!-- 饼图容器 -->
+            <div style="margin-bottom: 30px; max-width: 500px; margin-left: auto; margin-right: auto;">
+                <canvas id="positionPieChart"></canvas>
+            </div>
             <table id="positions-table">
                 <tr>
                     <th id="fund-name-header">基金名称</th>
@@ -84,11 +93,11 @@
                         {% if position.fund and position.fund.latest_nav %}
                             <tr>
                                 <td>{{ position.fund.name }}</td>
-                                <td>¥{{ "%.4f"|format(position.shares * position.cost_price) }}</td>
-                                <td>¥{{ "%.4f"|format(position.shares * position.fund.latest_nav) }}</td>
-                                <td class="{{ 'profit' if (position.shares * position.fund.latest_nav) > (position.shares * position.cost_price) else 'loss' }}">¥{{ "%.4f"|format(position.shares * position.fund.latest_nav - position.shares * position.cost_price) }}</td>
-                                <td class="{{ 'profit' if (position.shares * position.fund.latest_nav) > (position.shares * position.cost_price) else 'loss' }}">{{ "%.4f"|format(((position.fund.latest_nav - position.cost_price) / position.cost_price)*100 if position.cost_price > 0 else 0) }}%</td>
-                                <td>{{ "%.4f"|format(((position.shares * position.fund.latest_nav) / total_value)*100 if total_value > 0 else 0) }}%</td>
+                                <td>¥{{ "%.2f"|format(position.shares * position.cost_price) }}</td>
+                                <td>¥{{ "%.2f"|format(position.shares * position.fund.latest_nav) }}</td>
+                                <td class="{{ 'profit' if (position.shares * position.fund.latest_nav) > (position.shares * position.cost_price) else 'loss' }}">¥{{ "%.2f"|format(position.shares * position.fund.latest_nav - position.shares * position.cost_price) }}</td>
+                                <td class="{{ 'profit' if (position.shares * position.fund.latest_nav) > (position.shares * position.cost_price) else 'loss' }}">{{ "%.2f"|format(((position.fund.latest_nav - position.cost_price) / position.cost_price)*100 if position.cost_price > 0 else 0) }}%</td>
+                                <td>{{ "%.2f"|format(((position.shares * position.fund.latest_nav) / total_value)*100 if total_value > 0 else 0) }}%</td>
                             </tr>
                         {% endif %}
                     {% endfor %}
@@ -114,7 +123,7 @@
                     {% for account in sub_accounts %}
                         <tr>
                             <td>{{ account.username }}</td>
-                            <td>¥{{ "%.4f"|format(account.principal) }}</td>
+                            <td>¥{{ "%.2f"|format(account.principal) }}</td>
                             <td class="status-text">活跃</td>
                             <td>
                                 <button onclick="showEditPrincipalModal({{ account.id }}, '{{ account.username }}', {{ account.principal }})" class="toggle-btn">修改本金</button>
@@ -215,6 +224,72 @@
                 '仪表盘 - 投资管理系统': 'Dashboard - Investment Management System'
             };
             
+            // 初始化持仓饼图
+            function initPositionPieChart() {
+                const ctx = document.getElementById('positionPieChart').getContext('2d');
+                const fundNames = {{ fund_names | tojson }};
+                const fundValues = {{ fund_values | tojson }};
+                
+                // 生成随机颜色
+                const backgroundColors = [];
+                const borderColors = [];
+                for (let i = 0; i < fundNames.length; i++) {
+                    const r = Math.floor(Math.random() * 255);
+                    const g = Math.floor(Math.random() * 255);
+                    const b = Math.floor(Math.random() * 255);
+                    backgroundColors.push(`rgba(${r}, ${g}, ${b}, 0.6)`);
+                    borderColors.push(`rgba(${r}, ${g}, ${b}, 1)`);
+                }
+                
+                if (fundNames.length > 0 && fundValues.length > 0) {
+                    new Chart(ctx, {
+                        type: 'pie',
+                        data: {
+                            labels: fundNames,
+                            datasets: [{
+                                label: '市值占比',
+                                data: fundValues,
+                                backgroundColor: backgroundColors,
+                                borderColor: borderColors,
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'right',
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(context) {
+                                            const label = context.label || '';
+                                            const value = context.raw || 0;
+                                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                            const percentage = ((value / total) * 100).toFixed(2);
+                                            return `${label}: ¥${value.toFixed(4)} (${percentage}%)`;
+                                        }
+                                    }
+                                },
+                                title: {
+                                    display: true,
+                                    text: '持仓市值占比分析'
+                                }
+                            }
+                        }
+                    });
+                }
+            }
+
+            // 页面加载完成后初始化饼图
+            window.addEventListener('DOMContentLoaded', function() {
+                // 等待数据渲染完成
+                setTimeout(() => {
+                    initPositionPieChart();
+                }, 100);
+            });
+
             // 按市值从大到小排序持仓表格
             function sortPositionsTable() {
                 const table = document.getElementById('positions-table');

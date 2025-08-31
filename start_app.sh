@@ -95,9 +95,9 @@ source .venv/bin/activate
     echo -e "${green}\n管理员账户创建完成！${reset}"
 }
 
-# 启动简化版应用
+# 启动正式版应用（使用simple_app.py）
 start_simple_app() {
-    echo -e "${green}\n正在启动简化版投资管理系统...${reset}"
+    echo -e "${green}\n正在启动投资管理系统...${reset}"
     
     # 检查是否有虚拟环境
     if [ ! -d ".venv" ]; then
@@ -111,7 +111,7 @@ source .venv/bin/activate
     # 检查是否安装了基础依赖
     if ! python -c "import flask" >/dev/null 2>&1; then
         echo -e "${yellow}未检测到必要依赖，正在安装...${reset}"
-        pip install flask sqlalchemy flask-login
+        pip install flask sqlalchemy flask-login pandas numpy
     fi
     
     # 启动应用
@@ -128,30 +128,10 @@ source .venv/bin/activate
     python simple_app.py
 }
 
-# 启动模块化应用
+# 启动模块化应用（已废弃，使用simple_app.py代替）
 start_modular_app() {
-    echo -e "${green}\n正在启动模块化投资管理系统...${reset}"
-    
-    # 检查是否有虚拟环境
-    if [ ! -d ".venv" ]; then
-        echo -e "${yellow}未检测到虚拟环境，正在创建...${reset}"
-        python3 -m venv .venv
-    fi
-    
-    # 激活虚拟环境
-source .venv/bin/activate
-    
-    # 检查是否安装了基础依赖
-    if ! python -c "import flask" >/dev/null 2>&1; then
-        echo -e "${yellow}未检测到必要依赖，正在安装...${reset}\n"
-        pip install flask sqlalchemy flask-login pandas numpy
-    fi
-    
-    # 启动应用
-    echo -e "${green}\n应用将启动"
-    echo -e "按 Ctrl+C 停止应用${reset}\n"
-    
-    python -m app.run
+    echo -e "${yellow}\n模块化应用已废弃，请使用simple_app.py作为正式版本。${reset}\n"
+    start_simple_app
 }
 
 # 主程序
