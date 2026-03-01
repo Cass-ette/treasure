@@ -1,37 +1,37 @@
-from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager
+"""App factory"""
 import os
-
-# 导入Flask
 from flask import Flask
+from app.extensions import db, login_manager
 
-app = Flask(__name__)
-app.config.from_object('app.config.Config')
 
-db = SQLAlchemy(app)
-login_manager = LoginManager(app)
-login_manager.login_view = 'auth.login'
+def create_app(config_object=None):
+    """应用工厂函数"""
+    app = Flask(__name__, template_folder='templates', static_folder='static')
 
-# 导入模型
-from app.models import User, Fund, Position, Transaction, Agreement, Profit, FundNavHistory
+    # 加载配置
+    if config_object is None:
+        config_object = os.environ.get('APP_CONFIG', 'app.config.Config')
+    app.config.from_object(config_object)
 
-# 导入路由蓝图
-from app.routes import auth, accounts, funds, transactions, reports, dashboard, image_processing
+    # 确保 instance/ 和 uploads/ 目录存在
+    os.makedirs(os.path.join(app.root_path, '..', 'instance'), exist_ok=True)
+    upload_folder = app.config.get('UPLOAD_FOLDER', 'uploads')
+    if upload_folder:
+        os.makedirs(upload_folder, exist_ok=True)
 
-# 用户加载器回调函数，用于 Flask-Login
-@login_manager.user_loader
-def load_user(user_id):
-    return User.query.get(int(user_id))
+    # 初始化扩展
+    db.init_app(app)
+    login_manager.init_app(app)
 
-# 注册蓝图
-def register_blueprints():
-    app.register_blueprint(auth)
-    app.register_blueprint(dashboard)
-    app.register_blueprint(accounts)
-    app.register_blueprint(funds)
-    app.register_blueprint(transactions)
-    app.register_blueprint(reports)
-    app.register_blueprint(image_processing)
+    # 注册 user_loader
+    from app.models.user import User
 
-register_blueprints()
+    @login_manager.user_loader
+    def load_user(user_id):
+        return User.query.get(int(user_id))
+
+    # 注册蓝图
+    from app.routes import register_blueprints
+    register_blueprints(app)
+
+    return app

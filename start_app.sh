@@ -10,7 +10,7 @@ yellow="\033[0;33m"
 reset="\033[0m"
 
 # 检查是否在正确的目录
-if [ ! -f "simple_app.py" ] && [ ! -d "app" ]; then
+if [ ! -f "run.py" ] && [ ! -d "app" ]; then
     echo -e "${red}错误：请在项目根目录下运行此脚本！${reset}"
     exit 1
 fi
@@ -18,13 +18,12 @@ fi
 # 显示菜单
 show_menu() {
     echo -e "\n${green}===== 投资管理系统启动菜单 =====${reset}\n"
-    echo "1. 启动简化版应用（推荐）"
-    echo "2. 启动模块化应用"
-    echo "3. 安装依赖"
-    echo "4. 初始化数据库"
-    echo "5. 创建管理员账户"
-    echo "6. 退出"
-    echo -e "\n请选择操作 [1-6]:"
+    echo "1. 启动应用"
+    echo "2. 安装依赖"
+    echo "3. 初始化数据库"
+    echo "4. 创建管理员账户"
+    echo "5. 退出"
+    echo -e "\n请选择操作 [1-5]:"
 }
 
 # 安装依赖
@@ -95,25 +94,25 @@ source .venv/bin/activate
     echo -e "${green}\n管理员账户创建完成！${reset}"
 }
 
-# 启动正式版应用（使用simple_app.py）
-start_simple_app() {
+# 启动应用
+start_app() {
     echo -e "${green}\n正在启动投资管理系统...${reset}"
-    
+
     # 检查是否有虚拟环境
     if [ ! -d ".venv" ]; then
         echo -e "${yellow}未检测到虚拟环境，正在创建...${reset}"
         python3 -m venv .venv
     fi
-    
+
     # 激活虚拟环境
 source .venv/bin/activate
-    
+
     # 检查是否安装了基础依赖
     if ! python -c "import flask" >/dev/null 2>&1; then
         echo -e "${yellow}未检测到必要依赖，正在安装...${reset}"
         pip install flask sqlalchemy flask-login pandas numpy
     fi
-    
+
     # 启动应用
     echo -e "${green}\n应用已配置为绑定到所有网卡地址（0.0.0.0:5000）"
     echo -e "您可以通过以下方式访问："
@@ -124,14 +123,8 @@ source .venv/bin/activate
     echo -e "- 管理员账户：username=admin, password=admin123"
     echo -e "- 次级账户：username=user1/user2/user3, password=user123"
     echo -e "按 Ctrl+C 停止应用${reset}\n"
-    
-    python simple_app.py
-}
 
-# 启动模块化应用（已废弃，使用simple_app.py代替）
-start_modular_app() {
-    echo -e "${yellow}\n模块化应用已废弃，请使用simple_app.py作为正式版本。${reset}\n"
-    start_simple_app
+    python run.py
 }
 
 # 主程序
@@ -141,24 +134,21 @@ export LC_ALL=C.UTF-8
 while true; do
     show_menu
     read -p "选择: " choice
-    
+
     case $choice in
         1)
-            start_simple_app
+            start_app
             ;;
         2)
-            start_modular_app
-            ;;
-        3)
             install_dependencies
             ;;
-        4)
+        3)
             init_database
             ;;
-        5)
+        4)
             create_admin
             ;;
-        6)
+        5)
             echo -e "${green}\n感谢使用投资管理系统，再见！${reset}\n"
             exit 0
             ;;

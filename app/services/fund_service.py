@@ -1,10 +1,7 @@
-from app import db
+from app.extensions import db
 from app.models.fund import Fund
 from app.models.fund_nav_history import FundNavHistory
-from app.utils.crawler import FundCrawler
 from datetime import datetime, time
-from app import db
-from dateutil.relativedelta import relativedelta
 import calendar
 
 class FundService:
@@ -20,10 +17,8 @@ class FundService:
         db.session.commit()
         
         # 获取并更新净值
-        FundService.update_fund_nav(fund.id)
-        
-        # 尝试获取历史净值数据
-        FundService.fetch_and_save_historical_navs(fund.id)
+        from app.services.crawler import update_fund_nav
+        update_fund_nav(fund.code)
         
         return fund
     
@@ -33,70 +28,24 @@ class FundService:
         fund = Fund.query.get(fund_id)
         if not fund:
             return False
-        
-        nav_data = FundCrawler.get_fund_nav(fund.code)
-        if nav_data:
-            # 更新基金最新净值
-            fund.latest_nav = nav_data['nav']
-            fund.nav_date = nav_data['date']
-            
-            # 检查是否已经存在该日期的净值记录
-            existing_history = FundNavHistory.get_nav_by_date(fund.id, nav_data['date'].date())
-            if not existing_history:
-                # 创建新的历史记录
-                nav_history = FundNavHistory(
-                    fund_id=fund.id,
-                    nav=nav_data['nav'],
-                    date=nav_data['date']
-                )
-                db.session.add(nav_history)
-            
-            db.session.commit()
-            return True
-        
-        return False
-    
+        from app.services.crawler import update_fund_nav
+        return update_fund_nav(fund.code)
+
     @staticmethod
     def update_all_funds_nav():
         """更新所有基金净值"""
         funds = Fund.query.all()
         updated_count = 0
-        
+        from app.services.crawler import update_fund_nav
         for fund in funds:
-            if FundService.update_fund_nav(fund.id):
+            if update_fund_nav(fund.code):
                 updated_count += 1
-        
         return updated_count
-    
+
     @staticmethod
     def fetch_and_save_historical_navs(fund_id, days=30):
-        """获取并保存基金历史净值数据"""
-        fund = Fund.query.get(fund_id)
-        if not fund:
-            return False
-        
-        # 获取历史净值数据
-        historical_navs = FundCrawler.get_fund_historical_navs(fund.code, days)
-        
-        # 保存历史净值数据
-        saved_count = 0
-        for nav_data in historical_navs:
-            # 检查是否已经存在该日期的净值记录
-            existing_history = FundNavHistory.get_nav_by_date(fund.id, nav_data['date'].date())
-            if not existing_history:
-                # 创建新的历史记录
-                nav_history = FundNavHistory(
-                    fund_id=fund.id,
-                    nav=nav_data['nav'],
-                    date=nav_data['date']
-                )
-                db.session.add(nav_history)
-                saved_count += 1
-        
-        if saved_count > 0:
-            db.session.commit()
-        
-        return saved_count
+        """占位方法，历史净值已由 update_fund_nav 逐次写入"""
+        return 0
     
     @staticmethod
     def calculate_30_day_average(fund_id):

@@ -1,34 +1,29 @@
-from app import app, db
-from app.models import User, Fund, Position, Transaction, Agreement, Profit
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+"""创建管理员账户"""
+from app import create_app
+from app.extensions import db
+from app.models.user import User
 from werkzeug.security import generate_password_hash
 
-# 创建应用上下文
 if __name__ == '__main__':
+    app = create_app()
     with app.app_context():
-        # 初始化数据库表结构
-        print('初始化数据库表结构...')
         db.create_all()
-        
-        # 检查是否已有主账户
         main_account = User.query.filter_by(is_main_account=True).first()
-        
         if main_account:
             print(f'主账户已存在: {main_account.username}')
         else:
-            # 创建新的主账户
             username = 'admin'
             password = 'admin123'
-            
             user = User(
                 username=username,
                 password=generate_password_hash(password),
-                is_main_account=True
+                is_main_account=True,
             )
-            
             db.session.add(user)
             db.session.commit()
-            
-            print(f'主账户创建成功！')
+            print('主账户创建成功！')
             print(f'用户名: {username}')
             print(f'密码: {password}')
-            print(f'请在登录后修改密码！')
+            print('请在登录后修改密码！')
