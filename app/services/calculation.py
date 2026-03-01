@@ -4,7 +4,7 @@ from datetime import datetime
 
 def calculate_returns(fund_id, old_nav, new_nav, _db=None):
     """
-    计算基金净值变化引发的收益。
+    计算基金净值变化引发的收益，返回 {user_id: profit} 字典。
     _db 参数可用于注入测试用的数据库对象。
     """
     if _db is None:
@@ -12,16 +12,17 @@ def calculate_returns(fund_id, old_nav, new_nav, _db=None):
 
     from app.models import Position
 
+    results = {}
     try:
         positions = Position.query.filter_by(fund_id=fund_id).all()
         for position in positions:
             if position.cost_price and position.shares > 0:
                 cost_value = position.shares * position.cost_price
                 current_value = position.shares * new_nav
-                profit = current_value - cost_value  # noqa: F841（暂不写库，保留扩展点）
-        _db.session.commit()
+                results[position.user_id] = current_value - cost_value
     except Exception as e:
         print(f"计算收益率时出错: {str(e)}")
+    return results
 
 
 class CalculationService:
@@ -52,16 +53,19 @@ class CalculationService:
         today = datetime.now().date()
         existing_profit = Profit.query.filter_by(user_id=user_id, date=today).first()
 
+        # 累计 = 历史所有日收益（不含今日）+ 今日新收益
+        historical = CalculationService.get_cumulative_profit(user_id, exclude_date=today)
+        cumulative = historical + profit
+
         if existing_profit:
             existing_profit.daily_profit = profit
-            existing_profit.cumulative_profit = CalculationService.get_cumulative_profit(user_id)
+            existing_profit.cumulative_profit = cumulative
         else:
-            cumulative_profit = CalculationService.get_cumulative_profit(user_id)
             new_profit = Profit(
                 user_id=user_id,
                 date=today,
                 daily_profit=profit,
-                cumulative_profit=cumulative_profit
+                cumulative_profit=cumulative,
             )
             db.session.add(new_profit)
 
@@ -69,10 +73,12 @@ class CalculationService:
         return profit
 
     @staticmethod
-    def get_cumulative_profit(user_id):
+    def get_cumulative_profit(user_id, exclude_date=None):
         from app.models import Profit
-        profits = Profit.query.filter_by(user_id=user_id).all()
-        return sum(p.daily_profit for p in profits)
+        query = Profit.query.filter_by(user_id=user_id)
+        if exclude_date is not None:
+            query = query.filter(Profit.date != exclude_date)
+        return sum(p.daily_profit for p in query.all())
 
     @staticmethod
     def process_all_users_profit():
