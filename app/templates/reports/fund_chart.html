@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block title %}{{ fund.name }} 走势 - Treasure{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>
+        <i class="bi bi-bar-chart-line" style="color: var(--color-accent);"></i>
+        {{ fund.name }} <code class="ms-1">{{ fund.code }}</code>
+    </h1>
+    <div class="toolbar">
+        <button onclick="history.back()" class="btn btn-sm btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> 返回
+        </button>
+        <a href="{{ url_for('reports.fund_chart', fund_id=fund.id, days=30) }}" class="btn btn-sm {{ 'btn-accent' if days == 30 else 'btn-outline-secondary' }}">30天</a>
+        <a href="{{ url_for('reports.fund_chart', fund_id=fund.id, days=60) }}" class="btn btn-sm {{ 'btn-accent' if days == 60 else 'btn-outline-secondary' }}">60天</a>
+        <a href="{{ url_for('reports.fund_chart', fund_id=fund.id, days=90) }}" class="btn btn-sm {{ 'btn-accent' if days == 90 else 'btn-outline-secondary' }}">90天</a>
+    </div>
+</div>
+
+<!-- 基金信息卡片 -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="kpi-card">
+            <div class="kpi-label">基金类型</div>
+            <div class="kpi-value" style="font-size: 1.1rem;">{{ fund.fund_type or '-' }}</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="kpi-card">
+            <div class="kpi-label">最新净值</div>
+            <div class="kpi-value" style="font-size: 1.1rem;">{{ "%.4f"|format(fund.latest_nav) if fund.latest_nav else '-' }}</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="kpi-card">
+            <div class="kpi-label">净值日期</div>
+            <div class="kpi-value" style="font-size: 1.1rem;">{{ fund.nav_date.strftime('%Y-%m-%d') if fund.nav_date else '-' }}</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="kpi-card">
+            <div class="kpi-label">查看范围</div>
+            <div class="kpi-value" style="font-size: 1.1rem;">近{{ days }}个交易日</div>
+        </div>
+    </div>
+</div>
+
+<!-- K线图 -->
+<div class="card mb-4">
+    <div class="card-header"><i class="bi bi-graph-up me-1"></i> 净值走势</div>
+    <div class="card-body">
+        <div style="height: 400px;">
+            <canvas id="fundNavChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- 净值统计 -->
+<div class="card">
+    <div class="card-header"><i class="bi bi-calculator me-1"></i> 区间统计</div>
+    <div class="card-body">
+        <div class="row" id="navStats">
+            <div class="col-md-2 text-center">
+                <div class="text-muted small">最高净值</div>
+                <div class="fw-bold" id="statMax">-</div>
+            </div>
+            <div class="col-md-2 text-center">
+                <div class="text-muted small">最低净值</div>
+                <div class="fw-bold" id="statMin">-</div>
+            </div>
+            <div class="col-md-2 text-center">
+                <div class="text-muted small">平均净值</div>
+                <div class="fw-bold" id="statAvg">-</div>
+            </div>
+            <div class="col-md-2 text-center">
+                <div class="text-muted small">区间涨跌</div>
+                <div class="fw-bold" id="statChange">-</div>
+            </div>
+            <div class="col-md-2 text-center">
+                <div class="text-muted small">区间涨跌幅</div>
+                <div class="fw-bold" id="statChangeRate">-</div>
+            </div>
+            <div class="col-md-2 text-center">
+                <div class="text-muted small">交易日数</div>
+                <div class="fw-bold" id="statDays">-</div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    window.FUND_CHART_DATA = {
+        fundId: {{ fund.id }},
+        days: {{ days }}
+    };
+</script>
+<script src="{{ url_for('static', filename='js/reports.js') }}"></script>
+{% endblock %}

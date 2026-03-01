@@ -1,0 +1,195 @@
+{% extends "base.html" %}
+
+{% block title %}{{ user.username }} 的投资报告 - Treasure{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>
+        <i class="bi bi-file-earmark-bar-graph" style="color: var(--color-accent);"></i>
+        {{ user.username }} 的投资报告
+    </h1>
+    <div class="toolbar">
+        <a href="{{ url_for('reports.reports') }}" class="btn btn-sm btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> 返回
+        </a>
+        <a href="{{ url_for('reports.user_report', user_id=user.id, days=15) }}" class="btn btn-sm {{ 'btn-accent' if days == 15 else 'btn-outline-secondary' }}">15天</a>
+        <a href="{{ url_for('reports.user_report', user_id=user.id, days=30) }}" class="btn btn-sm {{ 'btn-accent' if days == 30 else 'btn-outline-secondary' }}">30天</a>
+        <a href="{{ url_for('reports.user_report', user_id=user.id, days=60) }}" class="btn btn-sm {{ 'btn-accent' if days == 60 else 'btn-outline-secondary' }}">60天</a>
+        <a href="{{ url_for('reports.user_report', user_id=user.id, days=90) }}" class="btn btn-sm {{ 'btn-accent' if days == 90 else 'btn-outline-secondary' }}">90天</a>
+    </div>
+</div>
+
+<!-- KPI 卡片 -->
+{% set profit = total_value - principal %}
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="kpi-card">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <div class="kpi-label">本金</div>
+                    <div class="kpi-value">¥{{ "%.2f"|format(principal) }}</div>
+                </div>
+                <div class="kpi-icon kpi-icon-primary"><i class="bi bi-wallet2"></i></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="kpi-card">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <div class="kpi-label">市值</div>
+                    <div class="kpi-value">¥{{ "%.2f"|format(total_value) }}</div>
+                </div>
+                <div class="kpi-icon kpi-icon-value"><i class="bi bi-graph-up-arrow"></i></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="kpi-card">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <div class="kpi-label">盈亏</div>
+                    <div class="kpi-value {{ 'text-profit' if profit >= 0 else 'text-loss' }}">
+                        ¥{{ "%.2f"|format(profit) }}
+                    </div>
+                    <div class="kpi-sub {{ 'text-profit' if profit >= 0 else 'text-loss' }}">
+                        收益率: {{ "%.2f"|format((profit/principal)*100 if principal > 0 else 0) }}%
+                    </div>
+                </div>
+                <div class="kpi-icon kpi-icon-profit"><i class="bi bi-currency-yen"></i></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 收益曲线 -->
+<div class="card mb-4">
+    <div class="card-header"><i class="bi bi-graph-up me-1"></i> 收益曲线</div>
+    <div class="card-body">
+        {% if dates %}
+        <div style="height: 300px;">
+            <canvas id="profitChart"></canvas>
+        </div>
+        {% else %}
+        <div class="text-center text-muted py-4">暂无收益数据</div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- 当前持仓 -->
+<div class="card mb-4">
+    <div class="card-header"><i class="bi bi-pie-chart me-1"></i> 当前持仓</div>
+    <div class="card-body p-0">
+        <div class="data-table-wrap">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>基金名称</th>
+                        <th>份额</th>
+                        <th>成本价</th>
+                        <th>最新净值</th>
+                        <th>成本</th>
+                        <th>市值</th>
+                        <th>盈亏</th>
+                        <th>收益率</th>
+                        <th>走势</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for pos in positions %}
+                    {% if pos.fund %}
+                    {% set cost = pos.shares * (pos.cost_price or 0) %}
+                    {% set value = pos.shares * (pos.fund.latest_nav or 0) %}
+                    {% set pnl = value - cost %}
+                    <tr>
+                        <td>{{ pos.fund.name }}</td>
+                        <td>{{ "%.2f"|format(pos.shares) }}</td>
+                        <td>{{ "%.4f"|format(pos.cost_price or 0) }}</td>
+                        <td>{{ "%.4f"|format(pos.fund.latest_nav or 0) }}</td>
+                        <td>¥{{ "%.2f"|format(cost) }}</td>
+                        <td>¥{{ "%.2f"|format(value) }}</td>
+                        <td class="{{ 'text-profit' if pnl >= 0 else 'text-loss' }}">
+                            ¥{{ "%.2f"|format(pnl) }}
+                        </td>
+                        <td class="{{ 'text-profit' if pnl >= 0 else 'text-loss' }}">
+                            {{ "%.2f"|format(((pos.fund.latest_nav - pos.cost_price) / pos.cost_price)*100 if pos.cost_price and pos.cost_price > 0 else 0) }}%
+                        </td>
+                        <td>
+                            <a href="{{ url_for('reports.fund_chart', fund_id=pos.fund.id) }}"
+                               class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-graph-up"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endif %}
+                    {% else %}
+                    <tr>
+                        <td colspan="9" class="text-center text-muted py-3">暂无持仓</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- 协议信息 -->
+{% if agreement %}
+<div class="card mb-4">
+    <div class="card-header"><i class="bi bi-file-earmark-text me-1"></i> 分成协议</div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-4">
+                <strong>分成比例：</strong> {{ "%.0f"|format(agreement.profit_share_ratio * 100) }}%
+            </div>
+            <div class="col-md-4">
+                <strong>保本：</strong> {{ '是' if agreement.is_capital_protected else '否' }}
+            </div>
+            {% if agreement.is_capital_protected %}
+            <div class="col-md-4">
+                <strong>保本比例：</strong> {{ "%.0f"|format(agreement.capital_protection_ratio * 100) }}%
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- K线图区域 -->
+{% if fund_ids %}
+<div class="section-title">
+    <i class="bi bi-bar-chart-line"></i> 持仓基金走势
+</div>
+<div class="row g-3 mb-4">
+    {% for pos in positions %}
+    {% if pos.fund %}
+    <div class="col-lg-6">
+        <div class="chart-box">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="fw-bold">{{ pos.fund.name }} ({{ pos.fund.code }})</span>
+                <a href="{{ url_for('reports.fund_chart', fund_id=pos.fund.id) }}"
+                   class="btn btn-sm btn-outline-secondary">详情</a>
+            </div>
+            <div style="height: 200px;">
+                <canvas class="fund-nav-chart" data-fund-id="{{ pos.fund.id }}"></canvas>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    {% endfor %}
+</div>
+{% endif %}
+{% endblock %}
+
+{% block js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    window.REPORT_DATA = {
+        dates: {{ dates | tojson }},
+        dailyProfits: {{ daily_profits | tojson }},
+        cumulativeProfits: {{ cumulative_profits | tojson }},
+        fundIds: {{ fund_ids | tojson }}
+    };
+</script>
+<script src="{{ url_for('static', filename='js/reports.js') }}"></script>
+{% endblock %}

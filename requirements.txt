@@ -25,5 +25,7 @@ beautifulsoup4==4.12.2
 pytesseract==0.3.10
 Pillow==10.0.0
 
+# AI 分析助手（通过 requests 调用 DeepSeek API，无额外依赖）
+
 # 注意：在Linux环境中，如果遇到依赖安装问题，可以尝试以下兼容版本：
 # pip install numpy==1.24.2 pandas==1.5.3 akshare==1.7.52

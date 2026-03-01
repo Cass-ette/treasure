@@ -1,32 +1,35 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>登录 - 投资管理系统</title>
-    <style>
-        body { font-family: Arial, sans-serif; max-width: 400px; margin: 50px auto; padding: 20px; border: 1px solid #ddd; border-radius: 5px; }
-        h1 { text-align: center; color: #333; }
-        form { display: flex; flex-direction: column; }
-        input { margin: 10px 0; padding: 10px; border: 1px solid #ddd; border-radius: 3px; }
-        button { padding: 10px; background-color: #4CAF50; color: white; border: none; border-radius: 3px; cursor: pointer; }
-        button:hover { background-color: #45a049; }
-        .flash { color: red; text-align: center; }
-    </style>
-</head>
-<body>
-    <h1>登录</h1>
-    {% with messages = get_flashed_messages() %}
-        {% if messages %}
-            <div class="flash">
-                {{ messages[0] }}
+{% extends "base.html" %}
+
+{% block title %}登录 - Treasure{% endblock %}
+
+{% block navbar %}{% endblock %}
+
+{% block main %}
+<div class="login-page">
+    <div class="login-card">
+        <div class="text-center mb-3">
+            <i class="bi bi-bar-chart-fill" style="font-size: 2.5rem; color: var(--color-primary);"></i>
+        </div>
+        <div class="login-title">Treasure</div>
+        <div class="login-subtitle">多账户投资管理系统</div>
+
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="alert alert-danger">{{ messages[0] }}</div>
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST">
+            <div class="mb-3">
+                <label class="form-label" for="username">用户名</label>
+                <input type="text" class="form-control" id="username" name="username" placeholder="请输入用户名" required autofocus>
             </div>
-        {% endif %}
-    {% endwith %}
-    <form method="POST">
-        <input type="text" name="username" placeholder="用户名" required>
-        <input type="password" name="password" placeholder="密码" required>
-        <button type="submit">登录</button>
-    </form>
-</body>
-</html>
+            <div class="mb-3">
+                <label class="form-label" for="password">密码</label>
+                <input type="password" class="form-control" id="password" name="password" placeholder="请输入密码" required>
+            </div>
+            <button type="submit" class="btn btn-accent w-100 py-2">登录</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

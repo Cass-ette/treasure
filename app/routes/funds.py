@@ -5,6 +5,7 @@ from datetime import datetime
 from app.extensions import db
 from app.models.fund import Fund
 from app.models.fund_nav_history import FundNavHistory
+from app.models.transaction import Transaction
 
 bp = Blueprint('funds', __name__)
 
@@ -101,10 +102,13 @@ def delete_fund(fund_id):
         flash('未找到该基金', 'error')
         return redirect(url_for('funds.manage_funds'))
     try:
+        FundNavHistory.query.filter_by(fund_id=fund_id).delete()
+        Transaction.query.filter_by(fund_id=fund_id).delete()
         db.session.delete(fund)
         db.session.commit()
         flash('基金删除成功', 'success')
     except Exception as e:
+        db.session.rollback()
         flash(f'删除基金失败: {str(e)}', 'error')
     return redirect(url_for('funds.manage_funds'))
 

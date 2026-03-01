@@ -1,78 +1,120 @@
-from flask import Blueprint, render_template, request
+"""投资报告蓝图"""
+from flask import Blueprint, render_template, request, redirect, url_for, jsonify
 from flask_login import login_required, current_user
-from app.models import User, Profit, Position, Fund, Agreement
+from app.models import User, Profit, Position, Fund, Agreement, FundNavHistory
 from datetime import datetime, timedelta
 
-# 创建蓝图
 bp = Blueprint('reports', __name__)
+
 
 @bp.route('/reports')
 @login_required
-
 def reports():
-    """报告页面"""
-    # 默认显示最近30天的报告
     days = request.args.get('days', 30, type=int)
-    
+
     if current_user.is_main_account:
-        # 主账户：显示所有账户的报告
         users = User.query.filter_by(is_main_account=False).all()
-        return render_template('reports/main.html', users=users, days=days)
+        # 为每个用户计算摘要数据
+        user_summaries = []
+        for user in users:
+            positions = Position.query.filter_by(user_id=user.id).all()
+            total_value = sum(
+                p.shares * p.fund.latest_nav
+                for p in positions
+                if p.fund and p.fund.latest_nav
+            )
+            principal = user.principal or 0
+            profit = total_value - principal
+            user_summaries.append({
+                'user': user,
+                'total_value': total_value,
+                'principal': principal,
+                'profit': profit,
+                'yield_rate': (profit / principal * 100) if principal > 0 else 0,
+                'position_count': len(positions),
+            })
+        return render_template('reports/main.html', user_summaries=user_summaries, days=days)
     else:
-        # 次级账户：只显示自己的报告
-        return render_template('reports/user.html', days=days)
+        return _render_user_report(current_user, days)
+
 
 @bp.route('/reports/user/<int:user_id>')
 @login_required
-
 def user_report(user_id):
-    """单个用户报告（主账户查看）"""
     if not current_user.is_main_account:
-        # 次级账户不能查看其他用户报告
         return redirect(url_for('reports.reports'))
-    
+
     days = request.args.get('days', 30, type=int)
     user = User.query.get_or_404(user_id)
-    
-    # 获取收益历史数据
+    return _render_user_report(user, days, template='reports/user_detail.html')
+
+
+def _render_user_report(user, days, template='reports/user.html'):
+    """渲染用户报告的通用逻辑"""
     end_date = datetime.utcnow()
     start_date = end_date - timedelta(days=days)
-    
-    # 获取用户的收益记录
+
     profits = Profit.query.filter(
-        Profit.user_id == user_id,
+        Profit.user_id == user.id,
         Profit.date >= start_date,
         Profit.date <= end_date
     ).order_by(Profit.date).all()
-    
-    # 格式化数据用于图表显示
-    dates = []
-    daily_profits = []
-    cumulative_profits = []
-    
-    for profit in profits:
-        dates.append(profit.date.strftime('%Y-%m-%d'))
-        daily_profits.append(profit.daily_profit)
-        cumulative_profits.append(profit.cumulative_profit)
-    
-    # 获取当前持仓
-    positions = Position.query.filter_by(user_id=user_id).all()
-    
-    # 计算总市值
-    total_value = 0.0
-    for position in positions:
-        if position.fund.latest_nav:
-            total_value += position.shares * position.fund.latest_nav
-    
-    # 获取分成协议
-    agreement = Agreement.query.filter_by(user_id=user_id).first()
-    
-    return render_template('reports/user_detail.html', 
-                          user=user, 
-                          profits=profits, 
-                          dates=dates, 
-                          daily_profits=daily_profits, 
-                          cumulative_profits=cumulative_profits, 
-                          days=days, 
-                          total_value=total_value, 
-                          agreement=agreement)
+
+    dates = [p.date.strftime('%Y-%m-%d') for p in profits]
+    daily_profits = [p.daily_profit for p in profits]
+    cumulative_profits = [p.cumulative_profit for p in profits]
+
+    positions = Position.query.filter_by(user_id=user.id).all()
+    total_value = sum(
+        p.shares * p.fund.latest_nav
+        for p in positions
+        if p.fund and p.fund.latest_nav
+    )
+
+    principal = user.principal or 0
+    if user.is_main_account:
+        principal = sum(
+            p.shares * p.cost_price
+            for p in positions
+            if p.cost_price and p.shares > 0
+        )
+
+    agreement = Agreement.query.filter_by(user_id=user.id).first()
+
+    # 收集用户持仓的基金ID列表（用于K线图）
+    fund_ids = list(set(p.fund_id for p in positions if p.fund))
+
+    return render_template(template,
+                           user=user,
+                           profits=profits,
+                           dates=dates,
+                           daily_profits=daily_profits,
+                           cumulative_profits=cumulative_profits,
+                           days=days,
+                           total_value=total_value,
+                           principal=principal,
+                           agreement=agreement,
+                           positions=positions,
+                           fund_ids=fund_ids)
+
+
+@bp.route('/reports/fund/<int:fund_id>')
+@login_required
+def fund_chart(fund_id):
+    fund = Fund.query.get_or_404(fund_id)
+    days = request.args.get('days', 90, type=int)
+    return render_template('reports/fund_chart.html', fund=fund, days=days)
+
+
+@bp.route('/api/fund/<int:fund_id>/nav_history')
+@login_required
+def fund_nav_api(fund_id):
+    days = request.args.get('days', 90, type=int)
+    fund = Fund.query.get_or_404(fund_id)
+    nav_records = FundNavHistory.get_latest_navs(fund_id, days)
+    return jsonify({
+        'fund_name': fund.name,
+        'fund_code': fund.code,
+        'dates': [r.date.strftime('%Y-%m-%d') for r in nav_records],
+        'navs': [r.nav for r in nav_records],
+    })
