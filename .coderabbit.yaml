@@ -1,0 +1,8 @@
+reviews:
+  auto_review:
+    enabled: true
+    drafts: false
+  path_filters:
+    - "!**/*.lock"
+    - "!**/generated/**"
+language: zh-CN
