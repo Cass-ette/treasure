@@ -7,7 +7,7 @@
     .chat-container {
         display: flex;
         flex-direction: column;
-        height: calc(100vh - 200px);
+        height: calc(100vh - 260px);
         min-height: 400px;
     }
     .chat-messages {
@@ -117,6 +117,47 @@
         border-color: var(--color-accent);
         color: var(--color-accent);
     }
+    .ai-toolbar {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+        margin-bottom: 1rem;
+    }
+    .ai-toolbar .form-select {
+        width: auto;
+        min-width: 140px;
+    }
+    .conv-list-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.5rem 0.75rem;
+        border-bottom: 1px solid var(--color-border);
+        cursor: pointer;
+        transition: background 0.15s;
+    }
+    .conv-list-item:hover {
+        background: var(--color-bg);
+    }
+    .conv-list-item .conv-title {
+        flex: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-size: 0.875rem;
+    }
+    .conv-list-item .conv-meta {
+        font-size: 0.75rem;
+        color: var(--color-text-muted);
+        margin-left: 0.5rem;
+        white-space: nowrap;
+    }
+    .conv-list-item .btn-close {
+        font-size: 0.6rem;
+        margin-left: 0.5rem;
+        flex-shrink: 0;
+    }
 </style>
 {% endblock %}
 
@@ -126,16 +167,41 @@
 </div>
 
 {% if not has_key %}
-<div class="alert alert-warning">
+<div class="alert alert-warning" id="noKeyAlert">
     <i class="bi bi-exclamation-triangle me-1"></i>
-    未配置 AI 密钥。请设置环境变量 <code>DEEPSEEK_API_KEY</code> 后重启应用。
-    <br><small class="text-muted">例如: export DEEPSEEK_API_KEY=sk-xxx</small>
+    未配置任何 AI 密钥。请点击「设置」按钮配置 API Key，或设置环境变量后重启应用。
 </div>
 {% endif %}
 
+<!-- 工具栏 -->
+<div class="ai-toolbar">
+    <select class="form-select form-select-sm" id="modelSelect">
+        <option value="deepseek" {{ 'selected' if preferred_model == 'deepseek' }}>DeepSeek</option>
+        <option value="claude" {{ 'selected' if preferred_model == 'claude' }}>Claude</option>
+    </select>
+    <button class="btn btn-sm btn-outline-secondary" onclick="exportContext()" title="导出投资数据">
+        <i class="bi bi-download"></i> 导出数据
+    </button>
+    <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#settingsModal" title="API Key 设置">
+        <i class="bi bi-gear"></i> 设置
+    </button>
+    <div class="ms-auto d-flex gap-1">
+        <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="offcanvas" data-bs-target="#historyPanel" title="对话历史">
+            <i class="bi bi-clock-history"></i> 历史
+        </button>
+        <button class="btn btn-sm btn-outline-secondary" onclick="saveConversation()" title="保存当前对话">
+            <i class="bi bi-save"></i> 保存
+        </button>
+        <button class="btn btn-sm btn-outline-primary" onclick="newConversation()" title="新建对话">
+            <i class="bi bi-plus-lg"></i> 新对话
+        </button>
+    </div>
+</div>
+
+<!-- 聊天区域 -->
 <div class="chat-container">
     <div class="chat-messages" id="chatMessages">
-        <div class="msg msg-ai">
+        <div class="msg msg-ai" id="welcomeMsg">
             <div class="msg-icon"><i class="bi bi-robot"></i></div>
             <div class="msg-bubble">
                 你好！我是你的投资分析助手。我可以帮你分析持仓、解读走势、评估风险。试试问我：
@@ -164,8 +230,58 @@
         </button>
     </div>
 </div>
+
+<!-- 设置弹窗 -->
+<div class="modal fade" id="settingsModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-gear me-1"></i>AI 助手设置</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">DeepSeek API Key</label>
+                    <input type="password" class="form-control" id="settingDeepseekKey"
+                           placeholder="{{ '已配置' if has_deepseek_key else '未配置，留空不修改' }}">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Claude API Key</label>
+                    <input type="password" class="form-control" id="settingClaudeKey"
+                           placeholder="{{ '已配置' if has_claude_key else '未配置，留空不修改' }}">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">默认模型</label>
+                    <select class="form-select" id="settingDefaultModel">
+                        <option value="deepseek" {{ 'selected' if preferred_model == 'deepseek' }}>DeepSeek</option>
+                        <option value="claude" {{ 'selected' if preferred_model == 'claude' }}>Claude</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-accent" onclick="saveSettings()">保存</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 对话历史侧栏 -->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="historyPanel">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title"><i class="bi bi-clock-history me-1"></i>对话历史</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+    </div>
+    <div class="offcanvas-body p-0" id="convList">
+        <!-- JS 填充 -->
+    </div>
+</div>
 {% endblock %}
 
 {% block js %}
+<script>
+    // 服务端数据注入
+    var __conversations = {{ conversations | tojson }};
+</script>
 <script src="{{ url_for('static', filename='js/ai-assistant.js') }}"></script>
 {% endblock %}

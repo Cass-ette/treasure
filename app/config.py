@@ -19,8 +19,9 @@ class Config:
     # 定时任务配置
     FUND_NAV_UPDATE_TIME = '15:30'
 
-    # AI 分析助手 (DeepSeek)
+    # AI 分析助手
     DEEPSEEK_API_KEY = os.environ.get('DEEPSEEK_API_KEY', '')
+    ANTHROPIC_API_KEY = os.environ.get('ANTHROPIC_API_KEY', '')
 
 
 class TestConfig(Config):
