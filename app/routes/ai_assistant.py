@@ -311,4 +311,35 @@ def _build_investment_context():
         lines.append(f"分成比例: {agreement.profit_share_ratio * 100:.0f}%")
         lines.append(f"保本: {'是' if agreement.is_capital_protected else '否'}")
 
+    # 添加实时行情参考（如果持仓包含已配置的 pair）
+    quote_ctx = _build_quote_context_for_positions(positions)
+    if quote_ctx:
+        lines.append(f"\n{quote_ctx}")
+
     return "\n".join(lines)
+
+
+def _build_quote_context_for_positions(positions):
+    """为持仓构建实时行情上下文（场内 ETF + 场外基金 pair）."""
+    from app.services.quote_provider import build_pair_context
+
+    # 已知 fund code -> (pair_name, etf_code)
+    # 先只支持 robot 这个 pair，后续可扩展为配置或数据库表
+    KNOWN_PAIRS = {
+        "018344": ("robot", "562500"),   # 华夏中证机器人ETF联接A -> 机器人ETF华夏
+    }
+
+    contexts = []
+    for pos in positions:
+        if not pos.fund:
+            continue
+        fund_code = pos.fund.code
+        if fund_code in KNOWN_PAIRS:
+            pair_name, etf_code = KNOWN_PAIRS[fund_code]
+            ctx = build_pair_context(pair_name, etf_code, fund_code)
+            if ctx:
+                contexts.append(ctx)
+
+    if not contexts:
+        return None
+    return "\n\n".join(contexts)
