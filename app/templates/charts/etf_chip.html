@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}{{ symbol }} 筹码峰 - Treasure{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>
+        <i class="bi bi-bar-chart-line" style="color: var(--color-accent);"></i>
+        {{ etf_name or (quote.name if quote else symbol) }} <code class="ms-1">{{ symbol }}</code>
+    </h1>
+    <div class="toolbar">
+        <button onclick="history.back()" class="btn btn-sm btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> 返回
+        </button>
+        <a href="{{ url_for('charts.etf_chip_page', symbol=symbol, days=60) }}" class="btn btn-sm btn-outline-secondary">60天</a>
+        <a href="{{ url_for('charts.etf_chip_page', symbol=symbol, days=180) }}" class="btn btn-sm btn-outline-secondary">180天</a>
+        <a href="{{ url_for('charts.etf_chip_page', symbol=symbol, days=250) }}" class="btn btn-sm btn-accent">250天</a>
+    </div>
+</div>
+
+<div class="card mb-3" id="metricsCard" style="display:none">
+    <div class="card-body">
+        <div class="row text-center">
+            <div class="col"><div class="text-muted small">获利盘</div><div class="fw-bold" id="m-profit">-</div></div>
+            <div class="col"><div class="text-muted small">集中度(±5%)</div><div class="fw-bold" id="m-conc">-</div></div>
+            <div class="col"><div class="text-muted small">主峰</div><div class="fw-bold" id="m-peak1">-</div></div>
+            <div class="col"><div class="text-muted small">次峰</div><div class="fw-bold" id="m-peak2">-</div></div>
+            <div class="col"><div class="text-muted small">现价</div><div class="fw-bold" id="m-price">-</div></div>
+            <div class="col"><div class="text-muted small">涨跌幅</div><div class="fw-bold" id="m-chg">-</div></div>
+        </div>
+    </div>
+</div>
+
+<div class="card mb-3">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-graph-up me-1"></i> K线 + 筹码分布</span>
+        <div class="d-flex gap-2 align-items-center" style="font-size:0.85rem">
+            <label class="mb-0">衰减
+                <select id="param-decay" class="form-select form-select-sm d-inline-block w-auto ms-1">
+                    <option value="0.97" selected>0.97 (60日)</option>
+                    <option value="0.985">0.985 (90日)</option>
+                    <option value="0.995">0.995 (长效)</option>
+                </select>
+            </label>
+            <label class="mb-0">桶数
+                <select id="param-bins" class="form-select form-select-sm d-inline-block w-auto ms-1">
+                    <option value="40">40</option>
+                    <option value="80" selected>80</option>
+                    <option value="120">120</option>
+                </select>
+            </label>
+            <button id="btn-refresh" class="btn btn-sm btn-accent">刷新</button>
+        </div>
+    </div>
+    <div class="card-body p-2">
+        <div id="mainChart" style="width:100%;height:520px"></div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header"><i class="bi bi-table me-1"></i> Top 价位分布</div>
+    <div class="card-body p-2">
+        <table class="table table-sm mb-0" id="binsTable">
+            <thead><tr><th>价位区间</th><th>权重</th><th>占比</th></tr></thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block js %}
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<script>
+window.CHART_CTX = {
+    symbol: {{ symbol|tojson }},
+    dataUrl: {{ url_for('charts.etf_chip_data', symbol=raw_symbol)|tojson }}
+};
+</script>
+<script src="{{ url_for('static', filename='js/etf_chip.js') }}"></script>
+{% endblock %}

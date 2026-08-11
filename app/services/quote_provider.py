@@ -3,12 +3,17 @@
 Mirrors etf-cli quote capabilities without CLI dependencies.
 """
 from dataclasses import dataclass
+from datetime import date, datetime, timedelta
 from typing import Optional
+import logging
 import requests
 import json
 
 EASTMONEY_QUOTE_URL = "https://push2.eastmoney.com/api/qt/stock/get"
+EASTMONEY_KLINE_URL = "https://push2his.eastmoney.com/api/qt/stock/kline/get"
 TIANTIAN_FUND_URL = "https://fundgz.1234567.com.cn/js"
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -40,6 +45,18 @@ class OTCFundQuote:
     estimate_time: Optional[str]
 
 
+@dataclass
+class ETFDailyBar:
+    """场内 ETF 日 K 线（前复权）."""
+    date: str          # 'YYYY-MM-DD'
+    open: float
+    high: float
+    low: float
+    close: float
+    volume: int        # 成交量（股）
+    amount: float      # 成交额（元）
+
+
 def _normalize_symbol(symbol: str) -> tuple[str, str, str]:
     """Normalize ETF symbol to (secid, market, tencent_code)."""
     symbol = symbol.strip().upper()
@@ -48,6 +65,15 @@ def _normalize_symbol(symbol: str) -> tuple[str, str, str]:
     if symbol.startswith(("51", "56", "58", "60", "68", "69")):
         return f"1.{symbol}", "SH", f"sh{symbol.lower()}"
     return f"0.{symbol}", "SZ", f"sz{symbol.lower()}"
+
+
+def _prefixed_symbol(symbol: str) -> str:
+    """传入 '562500' 或 'SH562500'，返回 'SH562500'。"""
+    _, market, _ = _normalize_symbol(symbol)
+    bare = symbol.strip().upper()
+    if bare.startswith(("SH", "SZ")):
+        bare = bare[2:]
+    return f"{market}{bare}"
 
 
 def fetch_etf_quote(symbol: str) -> Optional[ETFQuote]:
@@ -88,6 +114,164 @@ def fetch_etf_quote(symbol: str) -> Optional[ETFQuote]:
         )
     except Exception:
         return None
+
+
+def _fetch_klines_from_remote(secid: str, beg: str, end: str, limit: int) -> Optional[tuple]:
+    """调用东方财富日 K 接口。
+
+    Returns: (klines_list, name) 或 None。
+    """
+    params = {
+        "secid": secid,
+        "klt": "101",     # 日 K
+        "fqt": "1",       # 前复权
+        "fields1": "f1,f2,f3,f4,f5,f6",
+        "fields2": "f51,f52,f53,f54,f55,f56,f57,f58,f59,f60,f61",
+        "beg": beg,
+        "end": end,
+        "lmt": str(limit),
+    }
+    try:
+        resp = requests.get(EASTMONEY_KLINE_URL, params=params, timeout=10)
+        resp.raise_for_status()
+        data = resp.json().get("data")
+        if not data:
+            return None
+        name = data.get("name") or None
+        return (data.get("klines") or [], name)
+    except Exception as e:
+        logger.warning("fetch_etf_daily_kline remote failed: %s", e)
+        return None
+
+
+# 模块级 name 缓存（symbol -> name），避免实时行情接口失败时丢失名称
+_etf_name_cache: dict[str, str] = {}
+
+
+def get_cached_etf_name(symbol: str) -> Optional[str]:
+    """返回已缓存的 ETF 名称。
+
+    优先内存缓存；其次查 DB 里 K 线表 name 列；都没有返回 None。
+    """
+    prefixed = _prefixed_symbol(symbol)
+    if prefixed in _etf_name_cache:
+        return _etf_name_cache[prefixed]
+    try:
+        from app.models.etf_kline_cache import EtfKlineCache
+        db_name = EtfKlineCache.get_latest_name(prefixed)
+        if db_name:
+            _etf_name_cache[prefixed] = db_name
+            return db_name
+    except Exception:
+        pass
+    return None
+
+
+def _parse_kline_line(line: str) -> Optional[tuple]:
+    """解析单行 kline 字符串。
+
+    格式：date,open,close,high,low,volume,amount,amplitude,pct_chg,change,turnover
+    返回 (date_str, open, close, high, low, volume, amount) 或 None。
+    """
+    parts = line.split(",")
+    if len(parts) < 7:
+        return None
+    try:
+        return (
+            parts[0],                          # date
+            float(parts[1]),                   # open
+            float(parts[2]),                   # close
+            float(parts[3]),                   # high
+            float(parts[4]),                   # low
+            int(float(parts[5])),              # volume
+            float(parts[6]),                   # amount
+        )
+    except (ValueError, IndexError):
+        return None
+
+
+def fetch_etf_daily_kline(symbol: str, days: int = 250) -> list[ETFDailyBar]:
+    """拉取场内 ETF 历史 K 线（日 K，前复权），带 DB 缓存。
+
+    流程：
+    1. 查 DB 该 symbol 最新日期
+    2. 若最新日期 == 今天/最近交易日 → 直接返回 DB 中最近 days 条
+    3. 否则调远端拉增量，写 DB
+    4. 远端失败 → 回退用 DB 中已有数据
+
+    Returns: ETFDailyBar 列表，按日期升序。空数据返回 []。
+    """
+    from app.models.etf_kline_cache import EtfKlineCache
+
+    secid, _, _ = _normalize_symbol(symbol)
+    prefixed = _prefixed_symbol(symbol)
+    today = date.today()
+
+    latest_cached = EtfKlineCache.get_latest_date(prefixed)
+
+    # 缓存命中且为今天：直接返回 DB
+    if latest_cached is not None and latest_cached >= today:
+        rows = EtfKlineCache.get_recent(prefixed, days)
+        return [
+            ETFDailyBar(
+                date=r.date.strftime('%Y-%m-%d'),
+                open=r.open, high=r.high, low=r.low, close=r.close,
+                volume=r.volume or 0, amount=r.amount or 0.0,
+            )
+            for r in rows
+        ]
+
+    # 需要拉增量
+    beg = (latest_cached + timedelta(days=1)).strftime("%Y%m%d") if latest_cached else "19900101"
+    end = today.strftime("%Y%m%d")
+    # 拉取数量：始终拉 days 条上限，保证 DB 里至少有这么多
+    limit = max(days, 30)
+
+    remote_result = _fetch_klines_from_remote(secid, beg, end, limit)
+    klines = remote_result[0] if remote_result else None
+    remote_name = remote_result[1] if remote_result else None
+    if remote_name:
+        _etf_name_cache[prefixed] = remote_name
+
+    if klines is not None:
+        # 写入 DB
+        new_rows = []
+        for line in klines:
+            parsed = _parse_kline_line(line)
+            if not parsed:
+                continue
+            d_str, o, c, hi, lo, vol, amt = parsed
+            try:
+                d = datetime.strptime(d_str, "%Y-%m-%d").date()
+            except ValueError:
+                continue
+            exists = EtfKlineCache.query.filter_by(symbol=prefixed, date=d).first()
+            if exists:
+                continue
+            new_rows.append(EtfKlineCache(
+                symbol=prefixed, date=d,
+                open=o, high=hi, low=lo, close=c,
+                volume=vol, amount=amt,
+                name=remote_name,
+            ))
+        if new_rows:
+            from app.extensions import db
+            db.session.bulk_save_objects(new_rows)
+            db.session.commit()
+    elif latest_cached is None:
+        # 远端失败且 DB 无数据
+        return []
+
+    # 返回 DB 中最近 days 条
+    rows = EtfKlineCache.get_recent(prefixed, days)
+    return [
+        ETFDailyBar(
+            date=r.date.strftime('%Y-%m-%d'),
+            open=r.open, high=r.high, low=r.low, close=r.close,
+            volume=r.volume or 0, amount=r.amount or 0.0,
+        )
+        for r in rows
+    ]
 
 
 def fetch_fund_estimate(symbol: str) -> Optional[OTCFundQuote]:

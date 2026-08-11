@@ -11,6 +11,12 @@
         <button id="toggle-color-mode" class="btn btn-outline-secondary btn-sm">
             切换至国际模式
         </button>
+        <div class="d-inline-flex gap-1 ms-2">
+            <input id="etf-code-input" type="text" class="form-control form-control-sm" placeholder="ETF 代码（如 562500）" pattern="[0-9A-Za-z]{6,8}" style="width:170px">
+            <button type="button" class="btn btn-sm btn-accent" onclick="const v=document.getElementById('etf-code-input').value.trim(); if(v){window.location.href='/charts/etf/'+encodeURIComponent(v)+'/chip';}">
+                <i class="bi bi-layers"></i> 筹码峰
+            </button>
+        </div>
     </div>
 </div>
 

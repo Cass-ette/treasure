@@ -237,3 +237,178 @@ class TestQuoteContextIntegration:
 
         ctx = _build_quote_context_for_positions([pos])
         assert ctx is None
+
+
+class TestETFDailyKline:
+    """fetch_etf_daily_kline: 场内 ETF 历史 K 线 + DB 缓存测试."""
+
+    def _mock_em_kline_response(self, klines_list):
+        """构造东方财富日 K JSON 响应。"""
+        class FakeResponse:
+            def raise_for_status(self):
+                return
+
+            def json(self):
+                return {
+                    "data": {
+                        "code": "562500",
+                        "name": "机器人ETF华夏",
+                        "klines": klines_list,
+                    }
+                }
+        return FakeResponse()
+
+    def test_parses_klines_response(self, db, monkeypatch):
+        """正确解析东方财富日 K 响应为 ETFDailyBar 列表。"""
+        from app.services import quote_provider
+        from app.services.quote_provider import fetch_etf_daily_kline
+
+        klines = [
+            "2026-01-02,1.050,1.070,1.080,1.040,100000,105000,3.85,1.90,0.020,1.5",
+            "2026-01-03,1.070,1.090,1.100,1.060,150000,160000,3.74,1.87,0.020,2.0",
+        ]
+        monkeypatch.setattr(
+            quote_provider.requests, "get",
+            lambda url, params=None, timeout=10, **kw: self._mock_em_kline_response(klines),
+        )
+
+        bars = fetch_etf_daily_kline("562500", days=30)
+        assert len(bars) == 2
+        # 升序
+        assert bars[0].date == "2026-01-02"
+        assert bars[0].open == 1.050
+        assert bars[0].close == 1.070
+        assert bars[0].high == 1.080
+        assert bars[0].low == 1.040
+        assert bars[0].volume == 100000
+        assert bars[0].amount == 105000
+
+    def test_returns_empty_when_response_has_no_data(self, db, monkeypatch):
+        """远端返回空数据 → 返回空列表（不抛异常）。"""
+        from app.services import quote_provider
+        from app.services.quote_provider import fetch_etf_daily_kline
+
+        class FakeResponse:
+            def raise_for_status(self):
+                return
+
+            def json(self):
+                return {"data": None}
+
+        monkeypatch.setattr(
+            quote_provider.requests, "get",
+            lambda url, params=None, timeout=10, **kw: FakeResponse(),
+        )
+        bars = fetch_etf_daily_kline("562500", days=30)
+        assert bars == []
+
+    def test_returns_empty_on_http_error(self, db, monkeypatch):
+        """HTTP 异常时返回空列表（同时不应阻断页面）。"""
+        from app.services import quote_provider
+        from app.services.quote_provider import fetch_etf_daily_kline
+        import requests as req
+
+        def fake_get(*a, **kw):
+            raise req.exceptions.RequestException("network error")
+
+        monkeypatch.setattr(quote_provider.requests, "get", fake_get)
+        bars = fetch_etf_daily_kline("562500", days=30)
+        assert bars == []
+
+    def test_db_cache_persists_between_calls(self, db, monkeypatch):
+        """首次拉取写入 DB，第二次即使远端失败也能从 DB 拿到。"""
+        from app.services import quote_provider
+        from app.services.quote_provider import fetch_etf_daily_kline
+
+        klines = [
+            "2026-01-02,1.050,1.070,1.080,1.040,100000,105000,3.85,1.90,0.020,1.5",
+        ]
+        call_count = {"n": 0}
+
+        def fake_get(url, params=None, timeout=10, **kw):
+            call_count["n"] += 1
+            return self._mock_em_kline_response(klines)
+
+        monkeypatch.setattr(quote_provider.requests, "get", fake_get)
+
+        bars1 = fetch_etf_daily_kline("562500", days=30)
+        assert len(bars1) == 1
+        assert call_count["n"] == 1
+
+        # 第二次：远端失败（同一 session），DB 已有数据
+        monkeypatch.setattr(
+            quote_provider.requests, "get",
+            lambda *a, **kw: (_ for _ in ()).throw(
+                __import__("requests").exceptions.RequestException("down"),
+            ),
+        )
+        bars2 = fetch_etf_daily_kline("562500", days=30)
+        assert len(bars2) == 1
+        assert bars2[0].date == "2026-01-02"
+
+    def test_incremental_fetch_only_pulls_new_dates(self, db, monkeypatch):
+        """DB 已有最新日期时，只拉取更新的部分。"""
+        from app.services import quote_provider
+        from app.services.quote_provider import fetch_etf_daily_kline
+        from app.models.etf_kline_cache import EtfKlineCache
+        from datetime import date
+
+        # 预置 DB 里有 2026-01-02 的数据
+        existing = EtfKlineCache(
+            symbol="SH562500", date=date(2026, 1, 2),
+            open=1.050, high=1.080, low=1.040, close=1.070,
+            volume=100000, amount=105000,
+        )
+        db.session.add(existing)
+        db.session.commit()
+
+        captured_params = {}
+
+        class FakeResponse:
+            def raise_for_status(self):
+                return
+
+            def json(self):
+                return {
+                    "data": {
+                        "code": "562500",
+                        "klines": [
+                            "2026-01-03,1.070,1.090,1.100,1.060,150000,160000,3.74,1.87,0.020,2.0",
+                        ],
+                    }
+                }
+
+        def fake_get(url, params=None, timeout=10, **kw):
+            captured_params.update(params or {})
+            return FakeResponse()
+
+        monkeypatch.setattr(quote_provider.requests, "get", fake_get)
+
+        bars = fetch_etf_daily_kline("562500", days=30)
+        # 应有 2 条（原有 + 新增）
+        assert len(bars) == 2
+        # beg 参数应从 20260103 开始（DB 里最新日期 + 1）
+        assert captured_params.get("beg") == "20260103"
+
+    def test_normalizes_symbol_to_prefixed_form(self, db, monkeypatch):
+        """传入纯数字代码时自动加 SH/SZ 前缀。"""
+        from app.services import quote_provider
+        from app.services.quote_provider import fetch_etf_daily_kline
+
+        captured = {}
+
+        class FakeResponse:
+            def raise_for_status(self):
+                return
+
+            def json(self):
+                return {"data": None}
+
+        def fake_get(url, params=None, timeout=10, **kw):
+            captured.update(params or {})
+            return FakeResponse()
+
+        monkeypatch.setattr(quote_provider.requests, "get", fake_get)
+        fetch_etf_daily_kline("562500", days=10)
+        # secid 应为 1.562500（SH 因为 56 开头）
+        assert captured.get("secid") == "1.562500"

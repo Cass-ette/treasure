@@ -7,6 +7,7 @@ from app.models.transaction import Transaction
 from app.models.agreement import Agreement
 from app.models.user_setting import UserSetting
 from app.models.chat_conversation import ChatConversation
+from app.models.etf_kline_cache import EtfKlineCache
 
 __all__ = ['User', 'Fund', 'Position', 'Profit', 'FundNavHistory', 'Transaction', 'Agreement',
-           'UserSetting', 'ChatConversation']
+           'UserSetting', 'ChatConversation', 'EtfKlineCache']

@@ -119,6 +119,12 @@
                                class="btn btn-sm btn-outline-primary">
                                 <i class="bi bi-graph-up"></i>
                             </a>
+                            {% if pos.fund.code and pos.fund.code[:2] in ['51', '56', '58', '15', '16', '18'] %}
+                            <a href="{{ url_for('charts.etf_chip_page', symbol=pos.fund.code) }}"
+                               class="btn btn-sm btn-outline-secondary" title="筹码峰">
+                                <i class="bi bi-layers"></i>
+                            </a>
+                            {% endif %}
                         </td>
                     </tr>
                     {% endif %}
