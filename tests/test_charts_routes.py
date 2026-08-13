@@ -158,3 +158,44 @@ class TestChipDataAPI:
         assert resp.status_code == 200
         assert captured['decay'] == 0.99
         assert captured['bin_count'] == 40
+
+
+class TestAkshareTestEndpoint:
+    """GET /charts/api/etf/<symbol>/akshare-test akshare 可用性测试口."""
+
+    def test_invalid_symbol_returns_404(self, logged_in_client):
+        resp = logged_in_client.get('/charts/api/etf/ABC/akshare-test')
+        assert resp.status_code == 404
+
+    def test_returns_kline_json(self, logged_in_client, monkeypatch):
+        """akshare 拉取成功时返回 K 线 JSON。"""
+        from app.services import quote_provider
+        from app.services.quote_provider import ETFDailyBar
+
+        bars = [
+            ETFDailyBar(date='2026-01-02', open=1.05, high=1.08, low=1.04, close=1.07, volume=100000, amount=105000),
+            ETFDailyBar(date='2026-01-03', open=1.07, high=1.10, low=1.06, close=1.09, volume=120000, amount=130000),
+        ]
+        monkeypatch.setattr(quote_provider, 'fetch_etf_daily_kline_akshare', lambda s, days=250: bars)
+
+        resp = logged_in_client.get('/charts/api/etf/562500/akshare-test?days=30')
+        assert resp.status_code == 200
+        data = resp.get_json()
+        assert data['source'] == 'akshare'
+        assert data['ok'] is True
+        assert len(data['klines']) == 2
+        assert data['klines'][0]['date'] == '2026-01-02'
+
+    def test_returns_error_status_when_akshare_fails(self, logged_in_client, monkeypatch):
+        """akshare 拉取失败时返回 ok=False + 错误信息（不 500）。"""
+        from app.services import quote_provider
+        monkeypatch.setattr(
+            quote_provider, 'fetch_etf_daily_kline_akshare',
+            lambda s, days=250: (_ for _ in ()).throw(RuntimeError('akshare failed')),
+        )
+
+        resp = logged_in_client.get('/charts/api/etf/562500/akshare-test')
+        assert resp.status_code == 200
+        data = resp.get_json()
+        assert data['ok'] is False
+        assert 'akshare failed' in data['error']

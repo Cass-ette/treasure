@@ -274,6 +274,37 @@ def fetch_etf_daily_kline(symbol: str, days: int = 250) -> list[ETFDailyBar]:
     ]
 
 
+def fetch_etf_daily_kline_akshare(symbol: str, days: int = 250) -> list[ETFDailyBar]:
+    """用 akshare 新浪源拉取场内 ETF 历史 K 线（前复权）。
+
+    作为东方财富源的备用数据源。失败抛异常（由调用方处理）。
+
+    Returns: ETFDailyBar 列表，按日期升序。
+    """
+    import akshare as ak
+
+    prefixed = _prefixed_symbol(symbol)
+    # 新浪格式：sh562500 / sz159915
+    sina_symbol = prefixed.lower()
+    df = ak.fund_etf_hist_sina(symbol=sina_symbol)
+    if df is None or df.empty:
+        raise RuntimeError(f"akshare 新浪源无数据: {sina_symbol}")
+
+    bars = []
+    for _, row in df.iterrows():
+        bars.append(ETFDailyBar(
+            date=str(row['date']),
+            open=float(row['open']),
+            high=float(row['high']),
+            low=float(row['low']),
+            close=float(row['close']),
+            volume=int(row['volume']) if row['volume'] else 0,
+            amount=float(row['amount']) if row['amount'] else 0.0,
+        ))
+    bars.sort(key=lambda b: b.date)
+    return bars[-days:]
+
+
 def fetch_fund_estimate(symbol: str) -> Optional[OTCFundQuote]:
     """Fetch OTC fund NAV and estimated NAV from Tiantian Fund."""
     symbol = symbol.strip()

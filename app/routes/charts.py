@@ -102,3 +102,34 @@ def etf_chip_data(symbol: str):
             'secondary_peak': peaks[1].price if len(peaks) > 1 else None,
         },
     })
+
+
+@bp.route('/api/etf/<symbol>/akshare-test')
+@login_required
+def etf_akshare_test(symbol: str):
+    """akshare 可用性测试口：直接调 akshare 新浪源拉 K 线，返回原始结果。"""
+    prefixed = _validate_symbol(symbol)
+    if not prefixed:
+        abort(404)
+
+    days = request.args.get('days', 250, type=int)
+    try:
+        bars = quote_provider.fetch_etf_daily_kline_akshare(symbol, days=days)
+    except Exception as e:
+        return jsonify({
+            'source': 'akshare',
+            'symbol': prefixed,
+            'ok': False,
+            'error': str(e),
+        })
+
+    return jsonify({
+        'source': 'akshare',
+        'symbol': prefixed,
+        'ok': True,
+        'klines': [
+            {'date': b.date, 'open': b.open, 'high': b.high, 'low': b.low,
+             'close': b.close, 'volume': b.volume, 'amount': b.amount}
+            for b in bars
+        ],
+    })
