@@ -59,10 +59,11 @@ function renderChart(data) {
 
     // 横向平滑曲线: y 轴价格，x 轴权重（先移动平均去毛刺，同花顺风格）
     const smoothedWeights = smoothWeights(dist.map(d => d.weight), 5);
-    const distData = dist.map((d, i) => ({
-        value: [smoothedWeights[i], (d.price_low + d.price_high) / 2],
-        itemStyle: { color: peakColor(d, peaks) }
-    }));
+    // 首尾补零权重锚点，让曲线贴合坐标轴而不是悬空
+    const distPoints = dist.map((d, i) => [smoothedWeights[i], (d.price_low + d.price_high) / 2]);
+    distPoints.unshift([0, distPoints[0][1]]);
+    distPoints.push([0, distPoints[distPoints.length - 1][1]]);
+    const distData = distPoints.map(pt => ({ value: pt }));
 
     // 找价格范围（让两个 grid Y 轴一致）
     const allPrices = [];
@@ -132,7 +133,7 @@ function renderChart(data) {
                 min: 'dataMin', max: 'dataMax'
             },
             {
-                type: 'value', gridIndex: 1, scale: true,
+                type: 'value', gridIndex: 1, scale: true, min: 0,
                 axisLabel: { fontSize: 10, formatter: v => v >= 1000 ? (v / 1000).toFixed(0) + 'k' : v.toFixed(0) },
                 splitNumber: 3
             }
