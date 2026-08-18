@@ -39,3 +39,6 @@ htmlcov/
 
 # Logs
 *.log
+
+# i18n compiled catalogs
+*.mo
