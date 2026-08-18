@@ -7,7 +7,8 @@ window.setLocale = function (lang) {
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: 'lang=' + encodeURIComponent(lang)
     }).then(function (r) { return r.json(); })
-      .then(function (d) { if (d.ok) location.reload(); });
+      .then(function (d) { if (d.ok) location.reload(); })
+      .catch(function (err) { console.error('setLocale failed:', err); });
 };
 
 // 颜色模式三态：follow / cn / intl

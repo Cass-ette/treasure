@@ -1,11 +1,8 @@
-// dashboard.js — Dashboard page: chart, sort, language/color mode, modal
+// dashboard.js — Dashboard page: chart, sort, language, modal
 
 document.addEventListener('DOMContentLoaded', function () {
-    initColorMode();
     initChart();
     initTableSort();
-    document.getElementById('toggle-color-mode')
-        && document.getElementById('toggle-color-mode').addEventListener('click', toggleMode);
 });
 
 // ── Fixed color palette for pie chart ──
@@ -120,34 +117,6 @@ function setLanguage(lang) {
     document.querySelectorAll('.btn-edit-principal').forEach(function (el) {
         el.textContent = lang === 'zh' ? '修改本金' : 'Edit';
     });
-}
-
-// ── Color Mode + Language Toggle ──
-function initColorMode() {
-    var saved = localStorage.getItem('colorMode') || 'cn';
-    applyMode(saved);
-}
-
-function toggleMode() {
-    var current = document.documentElement.getAttribute('data-color-mode') || 'cn';
-    var next = current === 'cn' ? 'intl' : 'cn';
-    localStorage.setItem('colorMode', next);
-    applyMode(next);
-}
-
-function applyMode(mode) {
-    document.documentElement.setAttribute('data-color-mode', mode);
-    var btn = document.getElementById('toggle-color-mode');
-    var text = document.getElementById('color-mode-text');
-    if (mode === 'intl') {
-        if (btn) btn.textContent = 'Switch to Chinese Mode';
-        if (text) text.textContent = 'International (Green Up)';
-        setLanguage('en');
-    } else {
-        if (btn) btn.textContent = '切换至国际模式';
-        if (text) text.textContent = '中国模式 (红涨绿跌)';
-        setLanguage('zh');
-    }
 }
 
 // ── Bootstrap Modal for editing principal ──
