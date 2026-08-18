@@ -1,5 +1,6 @@
 """认证蓝图：login, logout"""
 from flask import Blueprint, render_template, redirect, url_for, flash, request
+from flask_babel import gettext as _
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import check_password_hash
 from app.extensions import db
@@ -20,7 +21,7 @@ def login():
             login_user(user)
             return redirect(url_for('dashboard.index'))
         else:
-            flash('用户名或密码错误')
+            flash(_('用户名或密码错误'))
     return render_template('login.html')
 
 

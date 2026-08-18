@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-08-19 00:54+0800\n"
+"POT-Creation-Date: 2026-08-19 02:18+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,4 +16,182 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.14.0\n"
+
+#: app/routes/auth.py:24
+msgid "用户名或密码错误"
+msgstr ""
+
+#: app/static/js/i18n.js:31 app/templates/base.html:102
+#: app/templates/base.html:105
+msgid "跟随语言"
+msgstr ""
+
+#: app/static/js/i18n.js:31 app/templates/base.html:106
+msgid "红涨绿跌"
+msgstr ""
+
+#: app/static/js/i18n.js:31 app/templates/base.html:107
+msgid "绿涨红跌"
+msgstr ""
+
+#: app/templates/base.html:35 app/templates/dashboard.html:3
+msgid "仪表盘"
+msgstr ""
+
+#: app/templates/base.html:41
+msgid "基金管理"
+msgstr ""
+
+#: app/templates/base.html:46
+msgid "持仓管理"
+msgstr ""
+
+#: app/templates/base.html:51
+msgid "净值更新"
+msgstr ""
+
+#: app/templates/base.html:57
+msgid "图片识别"
+msgstr ""
+
+#: app/templates/base.html:62
+msgid "投资报告"
+msgstr ""
+
+#: app/templates/base.html:67
+msgid "AI助手"
+msgstr ""
+
+#: app/templates/base.html:79
+msgid "退出登录"
+msgstr ""
+
+#: app/templates/dashboard.html:8
+msgid "投资管理仪表盘"
+msgstr ""
+
+#: app/templates/dashboard.html:11
+msgid "ETF 代码（如 562500）"
+msgstr ""
+
+#: app/templates/dashboard.html:13
+msgid "筹码峰"
+msgstr ""
+
+#: app/templates/dashboard.html:25
+msgid "总本金"
+msgstr ""
+
+#: app/templates/dashboard.html:38
+msgid "总市值"
+msgstr ""
+
+#: app/templates/dashboard.html:51
+msgid "总盈亏"
+msgstr ""
+
+#: app/templates/dashboard.html:56 app/templates/dashboard.html:91
+msgid "收益率"
+msgstr ""
+
+#: app/templates/dashboard.html:72
+msgid "持仓分布"
+msgstr ""
+
+#: app/templates/dashboard.html:81
+msgid "持仓概览"
+msgstr ""
+
+#: app/templates/dashboard.html:87
+msgid "基金名称"
+msgstr ""
+
+#: app/templates/dashboard.html:88
+msgid "成本"
+msgstr ""
+
+#: app/templates/dashboard.html:89
+msgid "市值"
+msgstr ""
+
+#: app/templates/dashboard.html:90
+msgid "盈亏"
+msgstr ""
+
+#: app/templates/dashboard.html:92
+msgid "占比"
+msgstr ""
+
+#: app/templates/dashboard.html:114
+msgid "暂无持仓数据"
+msgstr ""
+
+#: app/templates/dashboard.html:126
+msgid "次级账户管理"
+msgstr ""
+
+#: app/templates/dashboard.html:132 app/templates/dashboard.html:174
+#: app/templates/login.html:24
+msgid "用户名"
+msgstr ""
+
+#: app/templates/dashboard.html:133
+msgid "本金"
+msgstr ""
+
+#: app/templates/dashboard.html:134
+msgid "状态"
+msgstr ""
+
+#: app/templates/dashboard.html:135
+msgid "操作"
+msgstr ""
+
+#: app/templates/dashboard.html:144
+msgid "活跃"
+msgstr ""
+
+#: app/templates/dashboard.html:148
+msgid "修改本金"
+msgstr ""
+
+#: app/templates/dashboard.html:155
+msgid "暂无次级账户数据"
+msgstr ""
+
+#: app/templates/dashboard.html:167
+msgid "修改次级账户本金"
+msgstr ""
+
+#: app/templates/dashboard.html:178
+msgid "新本金金额"
+msgstr ""
+
+#: app/templates/dashboard.html:183
+msgid "确认修改"
+msgstr ""
+
+#: app/templates/dashboard.html:184
+msgid "取消"
+msgstr ""
+
+#: app/templates/login.html:3 app/templates/login.html:31
+msgid "登录"
+msgstr ""
+
+#: app/templates/login.html:14
+msgid "多账户投资管理系统"
+msgstr ""
+
+#: app/templates/login.html:25
+msgid "请输入用户名"
+msgstr ""
+
+#: app/templates/login.html:28
+msgid "密码"
+msgstr ""
+
+#: app/templates/login.html:29
+msgid "请输入密码"
+msgstr ""
 

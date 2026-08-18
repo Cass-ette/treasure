@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}登录 - Treasure{% endblock %}
+{% block title %}{{ _('登录') }} - Treasure{% endblock %}
 
 {% block navbar %}{% endblock %}
 
@@ -11,7 +11,7 @@
             <i class="bi bi-bar-chart-fill" style="font-size: 2.5rem; color: var(--color-primary);"></i>
         </div>
         <div class="login-title">Treasure</div>
-        <div class="login-subtitle">多账户投资管理系统</div>
+        <div class="login-subtitle">{{ _('多账户投资管理系统') }}</div>
 
         {% with messages = get_flashed_messages() %}
             {% if messages %}
@@ -21,14 +21,14 @@
 
         <form method="POST">
             <div class="mb-3">
-                <label class="form-label" for="username">用户名</label>
-                <input type="text" class="form-control" id="username" name="username" placeholder="请输入用户名" required autofocus>
+                <label class="form-label" for="username">{{ _('用户名') }}</label>
+                <input type="text" class="form-control" id="username" name="username" placeholder="{{ _('请输入用户名') }}" required autofocus>
             </div>
             <div class="mb-3">
-                <label class="form-label" for="password">密码</label>
-                <input type="password" class="form-control" id="password" name="password" placeholder="请输入密码" required>
+                <label class="form-label" for="password">{{ _('密码') }}</label>
+                <input type="password" class="form-control" id="password" name="password" placeholder="{{ _('请输入密码') }}" required>
             </div>
-            <button type="submit" class="btn btn-accent w-100 py-2">登录</button>
+            <button type="submit" class="btn btn-accent w-100 py-2">{{ _('登录') }}</button>
         </form>
     </div>
 </div>

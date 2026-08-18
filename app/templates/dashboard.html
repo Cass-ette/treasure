@@ -1,16 +1,16 @@
 {% extends "base.html" %}
 
-{% block title %}仪表盘 - Treasure{% endblock %}
+{% block title %}{{ _('仪表盘') }} - Treasure{% endblock %}
 
 {% block content %}
 <!-- Page Header + Toolbar -->
 <div class="page-header">
-    <h1 id="main-title"><i class="bi bi-speedometer2" style="color: var(--color-accent);"></i> 投资管理仪表盘</h1>
+    <h1 id="main-title"><i class="bi bi-speedometer2" style="color: var(--color-accent);"></i> {{ _('投资管理仪表盘') }}</h1>
     <div class="toolbar">
         <div class="d-inline-flex gap-1 ms-2">
-            <input id="etf-code-input" type="text" class="form-control form-control-sm" placeholder="ETF 代码（如 562500）" pattern="[0-9A-Za-z]{6,8}" style="width:170px">
+            <input id="etf-code-input" type="text" class="form-control form-control-sm" placeholder="{{ _('ETF 代码（如 562500）') }}" pattern="[0-9A-Za-z]{6,8}" style="width:170px">
             <button type="button" class="btn btn-sm btn-accent" onclick="const v=document.getElementById('etf-code-input').value.trim(); if(v){window.location.href='/charts/etf/'+encodeURIComponent(v)+'/chip';}">
-                <i class="bi bi-layers"></i> 筹码峰
+                <i class="bi bi-layers"></i> {{ _('筹码峰') }}
             </button>
         </div>
     </div>
@@ -22,7 +22,7 @@
         <div class="kpi-card">
             <div class="d-flex justify-content-between align-items-start">
                 <div>
-                    <div class="kpi-label" id="principal-label">总本金</div>
+                    <div class="kpi-label" id="principal-label">{{ _('总本金') }}</div>
                     <div class="kpi-value">¥{{ "%.2f"|format(total_principal) }}</div>
                 </div>
                 <div class="kpi-icon kpi-icon-primary">
@@ -35,7 +35,7 @@
         <div class="kpi-card">
             <div class="d-flex justify-content-between align-items-start">
                 <div>
-                    <div class="kpi-label" id="market-value-label">总市值</div>
+                    <div class="kpi-label" id="market-value-label">{{ _('总市值') }}</div>
                     <div class="kpi-value">¥{{ "%.2f"|format(total_value) }}</div>
                 </div>
                 <div class="kpi-icon kpi-icon-value">
@@ -48,12 +48,12 @@
         <div class="kpi-card">
             <div class="d-flex justify-content-between align-items-start">
                 <div>
-                    <div class="kpi-label" id="profit-label">总盈亏</div>
+                    <div class="kpi-label" id="profit-label">{{ _('总盈亏') }}</div>
                     <div class="kpi-value {{ 'text-profit' if total_profit >= 0 else 'text-loss' }}">
                         ¥{{ "%.2f"|format(total_profit) }}
                     </div>
                     <div class="kpi-sub {{ 'text-profit' if total_profit >= 0 else 'text-loss' }}">
-                        <span id="yield-label">收益率</span>: {{ "%.2f"|format((total_profit/total_principal)*100 if total_principal > 0 else 0) }}%
+                        <span id="yield-label">{{ _('收益率') }}</span>: {{ "%.2f"|format((total_profit/total_principal)*100 if total_principal > 0 else 0) }}%
                     </div>
                 </div>
                 <div class="kpi-icon kpi-icon-profit">
@@ -69,7 +69,7 @@
     <div class="col-lg-4">
         <div class="chart-box">
             <div class="section-title" id="chart-title">
-                <i class="bi bi-pie-chart-fill"></i> 持仓分布
+                <i class="bi bi-pie-chart-fill"></i> {{ _('持仓分布') }}
             </div>
             <div style="height: 280px;">
                 <canvas id="positionPieChart"></canvas>
@@ -78,18 +78,18 @@
     </div>
     <div class="col-lg-8">
         <div class="section-title" id="positions-title">
-            <i class="bi bi-list-columns-reverse"></i> 持仓概览
+            <i class="bi bi-list-columns-reverse"></i> {{ _('持仓概览') }}
         </div>
         <div class="data-table-wrap">
             <table class="data-table" id="positions-table">
                 <thead>
                     <tr>
-                        <th id="th-fund">基金名称</th>
-                        <th id="th-cost">成本</th>
-                        <th id="th-value" class="sortable">市值 <i class="bi bi-caret-down-fill"></i></th>
-                        <th id="th-profit">盈亏</th>
-                        <th id="th-return">收益率</th>
-                        <th id="th-weight">占比</th>
+                        <th id="th-fund">{{ _('基金名称') }}</th>
+                        <th id="th-cost">{{ _('成本') }}</th>
+                        <th id="th-value" class="sortable">{{ _('市值') }} <i class="bi bi-caret-down-fill"></i></th>
+                        <th id="th-profit">{{ _('盈亏') }}</th>
+                        <th id="th-return">{{ _('收益率') }}</th>
+                        <th id="th-weight">{{ _('占比') }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -111,7 +111,7 @@
                         {% endif %}
                     {% else %}
                     <tr>
-                        <td colspan="6" class="text-center text-muted py-3">暂无持仓数据</td>
+                        <td colspan="6" class="text-center text-muted py-3">{{ _('暂无持仓数据') }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -123,16 +123,16 @@
 <!-- Sub-accounts (main account only) -->
 {% if current_user.is_main_account %}
 <div class="section-title mt-2" id="sub-title">
-    <i class="bi bi-people"></i> 次级账户管理
+    <i class="bi bi-people"></i> {{ _('次级账户管理') }}
 </div>
 <div class="data-table-wrap">
     <table class="data-table">
         <thead>
             <tr>
-                <th id="th-user">用户名</th>
-                <th id="th-principal">本金</th>
-                <th id="th-status">状态</th>
-                <th id="th-action">操作</th>
+                <th id="th-user">{{ _('用户名') }}</th>
+                <th id="th-principal">{{ _('本金') }}</th>
+                <th id="th-status">{{ _('状态') }}</th>
+                <th id="th-action">{{ _('操作') }}</th>
             </tr>
         </thead>
         <tbody>
@@ -141,18 +141,18 @@
                 <tr>
                     <td>{{ account.username }}</td>
                     <td>¥{{ "%.2f"|format(account.principal) }}</td>
-                    <td class="status-text">活跃</td>
+                    <td class="status-text">{{ _('活跃') }}</td>
                     <td>
                         <button class="btn btn-sm btn-outline-primary btn-edit-principal"
                                 onclick="showEditPrincipalModal({{ account.id }}, '{{ account.username }}', {{ account.principal }})">
-                            修改本金
+                            {{ _('修改本金') }}
                         </button>
                     </td>
                 </tr>
                 {% endfor %}
             {% else %}
             <tr>
-                <td colspan="4" class="text-center text-muted py-3">暂无次级账户数据</td>
+                <td colspan="4" class="text-center text-muted py-3">{{ _('暂无次级账户数据') }}</td>
             </tr>
             {% endif %}
         </tbody>
@@ -164,24 +164,24 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="modal-title">修改次级账户本金</h5>
+                <h5 class="modal-title" id="modal-title">{{ _('修改次级账户本金') }}</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <form id="editPrincipalForm" method="POST" action="{{ url_for('accounts.update_sub_account_principal') }}">
                     <input type="hidden" name="account_id" id="modal-account-id">
                     <div class="mb-3">
-                        <label class="form-label">用户名</label>
+                        <label class="form-label">{{ _('用户名') }}</label>
                         <input type="text" class="form-control" id="modal-username" disabled>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label" for="modal-principal">新本金金额</label>
+                        <label class="form-label" for="modal-principal">{{ _('新本金金额') }}</label>
                         <input type="number" class="form-control" step="0.01" min="0" name="principal" id="modal-principal" required>
                     </div>
                     {{ form.csrf_token if form else '' }}
                     <div class="d-flex gap-2">
-                        <button type="submit" class="btn btn-accent">确认修改</button>
-                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">取消</button>
+                        <button type="submit" class="btn btn-accent">{{ _('确认修改') }}</button>
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">{{ _('取消') }}</button>
                     </div>
                 </form>
             </div>

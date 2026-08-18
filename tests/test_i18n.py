@@ -78,3 +78,21 @@ class TestTemplateI18n:
         resp = i18n_client.get('/login')
         assert resp.status_code == 200
         assert b'setLocale' in resp.data
+
+
+class TestPilotPages:
+    def test_login_page_zh_default(self, i18n_client):
+        resp = i18n_client.get('/login')
+        assert '登录'.encode() in resp.data
+        assert b'Sign in' not in resp.data
+
+    def test_login_page_en(self, i18n_client):
+        i18n_client.set_cookie('locale', 'en')
+        resp = i18n_client.get('/login')
+        assert b'Sign in' in resp.data
+
+    def test_color_dropdown_translated(self, i18n_client):
+        """颜色三态下拉在英文下也翻译。"""
+        i18n_client.set_cookie('locale', 'en')
+        resp = i18n_client.get('/login')
+        assert b'Follow language' in resp.data
