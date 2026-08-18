@@ -36,3 +36,17 @@ class TestGetLocale:
             from flask import request
             request.cookies = {'locale': 'zh'}
             assert str(get_locale()) == 'zh_CN'
+
+
+class TestSetLocale:
+    def test_set_locale_sets_cookie(self, i18n_client):
+        resp = i18n_client.post('/locale/set', data={'lang': 'en'})
+        assert resp.status_code == 200
+        assert resp.get_json() == {'ok': True}
+        cookies = resp.headers.getlist('Set-Cookie')
+        assert any('locale=en' in c for c in cookies)
+
+    def test_set_locale_invalid_lang_returns_400(self, i18n_client):
+        resp = i18n_client.post('/locale/set', data={'lang': 'fr'})
+        assert resp.status_code == 400
+        assert resp.get_json()['ok'] is False
