@@ -201,3 +201,23 @@ def compute_profit_ratio(
             ratio = (current_price - bin_lo) / (bin_hi - bin_lo)
             below += w * ratio
     return min(1.0, below / total)
+
+
+def compute_avg_cost(
+    distribution: list[tuple[float, float, float]],
+) -> Optional[float]:
+    """筹码加权平均成本 = Σ(桶中心价 × 权重) / Σ(权重)。
+
+    无有效权重返回 None。
+    """
+    if not distribution:
+        return None
+    total_w = 0.0
+    weighted_sum = 0.0
+    for bin_lo, bin_hi, w in distribution:
+        center = (bin_lo + bin_hi) / 2
+        weighted_sum += center * w
+        total_w += w
+    if total_w <= 0:
+        return None
+    return weighted_sum / total_w

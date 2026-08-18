@@ -69,6 +69,7 @@ def etf_chip_data(symbol: str):
     peaks = chip_distribution.find_peaks(dist, top_k=3)
     concentration = chip_distribution.compute_concentration(dist, current_price, band_pct=band)
     profit_ratio = chip_distribution.compute_profit_ratio(dist, current_price)
+    avg_cost = chip_distribution.compute_avg_cost(dist)
 
     if quote and quote.name and quote.name != 'Unknown':
         name = quote.name
@@ -98,6 +99,8 @@ def etf_chip_data(symbol: str):
         'metrics': {
             'concentration': concentration,
             'profit_ratio': profit_ratio,
+            'avg_cost': avg_cost,
+            'avg_profit_pct': ((current_price - avg_cost) / avg_cost * 100) if avg_cost else None,
             'main_peak': peaks[0].price if peaks else None,
             'secondary_peak': peaks[1].price if len(peaks) > 1 else None,
         },
