@@ -43,10 +43,8 @@ def js_translations():
     """当前 locale 的 {msgid: msgstr} 字典，注入 window.I18N。"""
     _ensure_mo_compiled()
     cat = get_translations()
-    if cat is None:
-        return {}
     out = {}
-    for msgid, msgstr in cat._catalog.items():
+    for msgid, msgstr in getattr(cat, '_catalog', {}).items():
         if isinstance(msgid, str) and msgid:
             out[msgid] = msgstr or msgid
     return out
