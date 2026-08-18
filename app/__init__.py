@@ -23,6 +23,9 @@ def create_app(config_object=None):
     db.init_app(app)
     login_manager.init_app(app)
 
+    from app.babel import init_babel
+    init_babel(app)
+
     # 注册 user_loader
     from app.models.user import User
 
