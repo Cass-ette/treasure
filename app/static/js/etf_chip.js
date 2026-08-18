@@ -57,10 +57,9 @@ function renderChart(data) {
     const dates = klines.map(k => k.date);
     const maData = computeMA(klasses(klines, 'close'), 20);
 
-    // 横向平滑曲线: y 轴价格，x 轴权重（先移动平均去毛刺，同花顺风格）
-    const smoothedWeights = smoothWeights(dist.map(d => d.weight), 5);
-    const distData = dist.map((d, i) => ({
-        value: [smoothedWeights[i], (d.price_low + d.price_high) / 2],
+    // 横向 bar: y 轴价格，x 轴权重
+    const distData = dist.map(d => ({
+        value: [d.weight, (d.price_low + d.price_high) / 2],
         itemStyle: { color: peakColor(d, peaks) }
     }));
 
@@ -72,7 +71,7 @@ function renderChart(data) {
     const pad = (yMax - yMin) * 0.05;
     yMin -= pad; yMax += pad;
 
-    // markLine for peaks（K 线图 + 筹码面板共用）
+    // markLine for peaks
     const peakLines = peaks.slice(0, 3).map((p, i) => ({
         yAxis: p.price,
         label: {
@@ -89,52 +88,28 @@ function renderChart(data) {
     // current price line
     peakLines.push({
         yAxis: data.current_price,
-        label: { formatter: '现价 ' + data.current_price.toFixed(3), position: 'insideStartTop' },
+        label: { formatter: '现价', position: 'insideStartTop' },
         lineStyle: { color: '#198754', type: 'solid', width: 2 }
     });
 
-    // 平均成本线（黄虚线）
-    if (data.metrics.avg_cost) {
-        peakLines.push({
-            yAxis: data.metrics.avg_cost,
-            label: { formatter: '平均成本 ' + data.metrics.avg_cost.toFixed(3), position: 'insideEndTop' },
-            lineStyle: { color: '#ffc107', type: 'dashed', width: 1.5 }
-        });
-    }
-
-    // 筹码面板的现价线 + 平均成本线（窄标签版，避免遮挡）
-    const chipPriceLines = [{
-        yAxis: data.current_price,
-        label: { formatter: data.current_price.toFixed(3), position: 'insideStartTop', fontSize: 10 },
-        lineStyle: { color: '#198754', type: 'solid', width: 2 }
-    }];
-    if (data.metrics.avg_cost) {
-        chipPriceLines.push({
-            yAxis: data.metrics.avg_cost,
-            label: { formatter: data.metrics.avg_cost.toFixed(3), position: 'insideEndTop', fontSize: 10 },
-            lineStyle: { color: '#ffc107', type: 'dashed', width: 1.5 }
-        });
-    }
-
     const option = {
         tooltip: { trigger: 'axis', axisPointer: { type: 'cross' } },
-        legend: { data: ['日K', 'MA20', '筹码'], top: 5, right: '30%' },
+        legend: { data: ['日K', 'MA20', '筹码'], top: 5 },
         axisPointer: { link: [{ yAxisAxisIndex: [0, 1] }] },
         grid: [
-            { left: 55, right: '42%', top: 40, bottom: 65 },
-            { left: '61%', right: 25, top: 40, bottom: 65 }
+            { left: 50, right: '35%', top: 40, bottom: 60 },
+            { left: '67%', right: 30, top: 40, bottom: 60 }
         ],
         xAxis: [
             {
                 type: 'category', data: dates, scale: true,
                 boundaryGap: false, axisLine: { onZero: false }, splitLine: { show: false },
-                axisLabel: { rotate: 15, fontSize: 10, interval: 'auto' },
+                axisLabel: { rotate: 30, fontSize: 10 },
                 min: 'dataMin', max: 'dataMax'
             },
             {
                 type: 'value', gridIndex: 1, scale: true,
-                axisLabel: { fontSize: 10, formatter: v => v >= 1000 ? (v / 1000).toFixed(0) + 'k' : v.toFixed(0) },
-                splitNumber: 3
+                axisLabel: { fontSize: 10, formatter: v => v >= 1000 ? (v / 1000).toFixed(0) + 'k' : v.toFixed(0) }
             }
         ],
         yAxis: [
@@ -165,19 +140,8 @@ function renderChart(data) {
                 lineStyle: { color: '#fd7e14', width: 1 }, symbol: 'none'
             },
             {
-                name: '筹码', type: 'line', xAxisIndex: 1, yAxisIndex: 1,
-                data: distData, smooth: true, symbol: 'none',
-                lineStyle: { width: 1.5, color: '#0d9488' },
-                areaStyle: {
-                    color: {
-                        type: 'linear', x: 0, y: 0, x2: 1, y2: 0,
-                        colorStops: [
-                            { offset: 0, color: 'rgba(13, 148, 136, 0.35)' },
-                            { offset: 1, color: 'rgba(13, 148, 136, 0.08)' }
-                        ]
-                    }
-                },
-                markLine: { symbol: ['none', 'none'], data: chipPriceLines, animation: false }
+                name: '筹码', type: 'bar', xAxisIndex: 1, yAxisIndex: 1,
+                data: distData, barWidth: '90%'
             }
         ]
     };
@@ -191,17 +155,6 @@ function renderMetrics(data) {
     card.style.display = '';
     document.getElementById('m-profit').textContent = (data.metrics.profit_ratio * 100).toFixed(1) + '%';
     document.getElementById('m-conc').textContent = (data.metrics.concentration * 100).toFixed(1) + '%';
-    const avgCostEl = document.getElementById('m-avgcost');
-    avgCostEl.textContent = data.metrics.avg_cost ? data.metrics.avg_cost.toFixed(3) : '-';
-    const avgProfitEl = document.getElementById('m-avgprofit');
-    if (data.metrics.avg_profit_pct !== null && data.metrics.avg_profit_pct !== undefined) {
-        const ap = data.metrics.avg_profit_pct;
-        avgProfitEl.textContent = (ap >= 0 ? '+' : '') + ap.toFixed(2) + '%';
-        avgProfitEl.style.color = ap >= 0 ? '#dc3545' : '#198754';
-    } else {
-        avgProfitEl.textContent = '-';
-        avgProfitEl.style.color = '';
-    }
     document.getElementById('m-peak1').textContent = data.metrics.main_peak ? data.metrics.main_peak.toFixed(3) : '-';
     document.getElementById('m-peak2').textContent = data.metrics.secondary_peak ? data.metrics.secondary_peak.toFixed(3) : '-';
     document.getElementById('m-price').textContent = data.current_price.toFixed(3);
@@ -240,20 +193,6 @@ function computeMA(values, period) {
         let s = 0;
         for (let j = 0; j < period; j++) s += values[i - j];
         out[i] = s / period;
-    }
-    return out;
-}
-
-function smoothWeights(values, window) {
-    if (values.length < window) return values.slice();
-    const out = new Array(values.length);
-    const half = Math.floor(window / 2);
-    for (let i = 0; i < values.length; i++) {
-        const lo = Math.max(0, i - half);
-        const hi = Math.min(values.length, i + half + 1);
-        let s = 0;
-        for (let j = lo; j < hi; j++) s += values[j];
-        out[i] = s / (hi - lo);
     }
     return out;
 }

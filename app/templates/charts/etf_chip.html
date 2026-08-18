@@ -23,8 +23,6 @@
         <div class="row text-center">
             <div class="col"><div class="text-muted small">获利盘</div><div class="fw-bold" id="m-profit">-</div></div>
             <div class="col"><div class="text-muted small">集中度(±5%)</div><div class="fw-bold" id="m-conc">-</div></div>
-            <div class="col"><div class="text-muted small">平均成本</div><div class="fw-bold" id="m-avgcost">-</div></div>
-            <div class="col"><div class="text-muted small">平均获利</div><div class="fw-bold" id="m-avgprofit">-</div></div>
             <div class="col"><div class="text-muted small">主峰</div><div class="fw-bold" id="m-peak1">-</div></div>
             <div class="col"><div class="text-muted small">次峰</div><div class="fw-bold" id="m-peak2">-</div></div>
             <div class="col"><div class="text-muted small">现价</div><div class="fw-bold" id="m-price">-</div></div>
@@ -36,23 +34,21 @@
 <div class="card mb-3">
     <div class="card-header d-flex justify-content-between align-items-center">
         <span><i class="bi bi-graph-up me-1"></i> K线 + 筹码分布</span>
-        <div class="d-flex gap-3 align-items-center flex-wrap" style="font-size:0.85rem">
-            <div class="d-flex align-items-center gap-2">
-                <span class="text-muted">衰减</span>
-                <select id="param-decay" class="form-select form-select-sm w-auto">
+        <div class="d-flex gap-2 align-items-center" style="font-size:0.85rem">
+            <label class="mb-0">衰减
+                <select id="param-decay" class="form-select form-select-sm d-inline-block w-auto ms-1">
                     <option value="0.97" selected>0.97 (60日)</option>
                     <option value="0.985">0.985 (90日)</option>
                     <option value="0.995">0.995 (长效)</option>
                 </select>
-            </div>
-            <div class="d-flex align-items-center gap-2">
-                <span class="text-muted">桶数</span>
-                <select id="param-bins" class="form-select form-select-sm w-auto">
+            </label>
+            <label class="mb-0">桶数
+                <select id="param-bins" class="form-select form-select-sm d-inline-block w-auto ms-1">
                     <option value="40">40</option>
                     <option value="80" selected>80</option>
                     <option value="120">120</option>
                 </select>
-            </div>
+            </label>
             <button id="btn-refresh" class="btn btn-sm btn-accent">刷新</button>
         </div>
     </div>
