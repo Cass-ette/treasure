@@ -29,3 +29,6 @@ Pillow==10.0.0
 
 # 注意：在Linux环境中，如果遇到依赖安装问题，可以尝试以下兼容版本：
 # pip install numpy==1.24.2 pandas==1.5.3 akshare==1.7.52
+# 国际化
+Flask-Babel==3.1.0
+Babel==2.14.0
