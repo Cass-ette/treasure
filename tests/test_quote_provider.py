@@ -412,3 +412,86 @@ class TestETFDailyKline:
         fetch_etf_daily_kline("562500", days=10)
         # secid 应为 1.562500（SH 因为 56 开头）
         assert captured.get("secid") == "1.562500"
+
+
+class TestKlineFallbackToAkshare:
+    """fetch_etf_daily_kline: 东财失败时 fallback 到 akshare 新浪源."""
+
+    def test_falls_back_to_akshare_when_eastmoney_fails(self, db, monkeypatch):
+        """东财连接失败 + akshare 成功 → 返回 akshare 数据并写入 DB。"""
+        from app.services import quote_provider
+        from app.services.quote_provider import fetch_etf_daily_kline, ETFDailyBar
+        import requests as req
+
+        # 东财必败
+        def em_fail(url, params=None, timeout=10, **kw):
+            raise req.exceptions.RequestException("em down")
+
+        monkeypatch.setattr(quote_provider.requests, "get", em_fail)
+
+        # akshare 成功
+        fake_bars = [
+            ETFDailyBar(date='2026-01-02', open=1.05, high=1.08, low=1.04, close=1.07, volume=100000, amount=105000),
+            ETFDailyBar(date='2026-01-03', open=1.07, high=1.10, low=1.06, close=1.09, volume=120000, amount=130000),
+        ]
+        monkeypatch.setattr(
+            quote_provider, 'fetch_etf_daily_kline_akshare',
+            lambda s, days=250: fake_bars,
+        )
+
+        bars = fetch_etf_daily_kline("562500", days=30)
+        assert len(bars) == 2
+        assert bars[0].date == '2026-01-02'
+
+        # 数据应写入 DB
+        from app.models.etf_kline_cache import EtfKlineCache
+        cached = EtfKlineCache.get_recent("SH562500", 30)
+        assert len(cached) == 2
+        assert cached[0].date.strftime('%Y-%m-%d') == '2026-01-02'
+
+    def test_uses_db_data_when_both_sources_fail(self, db, monkeypatch):
+        """东财 + akshare 都失败，但 DB 有历史数据 → 用 DB 数据。"""
+        from app.services import quote_provider
+        from app.services.quote_provider import fetch_etf_daily_kline
+        from app.models.etf_kline_cache import EtfKlineCache
+        from datetime import date
+        import requests as req
+
+        # 预置 DB 数据
+        db.session.add(EtfKlineCache(
+            symbol="SH562500", date=date(2026, 1, 2),
+            open=1.050, high=1.080, low=1.040, close=1.070,
+            volume=100000, amount=105000,
+        ))
+        db.session.commit()
+
+        def em_fail(url, params=None, timeout=10, **kw):
+            raise req.exceptions.RequestException("em down")
+
+        monkeypatch.setattr(quote_provider.requests, "get", em_fail)
+        monkeypatch.setattr(
+            quote_provider, 'fetch_etf_daily_kline_akshare',
+            lambda s, days=250: (_ for _ in ()).throw(RuntimeError("sina down")),
+        )
+
+        bars = fetch_etf_daily_kline("562500", days=30)
+        assert len(bars) == 1
+        assert bars[0].date == '2026-01-02'
+
+    def test_returns_empty_when_all_sources_fail_and_no_cache(self, db, monkeypatch):
+        """东财 + akshare 都失败，DB 空 → 返回 []。"""
+        from app.services import quote_provider
+        from app.services.quote_provider import fetch_etf_daily_kline
+        import requests as req
+
+        def em_fail(url, params=None, timeout=10, **kw):
+            raise req.exceptions.RequestException("em down")
+
+        monkeypatch.setattr(quote_provider.requests, "get", em_fail)
+        monkeypatch.setattr(
+            quote_provider, 'fetch_etf_daily_kline_akshare',
+            lambda s, days=250: (_ for _ in ()).throw(RuntimeError("sina down")),
+        )
+
+        bars = fetch_etf_daily_kline("562500", days=30)
+        assert bars == []

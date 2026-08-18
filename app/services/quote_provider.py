@@ -233,6 +233,30 @@ def fetch_etf_daily_kline(symbol: str, days: int = 250) -> list[ETFDailyBar]:
     if remote_name:
         _etf_name_cache[prefixed] = remote_name
 
+    if klines is None:
+        # 东财失败 → fallback akshare 新浪源
+        try:
+            ak_bars = fetch_etf_daily_kline_akshare(symbol, days=days)
+            if ak_bars:
+                from app.extensions import db
+                new_rows = []
+                for b in ak_bars:
+                    d = datetime.strptime(b.date, "%Y-%m-%d").date()
+                    exists = EtfKlineCache.query.filter_by(symbol=prefixed, date=d).first()
+                    if exists:
+                        continue
+                    new_rows.append(EtfKlineCache(
+                        symbol=prefixed, date=d,
+                        open=b.open, high=b.high, low=b.low, close=b.close,
+                        volume=b.volume, amount=b.amount,
+                    ))
+                if new_rows:
+                    db.session.bulk_save_objects(new_rows)
+                    db.session.commit()
+                logger.info("kline fallback to akshare sina: %s (%d bars)", prefixed, len(ak_bars))
+        except Exception as e:
+            logger.warning("akshare fallback failed for %s: %s", prefixed, e)
+
     if klines is not None:
         # 写入 DB
         new_rows = []
@@ -258,8 +282,8 @@ def fetch_etf_daily_kline(symbol: str, days: int = 250) -> list[ETFDailyBar]:
             from app.extensions import db
             db.session.bulk_save_objects(new_rows)
             db.session.commit()
-    elif latest_cached is None:
-        # 远端失败且 DB 无数据
+    elif EtfKlineCache.get_latest_date(prefixed) is None:
+        # 东财 + akshare 都失败，且 DB 无数据
         return []
 
     # 返回 DB 中最近 days 条
