@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-CN" data-color-mode="cn">
+<html lang="{{ 'zh-CN' if current_locale == 'zh' else 'en-US' }}" data-color-mode="{{ 'cn' if current_locale == 'zh' else 'intl' }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,15 +13,17 @@
             if (m) document.documentElement.setAttribute('data-color-mode', m);
         })();
     </script>
+    <script>window.I18N = {{ js_translations()|tojson }};</script>
+    <script src="{{ url_for('static', filename='js/i18n.js') }}"></script>
     {% block css %}{% endblock %}
 </head>
 <body>
-    {% block navbar %}
     <nav class="navbar navbar-expand-lg navbar-dark navbar-treasure">
         <div class="container">
             <a class="navbar-brand" href="{{ url_for('dashboard.index') }}">
                 <i class="bi bi-bar-chart-fill"></i> Treasure
             </a>
+            {% block navbar %}
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -30,39 +32,39 @@
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('dashboard.index') }}">
-                            <i class="bi bi-speedometer2"></i> 仪表盘
+                            <i class="bi bi-speedometer2"></i> {{ _('仪表盘') }}
                         </a>
                     </li>
                     {% if current_user.is_main_account %}
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('funds.manage_funds') }}">
-                            <i class="bi bi-collection"></i> 基金管理
+                            <i class="bi bi-collection"></i> {{ _('基金管理') }}
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('positions.manage_positions') }}">
-                            <i class="bi bi-pie-chart"></i> 持仓管理
+                            <i class="bi bi-pie-chart"></i> {{ _('持仓管理') }}
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('funds.crawl_fund_nav') }}">
-                            <i class="bi bi-arrow-repeat"></i> 净值更新
+                            <i class="bi bi-arrow-repeat"></i> {{ _('净值更新') }}
                         </a>
                     </li>
                     {% endif %}
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('image.upload_image') }}">
-                            <i class="bi bi-image"></i> 图片识别
+                            <i class="bi bi-image"></i> {{ _('图片识别') }}
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('reports.reports') }}">
-                            <i class="bi bi-file-earmark-bar-graph"></i> 投资报告
+                            <i class="bi bi-file-earmark-bar-graph"></i> {{ _('投资报告') }}
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('ai.assistant') }}">
-                            <i class="bi bi-robot"></i> AI助手
+                            <i class="bi bi-robot"></i> {{ _('AI助手') }}
                         </a>
                     </li>
                 </ul>
@@ -74,7 +76,7 @@
                         <ul class="dropdown-menu dropdown-menu-end">
                             <li>
                                 <a class="dropdown-item" href="{{ url_for('auth.logout') }}">
-                                    <i class="bi bi-box-arrow-right"></i> 退出登录
+                                    <i class="bi bi-box-arrow-right"></i> {{ _('退出登录') }}
                                 </a>
                             </li>
                         </ul>
@@ -82,9 +84,32 @@
                 </ul>
                 {% endif %}
             </div>
+            {% endblock %}
+            <div class="navbar-nav ms-auto d-flex flex-row align-items-center gap-2">
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-translate me-1"></i>{{ 'English' if current_locale == 'en' else '中文' }}
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="#" onclick="setLocale('zh'); return false;">中文</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="setLocale('en'); return false;">English</a></li>
+                    </ul>
+                </div>
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-palette me-1"></i><span id="color-mode-label">{{ _('跟随语言') }}</span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="#" onclick="setColorMode('follow'); return false;">{{ _('跟随语言') }}</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="setColorMode('cn'); return false;">{{ _('红涨绿跌') }}</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="setColorMode('intl'); return false;">{{ _('绿涨红跌') }}</a></li>
+                    </ul>
+                </div>
+            </div>
         </div>
     </nav>
-    {% endblock %}
 
     {% block main %}
     <main class="container py-4">

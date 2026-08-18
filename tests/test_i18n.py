@@ -50,3 +50,31 @@ class TestSetLocale:
         resp = i18n_client.post('/locale/set', data={'lang': 'fr'})
         assert resp.status_code == 400
         assert resp.get_json()['ok'] is False
+
+
+class TestTemplateI18n:
+    def test_js_dict_injected(self, i18n_client):
+        resp = i18n_client.get('/login')
+        assert resp.status_code == 200
+        assert b'window.I18N' in resp.data
+
+    def test_lang_attr_zh_default(self, i18n_client):
+        resp = i18n_client.get('/login')
+        assert resp.status_code == 200
+        assert b'lang="zh-CN"' in resp.data or b"lang='zh-CN'" in resp.data
+
+    def test_color_mode_cn_for_zh(self, i18n_client):
+        resp = i18n_client.get('/login')
+        assert b'data-color-mode="cn"' in resp.data
+
+    def test_color_mode_intl_for_en(self, i18n_client):
+        i18n_client.set_cookie('locale', 'en')
+        resp = i18n_client.get('/login')
+        assert b'data-color-mode="intl"' in resp.data
+        assert b'lang="en-US"' in resp.data or b"lang='en-US'" in resp.data
+
+    def test_locale_dropdown_present_on_login_page(self, i18n_client):
+        """登录页（未登录）也能看到语言下拉。"""
+        resp = i18n_client.get('/login')
+        assert resp.status_code == 200
+        assert b'setLocale' in resp.data
