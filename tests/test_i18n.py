@@ -140,3 +140,18 @@ class TestFundsI18n:
         resp = i18n_client.get('/crawl_fund_nav')
         assert resp.status_code == 200
         assert b'NAV Update' in resp.data
+
+
+class TestPositionsI18n:
+    def test_manage_positions_page_en(self, i18n_app, i18n_client):
+        from app.models import User
+        from app.extensions import db
+        with i18n_app.app_context():
+            db.create_all()
+            u = User(username='i18nadmin4', password=generate_password_hash('pw123', method='pbkdf2:sha256'), is_main_account=True)
+            db.session.add(u); db.session.commit()
+        i18n_client.post('/login', data={'username': 'i18nadmin4', 'password': 'pw123'})
+        i18n_client.set_cookie('locale', 'en')
+        resp = i18n_client.get('/manage_positions')
+        assert resp.status_code == 200
+        assert b'Position' in resp.data

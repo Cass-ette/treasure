@@ -3,6 +3,7 @@ from flask import Blueprint, redirect, url_for, flash, request
 from flask_login import login_required, current_user
 from app.extensions import db
 from app.models.user import User
+from flask_babel import gettext as _
 
 bp = Blueprint('accounts', __name__)
 
@@ -11,7 +12,7 @@ bp = Blueprint('accounts', __name__)
 @login_required
 def update_sub_account_principal():
     if not current_user.is_main_account:
-        flash('只有管理员账户可以执行此操作', 'error')
+        flash(_('只有管理员账户可以执行此操作'), 'error')
         return redirect(url_for('dashboard.index'))
 
     try:
@@ -19,25 +20,25 @@ def update_sub_account_principal():
         principal = request.form.get('principal')
 
         if not account_id or not principal:
-            flash('参数不完整', 'error')
+            flash(_('参数不完整'), 'error')
             return redirect(url_for('dashboard.index'))
 
         principal = float(principal)
         if principal < 0:
-            flash('本金不能为负数', 'error')
+            flash(_('本金不能为负数'), 'error')
             return redirect(url_for('dashboard.index'))
 
         sub_account = User.query.get(account_id)
         if not sub_account or sub_account.is_main_account:
-            flash('未找到该次级账户', 'error')
+            flash(_('未找到该次级账户'), 'error')
             return redirect(url_for('dashboard.index'))
 
         sub_account.principal = principal
         db.session.commit()
-        flash(f'账户 {sub_account.username} 的本金已更新为 {principal}', 'success')
+        flash(_('账户 %(username)s 的本金已更新为 %(principal)s', username=sub_account.username, principal=principal), 'success')
     except ValueError:
-        flash('本金必须为数字', 'error')
+        flash(_('本金必须为数字'), 'error')
     except Exception as e:
-        flash(f'更新本金时出错: {str(e)}', 'error')
+        flash(_('更新本金时出错: %(error)s', error=str(e)), 'error')
 
     return redirect(url_for('dashboard.index'))

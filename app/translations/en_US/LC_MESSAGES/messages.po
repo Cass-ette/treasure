@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-08-20 01:07+0800\n"
+"POT-Creation-Date: 2026-08-20 01:30+0800\n"
 "PO-Revision-Date: 2026-08-19 02:18+0800\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: en_US\n"
@@ -18,11 +18,48 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.14.0\n"
 
+#: app/routes/accounts.py:15 app/routes/funds.py:160 app/routes/funds.py:195
+#: app/routes/positions.py:78
+msgid "只有管理员账户可以执行此操作"
+msgstr "Only the admin account can perform this operation"
+
+
+#: app/routes/accounts.py:23
+msgid "参数不完整"
+msgstr "Incomplete parameters"
+
+
+#: app/routes/accounts.py:28
+msgid "本金不能为负数"
+msgstr "Principal cannot be negative"
+
+
+#: app/routes/accounts.py:33
+msgid "未找到该次级账户"
+msgstr "Sub-account not found"
+
+
+#: app/routes/accounts.py:38
+#, python-format
+msgid "账户 %(username)s 的本金已更新为 %(principal)s"
+msgstr "Principal of account %(username)s has been updated to %(principal)s"
+
+
+#: app/routes/accounts.py:40
+msgid "本金必须为数字"
+msgstr "Principal must be a number"
+
+
+#: app/routes/accounts.py:42
+msgid "更新本金时出错: %(error)s"
+msgstr "Error updating principal: %(error)s"
+
+
 #: app/routes/auth.py:24
 msgid "用户名或密码错误"
 msgstr "Invalid username or password"
 
-#: app/routes/funds.py:16
+#: app/routes/funds.py:16 app/routes/positions.py:17
 msgid "只有管理员账户可以访问此页面"
 msgstr "Only the admin account can access this page"
 
@@ -84,10 +121,6 @@ msgstr "Fund %(code)s - %(name)s NAV updated successfully"
 msgid "基金 %(code)s - %(name)s 净值更新失败"
 msgstr "Fund %(code)s - %(name)s NAV update failed"
 
-#: app/routes/funds.py:160 app/routes/funds.py:195
-msgid "只有管理员账户可以执行此操作"
-msgstr "Only the admin account can perform this operation"
-
 #: app/routes/funds.py:164
 msgid "基金代码必须是6位数字"
 msgstr "Fund code must be 6 digits"
@@ -145,12 +178,55 @@ msgstr "Fund %(code)s"
 #: app/routes/funds.py:249
 #, python-format
 msgid "基金 %(code)s - %(name)s 已成功添加到系统（使用识别信息创建）"
-msgstr "Fund %(code)s - %(name)s added successfully (created from recognition info)"
+msgstr ""
+"Fund %(code)s - %(name)s added successfully (created from recognition "
+"info)"
 
 #: app/routes/funds.py:251
 #, python-format
 msgid "添加基金时出错: %(error)s"
 msgstr "Error adding fund: %(error)s"
+
+#: app/routes/positions.py:27 app/routes/positions.py:53
+#: app/routes/positions.py:83
+msgid "未找到该持仓"
+msgstr "Position not found"
+
+
+#: app/routes/positions.py:38
+msgid "所有字段为必填项"
+msgstr "All fields are required"
+
+
+#: app/routes/positions.py:46
+msgid "份额和成本价必须为数字"
+msgstr "Shares and cost price must be numbers"
+
+
+#: app/routes/positions.py:59
+msgid "持仓信息更新成功"
+msgstr "Position updated successfully"
+
+
+#: app/routes/positions.py:62
+msgid "该用户已持有该基金"
+msgstr "This user already holds this fund"
+
+
+#: app/routes/positions.py:65
+msgid "持仓添加成功"
+msgstr "Position added successfully"
+
+
+#: app/routes/positions.py:89
+msgid "持仓删除成功"
+msgstr "Position deleted successfully"
+
+
+#: app/routes/positions.py:91
+msgid "删除持仓失败: %(error)s"
+msgstr "Failed to delete position: %(error)s"
+
 
 #: app/static/js/i18n.js:31 app/templates/base.html:102
 #: app/templates/base.html:105
@@ -174,9 +250,11 @@ msgstr "Dashboard"
 msgid "基金管理"
 msgstr "Fund Management"
 
-#: app/templates/base.html:46
+#: app/templates/base.html:46 app/templates/manage_positions.html:3
+#: app/templates/manage_positions.html:7
 msgid "持仓管理"
-msgstr "Position management"
+msgstr "Position Management"
+
 
 #: app/templates/base.html:51 app/templates/crawl_fund_nav.html:3
 #: app/templates/crawl_fund_nav.html:7
@@ -277,9 +355,11 @@ msgid "净值日期"
 msgstr "NAV Date"
 
 #: app/templates/crawl_fund_nav.html:61 app/templates/dashboard.html:135
-#: app/templates/manage_funds.html:88 app/templates/reports/main.html:68
+#: app/templates/manage_funds.html:88 app/templates/manage_positions.html:82
+#: app/templates/reports/main.html:68
 msgid "操作"
 msgstr "Actions"
+
 
 #: app/templates/crawl_fund_nav.html:76
 msgid "爬取"
@@ -351,9 +431,10 @@ msgstr "P&L"
 msgid "占比"
 msgstr "Weight"
 
-#: app/templates/dashboard.html:114
+#: app/templates/dashboard.html:114 app/templates/manage_positions.html:106
 msgid "暂无持仓数据"
-msgstr "No positions yet"
+msgstr "No position data yet"
+
 
 #: app/templates/dashboard.html:126
 msgid "次级账户管理"
@@ -398,8 +479,10 @@ msgid "确认修改"
 msgstr "Confirm"
 
 #: app/templates/dashboard.html:184 app/templates/manage_funds.html:58
+#: app/templates/manage_positions.html:60
 msgid "取消"
 msgstr "Cancel"
+
 
 #: app/templates/login.html:3 app/templates/login.html:31
 msgid "登录"
@@ -445,17 +528,20 @@ msgstr "Before deleting a fund, make sure it has no associated position records.
 msgid "前三十日平均净值"
 msgstr "30-Day Average NAV"
 
-#: app/templates/manage_funds.html:104
+#: app/templates/manage_funds.html:104 app/templates/manage_positions.html:95
 msgid "编辑"
 msgstr "Edit"
+
 
 #: app/templates/manage_funds.html:106
 msgid "该基金有相关持仓，无法删除"
 msgstr "This fund has associated positions and cannot be deleted"
 
 #: app/templates/manage_funds.html:106 app/templates/manage_funds.html:110
+#: app/templates/manage_positions.html:99
 msgid "删除"
 msgstr "Delete"
+
 
 #: app/templates/manage_funds.html:110
 msgid "确定要删除这个基金吗？删除后无法恢复！"
@@ -464,6 +550,72 @@ msgstr "Are you sure you want to delete this fund? This cannot be undone!"
 #: app/templates/manage_funds.html:118
 msgid "暂无基金数据"
 msgstr "No fund data"
+
+#: app/templates/manage_positions.html:14
+msgid "编辑持仓"
+msgstr "Edit Position"
+
+
+#: app/templates/manage_positions.html:14
+#: app/templates/manage_positions.html:57
+msgid "添加持仓"
+msgstr "Add Position"
+
+
+#: app/templates/manage_positions.html:22
+#: app/templates/manage_positions.html:77
+msgid "用户"
+msgstr "User"
+
+
+#: app/templates/manage_positions.html:24
+msgid "请选择用户"
+msgstr "Select a user"
+
+
+#: app/templates/manage_positions.html:33
+#: app/templates/manage_positions.html:78
+msgid "基金"
+msgstr "Fund"
+
+
+#: app/templates/manage_positions.html:35
+msgid "请选择基金"
+msgstr "Select a fund"
+
+
+#: app/templates/manage_positions.html:44
+#: app/templates/manage_positions.html:79
+msgid "持有份额"
+msgstr "Shares Held"
+
+
+#: app/templates/manage_positions.html:49
+#: app/templates/manage_positions.html:80 app/templates/reports/user.html:83
+#: app/templates/reports/user_detail.html:89
+msgid "成本价"
+msgstr "Cost Price"
+
+
+#: app/templates/manage_positions.html:57
+msgid "更新持仓"
+msgstr "Update Position"
+
+
+#: app/templates/manage_positions.html:70
+msgid "持仓列表"
+msgstr "Position List"
+
+
+#: app/templates/manage_positions.html:81
+msgid "创建时间"
+msgstr "Created At"
+
+
+#: app/templates/manage_positions.html:99
+msgid "确定要删除该持仓吗？"
+msgstr "Are you sure you want to delete this position?"
+
 
 #: app/templates/reports/fund_chart.html:3
 #, python-format
@@ -582,10 +734,6 @@ msgstr "Current positions"
 #: app/templates/reports/user.html:82 app/templates/reports/user_detail.html:88
 msgid "份额"
 msgstr "Shares"
-
-#: app/templates/reports/user.html:83 app/templates/reports/user_detail.html:89
-msgid "成本价"
-msgstr "Cost Price"
 
 #: app/templates/reports/user.html:89 app/templates/reports/user_detail.html:95
 msgid "走势"

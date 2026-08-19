@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-08-20 01:07+0800\n"
+"POT-Creation-Date: 2026-08-20 01:30+0800\n"
 "PO-Revision-Date: 2026-08-19 00:54+0800\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: zh_Hans_CN\n"
@@ -18,11 +18,42 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.14.0\n"
 
+#: app/routes/accounts.py:15 app/routes/funds.py:160 app/routes/funds.py:195
+#: app/routes/positions.py:78
+msgid "只有管理员账户可以执行此操作"
+msgstr ""
+
+#: app/routes/accounts.py:23
+msgid "参数不完整"
+msgstr ""
+
+#: app/routes/accounts.py:28
+msgid "本金不能为负数"
+msgstr ""
+
+#: app/routes/accounts.py:33
+msgid "未找到该次级账户"
+msgstr ""
+
+#: app/routes/accounts.py:38
+#, python-format
+msgid "账户 %(username)s 的本金已更新为 %(principal)s"
+msgstr ""
+
+#: app/routes/accounts.py:40
+msgid "本金必须为数字"
+msgstr ""
+
+#: app/routes/accounts.py:42
+#, python-format
+msgid "更新本金时出错: %(error)s"
+msgstr ""
+
 #: app/routes/auth.py:24
 msgid "用户名或密码错误"
 msgstr ""
 
-#: app/routes/funds.py:16
+#: app/routes/funds.py:16 app/routes/positions.py:17
 msgid "只有管理员账户可以访问此页面"
 msgstr ""
 
@@ -80,10 +111,6 @@ msgstr ""
 #: app/routes/funds.py:149
 #, python-format
 msgid "基金 %(code)s - %(name)s 净值更新失败"
-msgstr ""
-
-#: app/routes/funds.py:160 app/routes/funds.py:195
-msgid "只有管理员账户可以执行此操作"
 msgstr ""
 
 #: app/routes/funds.py:164
@@ -150,6 +177,40 @@ msgstr ""
 msgid "添加基金时出错: %(error)s"
 msgstr ""
 
+#: app/routes/positions.py:27 app/routes/positions.py:53
+#: app/routes/positions.py:83
+msgid "未找到该持仓"
+msgstr ""
+
+#: app/routes/positions.py:38
+msgid "所有字段为必填项"
+msgstr ""
+
+#: app/routes/positions.py:46
+msgid "份额和成本价必须为数字"
+msgstr ""
+
+#: app/routes/positions.py:59
+msgid "持仓信息更新成功"
+msgstr ""
+
+#: app/routes/positions.py:62
+msgid "该用户已持有该基金"
+msgstr ""
+
+#: app/routes/positions.py:65
+msgid "持仓添加成功"
+msgstr ""
+
+#: app/routes/positions.py:89
+msgid "持仓删除成功"
+msgstr ""
+
+#: app/routes/positions.py:91
+#, python-format
+msgid "删除持仓失败: %(error)s"
+msgstr ""
+
 #: app/static/js/i18n.js:31 app/templates/base.html:102
 #: app/templates/base.html:105
 msgid "跟随语言"
@@ -172,7 +233,8 @@ msgstr ""
 msgid "基金管理"
 msgstr ""
 
-#: app/templates/base.html:46
+#: app/templates/base.html:46 app/templates/manage_positions.html:3
+#: app/templates/manage_positions.html:7
 msgid "持仓管理"
 msgstr ""
 
@@ -275,7 +337,8 @@ msgid "净值日期"
 msgstr ""
 
 #: app/templates/crawl_fund_nav.html:61 app/templates/dashboard.html:135
-#: app/templates/manage_funds.html:88 app/templates/reports/main.html:68
+#: app/templates/manage_funds.html:88 app/templates/manage_positions.html:82
+#: app/templates/reports/main.html:68
 msgid "操作"
 msgstr ""
 
@@ -349,7 +412,7 @@ msgstr ""
 msgid "占比"
 msgstr ""
 
-#: app/templates/dashboard.html:114
+#: app/templates/dashboard.html:114 app/templates/manage_positions.html:106
 msgid "暂无持仓数据"
 msgstr ""
 
@@ -396,6 +459,7 @@ msgid "确认修改"
 msgstr ""
 
 #: app/templates/dashboard.html:184 app/templates/manage_funds.html:58
+#: app/templates/manage_positions.html:60
 msgid "取消"
 msgstr ""
 
@@ -443,7 +507,7 @@ msgstr ""
 msgid "前三十日平均净值"
 msgstr ""
 
-#: app/templates/manage_funds.html:104
+#: app/templates/manage_funds.html:104 app/templates/manage_positions.html:95
 msgid "编辑"
 msgstr ""
 
@@ -452,6 +516,7 @@ msgid "该基金有相关持仓，无法删除"
 msgstr ""
 
 #: app/templates/manage_funds.html:106 app/templates/manage_funds.html:110
+#: app/templates/manage_positions.html:99
 msgid "删除"
 msgstr ""
 
@@ -461,6 +526,60 @@ msgstr ""
 
 #: app/templates/manage_funds.html:118
 msgid "暂无基金数据"
+msgstr ""
+
+#: app/templates/manage_positions.html:14
+msgid "编辑持仓"
+msgstr ""
+
+#: app/templates/manage_positions.html:14
+#: app/templates/manage_positions.html:57
+msgid "添加持仓"
+msgstr ""
+
+#: app/templates/manage_positions.html:22
+#: app/templates/manage_positions.html:77
+msgid "用户"
+msgstr ""
+
+#: app/templates/manage_positions.html:24
+msgid "请选择用户"
+msgstr ""
+
+#: app/templates/manage_positions.html:33
+#: app/templates/manage_positions.html:78
+msgid "基金"
+msgstr ""
+
+#: app/templates/manage_positions.html:35
+msgid "请选择基金"
+msgstr ""
+
+#: app/templates/manage_positions.html:44
+#: app/templates/manage_positions.html:79
+msgid "持有份额"
+msgstr ""
+
+#: app/templates/manage_positions.html:49
+#: app/templates/manage_positions.html:80 app/templates/reports/user.html:83
+#: app/templates/reports/user_detail.html:89
+msgid "成本价"
+msgstr ""
+
+#: app/templates/manage_positions.html:57
+msgid "更新持仓"
+msgstr ""
+
+#: app/templates/manage_positions.html:70
+msgid "持仓列表"
+msgstr ""
+
+#: app/templates/manage_positions.html:81
+msgid "创建时间"
+msgstr ""
+
+#: app/templates/manage_positions.html:99
+msgid "确定要删除该持仓吗？"
 msgstr ""
 
 #: app/templates/reports/fund_chart.html:3
@@ -579,10 +698,6 @@ msgstr ""
 
 #: app/templates/reports/user.html:82 app/templates/reports/user_detail.html:88
 msgid "份额"
-msgstr ""
-
-#: app/templates/reports/user.html:83 app/templates/reports/user_detail.html:89
-msgid "成本价"
 msgstr ""
 
 #: app/templates/reports/user.html:89 app/templates/reports/user_detail.html:95
