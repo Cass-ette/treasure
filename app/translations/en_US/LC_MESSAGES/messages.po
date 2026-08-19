@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-08-19 02:18+0800\n"
+"POT-Creation-Date: 2026-08-20 00:57+0800\n"
 "PO-Revision-Date: 2026-08-19 02:18+0800\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: en_US\n"
@@ -55,7 +55,8 @@ msgstr "NAV update"
 msgid "图片识别"
 msgstr "Image recognition"
 
-#: app/templates/base.html:62
+#: app/templates/base.html:62 app/templates/reports/main.html:3
+#: app/templates/reports/main.html:7
 msgid "投资报告"
 msgstr "Investment report"
 
@@ -75,7 +76,7 @@ msgstr "Investment dashboard"
 msgid "ETF 代码（如 562500）"
 msgstr "ETF code (e.g. 562500)"
 
-#: app/templates/dashboard.html:13
+#: app/templates/dashboard.html:13 app/templates/reports/user_detail.html:124
 msgid "筹码峰"
 msgstr "Chip peaks"
 
@@ -92,6 +93,9 @@ msgid "总盈亏"
 msgstr "Total P&L"
 
 #: app/templates/dashboard.html:56 app/templates/dashboard.html:91
+#: app/templates/reports/main.html:66 app/templates/reports/user.html:50
+#: app/templates/reports/user.html:88 app/templates/reports/user_detail.html:56
+#: app/templates/reports/user_detail.html:94
 msgid "收益率"
 msgstr "Yield"
 
@@ -103,19 +107,27 @@ msgstr "Position distribution"
 msgid "持仓概览"
 msgstr "Positions overview"
 
-#: app/templates/dashboard.html:87
+#: app/templates/dashboard.html:87 app/templates/reports/user.html:81
+#: app/templates/reports/user_detail.html:87
 msgid "基金名称"
 msgstr "Fund name"
 
-#: app/templates/dashboard.html:88
+#: app/templates/dashboard.html:88 app/templates/reports/user.html:85
+#: app/templates/reports/user_detail.html:91
 msgid "成本"
 msgstr "Cost"
 
-#: app/templates/dashboard.html:89
+#: app/templates/dashboard.html:89 app/templates/reports/main.html:64
+#: app/templates/reports/user.html:34 app/templates/reports/user.html:86
+#: app/templates/reports/user_detail.html:40
+#: app/templates/reports/user_detail.html:92
 msgid "市值"
 msgstr "Market value"
 
-#: app/templates/dashboard.html:90
+#: app/templates/dashboard.html:90 app/templates/reports/main.html:65
+#: app/templates/reports/user.html:45 app/templates/reports/user.html:87
+#: app/templates/reports/user_detail.html:51
+#: app/templates/reports/user_detail.html:93
 msgid "盈亏"
 msgstr "P&L"
 
@@ -132,11 +144,12 @@ msgid "次级账户管理"
 msgstr "Sub-accounts"
 
 #: app/templates/dashboard.html:132 app/templates/dashboard.html:174
-#: app/templates/login.html:24
+#: app/templates/login.html:24 app/templates/reports/main.html:62
 msgid "用户名"
 msgstr "Username"
 
-#: app/templates/dashboard.html:133
+#: app/templates/dashboard.html:133 app/templates/reports/main.html:63
+#: app/templates/reports/user.html:23 app/templates/reports/user_detail.html:29
 msgid "本金"
 msgstr "Principal"
 
@@ -144,7 +157,7 @@ msgstr "Principal"
 msgid "状态"
 msgstr "Status"
 
-#: app/templates/dashboard.html:135
+#: app/templates/dashboard.html:135 app/templates/reports/main.html:68
 msgid "操作"
 msgstr "Actions"
 
@@ -195,3 +208,204 @@ msgstr "Password"
 #: app/templates/login.html:29
 msgid "请输入密码"
 msgstr "Enter password"
+
+#: app/templates/reports/fund_chart.html:3
+#, python-format
+msgid "%(name)s 走势"
+msgstr "%(name)s Trend"
+
+#: app/templates/reports/fund_chart.html:13
+#: app/templates/reports/user_detail.html:13
+msgid "返回"
+msgstr "Back"
+
+#: app/templates/reports/fund_chart.html:15 app/templates/reports/user.html:10
+#: app/templates/reports/user_detail.html:16
+msgid "30天"
+msgstr "30d"
+
+#: app/templates/reports/fund_chart.html:16 app/templates/reports/user.html:11
+#: app/templates/reports/user_detail.html:17
+msgid "60天"
+msgstr "60d"
+
+#: app/templates/reports/fund_chart.html:17 app/templates/reports/user.html:12
+#: app/templates/reports/user_detail.html:18
+msgid "90天"
+msgstr "90d"
+
+#: app/templates/reports/fund_chart.html:25
+msgid "基金类型"
+msgstr "Fund type"
+
+#: app/templates/reports/fund_chart.html:31 app/templates/reports/user.html:84
+#: app/templates/reports/user_detail.html:90
+msgid "最新净值"
+msgstr "Latest NAV"
+
+#: app/templates/reports/fund_chart.html:37
+msgid "净值日期"
+msgstr "NAV date"
+
+#: app/templates/reports/fund_chart.html:43
+msgid "查看范围"
+msgstr "Range"
+
+#: app/templates/reports/fund_chart.html:44
+#, python-format
+msgid "近 %(days)s 个交易日"
+msgstr "Last %(days)s trading days"
+
+#: app/templates/reports/fund_chart.html:51
+msgid "净值走势"
+msgstr "NAV trend"
+
+#: app/templates/reports/fund_chart.html:61
+msgid "区间统计"
+msgstr "Period statistics"
+
+#: app/templates/reports/fund_chart.html:65
+msgid "最高净值"
+msgstr "Highest NAV"
+
+#: app/templates/reports/fund_chart.html:69
+msgid "最低净值"
+msgstr "Lowest NAV"
+
+#: app/templates/reports/fund_chart.html:73
+msgid "平均净值"
+msgstr "Average NAV"
+
+#: app/templates/reports/fund_chart.html:77
+msgid "区间涨跌"
+msgstr "Period change"
+
+#: app/templates/reports/fund_chart.html:81
+msgid "区间涨跌幅"
+msgstr "Period change %"
+
+#: app/templates/reports/fund_chart.html:85
+msgid "交易日数"
+msgstr "Trading days"
+
+#: app/templates/reports/main.html:19
+#, fuzzy
+msgid "全部本金"
+msgstr "Principal"
+
+#: app/templates/reports/main.html:30
+#, fuzzy
+msgid "全部市值"
+msgstr "Market value"
+
+#: app/templates/reports/main.html:41
+#, fuzzy
+msgid "全部盈亏"
+msgstr "P&L"
+
+#: app/templates/reports/main.html:55
+#, fuzzy
+msgid "次级账户报告"
+msgstr "Sub-accounts"
+
+#: app/templates/reports/main.html:67
+#, fuzzy
+msgid "持仓数"
+msgstr "No positions yet"
+
+#: app/templates/reports/main.html:87
+msgid "查看报告"
+msgstr "View report"
+
+#: app/templates/reports/main.html:93
+#, fuzzy
+msgid "暂无次级账户"
+msgstr "No sub-accounts"
+
+#: app/templates/reports/user.html:3 app/templates/reports/user.html:7
+#, fuzzy
+msgid "我的投资报告"
+msgstr "Investment report"
+
+#: app/templates/reports/user.html:9 app/templates/reports/user_detail.html:15
+msgid "15天"
+msgstr "15d"
+
+#: app/templates/reports/user.html:61 app/templates/reports/user_detail.html:67
+msgid "收益曲线"
+msgstr "Profit curve"
+
+#: app/templates/reports/user.html:68 app/templates/reports/user_detail.html:74
+#, fuzzy
+msgid "暂无收益数据"
+msgstr "No positions yet"
+
+#: app/templates/reports/user.html:75 app/templates/reports/user_detail.html:81
+msgid "当前持仓"
+msgstr "Current positions"
+
+#: app/templates/reports/user.html:82 app/templates/reports/user_detail.html:88
+msgid "份额"
+msgstr "Shares"
+
+#: app/templates/reports/user.html:83 app/templates/reports/user_detail.html:89
+#, fuzzy
+msgid "成本价"
+msgstr "Cost"
+
+#: app/templates/reports/user.html:89 app/templates/reports/user_detail.html:95
+msgid "走势"
+msgstr "Trend"
+
+#: app/templates/reports/user.html:121
+#: app/templates/reports/user_detail.html:133
+#, fuzzy
+msgid "暂无持仓"
+msgstr "No positions yet"
+
+#: app/templates/reports/user.html:133
+#: app/templates/reports/user_detail.html:145
+msgid "分成协议"
+msgstr "Profit-sharing agreement"
+
+#: app/templates/reports/user.html:137
+#: app/templates/reports/user_detail.html:149
+msgid "分成比例"
+msgstr "Profit share ratio"
+
+#: app/templates/reports/user.html:140
+#: app/templates/reports/user_detail.html:152
+msgid "保本"
+msgstr "Capital protected"
+
+#: app/templates/reports/user.html:140
+#: app/templates/reports/user_detail.html:152
+msgid "是"
+msgstr "Yes"
+
+#: app/templates/reports/user.html:140
+#: app/templates/reports/user_detail.html:152
+msgid "否"
+msgstr "No"
+
+#: app/templates/reports/user.html:144
+#: app/templates/reports/user_detail.html:156
+msgid "保本比例"
+msgstr "Capital protection ratio"
+
+#: app/templates/reports/user.html:155
+#: app/templates/reports/user_detail.html:167
+msgid "持仓基金走势"
+msgstr "Holding fund trends"
+
+#: app/templates/reports/user.html:165
+#: app/templates/reports/user_detail.html:177
+msgid "详情"
+msgstr "Details"
+
+#: app/templates/reports/user_detail.html:3
+#: app/templates/reports/user_detail.html:9
+#, python-format
+msgid "%(username)s 的投资报告"
+msgstr "%(username)s's Investment Report"
+

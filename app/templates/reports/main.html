@@ -1,10 +1,10 @@
 {% extends "base.html" %}
 
-{% block title %}投资报告 - Treasure{% endblock %}
+{% block title %}{{ _('投资报告') }} - Treasure{% endblock %}
 
 {% block content %}
 <div class="page-header">
-    <h1><i class="bi bi-file-earmark-bar-graph" style="color: var(--color-accent);"></i> 投资报告</h1>
+    <h1><i class="bi bi-file-earmark-bar-graph" style="color: var(--color-accent);"></i> {{ _('投资报告') }}</h1>
 </div>
 
 <!-- 汇总卡片 -->
@@ -16,7 +16,7 @@
         <div class="kpi-card">
             <div class="d-flex justify-content-between align-items-start">
                 <div>
-                    <div class="kpi-label">全部本金</div>
+                    <div class="kpi-label">{{ _('全部本金') }}</div>
                     <div class="kpi-value">¥{{ "%.2f"|format(total_principal) }}</div>
                 </div>
                 <div class="kpi-icon kpi-icon-primary"><i class="bi bi-wallet2"></i></div>
@@ -27,7 +27,7 @@
         <div class="kpi-card">
             <div class="d-flex justify-content-between align-items-start">
                 <div>
-                    <div class="kpi-label">全部市值</div>
+                    <div class="kpi-label">{{ _('全部市值') }}</div>
                     <div class="kpi-value">¥{{ "%.2f"|format(total_value) }}</div>
                 </div>
                 <div class="kpi-icon kpi-icon-value"><i class="bi bi-graph-up-arrow"></i></div>
@@ -38,7 +38,7 @@
         <div class="kpi-card">
             <div class="d-flex justify-content-between align-items-start">
                 <div>
-                    <div class="kpi-label">全部盈亏</div>
+                    <div class="kpi-label">{{ _('全部盈亏') }}</div>
                     <div class="kpi-value {{ 'text-profit' if total_profit >= 0 else 'text-loss' }}">
                         ¥{{ "%.2f"|format(total_profit) }}
                     </div>
@@ -52,20 +52,20 @@
 <!-- 次级账户列表 -->
 <div class="card">
     <div class="card-header">
-        <i class="bi bi-people me-1"></i> 次级账户报告
+        <i class="bi bi-people me-1"></i> {{ _('次级账户报告') }}
     </div>
     <div class="card-body p-0">
         <div class="data-table-wrap">
             <table class="data-table">
                 <thead>
                     <tr>
-                        <th>用户名</th>
-                        <th>本金</th>
-                        <th>市值</th>
-                        <th>盈亏</th>
-                        <th>收益率</th>
-                        <th>持仓数</th>
-                        <th>操作</th>
+                        <th>{{ _('用户名') }}</th>
+                        <th>{{ _('本金') }}</th>
+                        <th>{{ _('市值') }}</th>
+                        <th>{{ _('盈亏') }}</th>
+                        <th>{{ _('收益率') }}</th>
+                        <th>{{ _('持仓数') }}</th>
+                        <th>{{ _('操作') }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -84,13 +84,13 @@
                         <td>
                             <a href="{{ url_for('reports.user_report', user_id=s.user.id) }}"
                                class="btn btn-sm btn-outline-primary">
-                                <i class="bi bi-eye"></i> 查看报告
+                                <i class="bi bi-eye"></i> {{ _('查看报告') }}
                             </a>
                         </td>
                     </tr>
                     {% else %}
                     <tr>
-                        <td colspan="7" class="text-center text-muted py-3">暂无次级账户</td>
+                        <td colspan="7" class="text-center text-muted py-3">{{ _('暂无次级账户') }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>

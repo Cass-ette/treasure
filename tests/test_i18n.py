@@ -96,3 +96,19 @@ class TestPilotPages:
         i18n_client.set_cookie('locale', 'en')
         resp = i18n_client.get('/login')
         assert b'Follow language' in resp.data
+
+
+class TestReportsI18n:
+    def test_reports_page_en(self, i18n_app, i18n_client):
+        from app.models import User
+        from app.extensions import db
+        with i18n_app.app_context():
+            db.create_all()
+            u = User(username='i18nadmin', password=generate_password_hash('pw123', method='pbkdf2:sha256'), is_main_account=True)
+            db.session.add(u)
+            db.session.commit()
+        i18n_client.post('/login', data={'username': 'i18nadmin', 'password': 'pw123'})
+        i18n_client.set_cookie('locale', 'en')
+        resp = i18n_client.get('/reports')
+        assert resp.status_code == 200
+        assert b'Report' in resp.data
