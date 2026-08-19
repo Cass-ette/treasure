@@ -154,4 +154,4 @@ class TestPositionsI18n:
         i18n_client.set_cookie('locale', 'en')
         resp = i18n_client.get('/manage_positions')
         assert resp.status_code == 200
-        assert b'Position' in resp.data
+        assert b'Position Management' in resp.data
