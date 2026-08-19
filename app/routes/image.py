@@ -5,6 +5,7 @@ import io
 import requests
 from flask import Blueprint, render_template, request, jsonify
 from flask_login import login_required, current_user
+from flask_babel import gettext as _
 from app.utils.helpers import allowed_file
 from app.extensions import db
 from app.models.fund import Fund
@@ -100,17 +101,17 @@ def upload_image():
 def recognize():
     """上传图片，OCR识别后搜索天天基金网，返回候选基金列表"""
     if 'file' not in request.files:
-        return jsonify({'success': False, 'message': '请选择图片文件'})
+        return jsonify({'success': False, 'message': _('请选择图片文件')})
 
     f = request.files['file']
     if not f.filename or not allowed_file(f.filename):
-        return jsonify({'success': False, 'message': '不支持的文件类型，请上传 PNG/JPG/JPEG/GIF'})
+        return jsonify({'success': False, 'message': _('不支持的文件类型，请上传 PNG/JPG/JPEG/GIF')})
 
     image_bytes = f.read()
     keywords = _ocr_extract_keywords(image_bytes)
 
     if not keywords:
-        return jsonify({'success': False, 'message': '未能从图片中识别出任何基金相关信息，请确认图片清晰且包含基金信息'})
+        return jsonify({'success': False, 'message': _('未能从图片中识别出任何基金相关信息，请确认图片清晰且包含基金信息')})
 
     # 对每个关键词搜索，合并去重结果
     seen_codes = set()
@@ -126,7 +127,7 @@ def recognize():
             'success': True,
             'keywords': keywords,
             'funds': [],
-            'message': f'识别到关键词 {", ".join(keywords[:5])}，但未在天天基金网找到匹配基金'
+            'message': _('识别到关键词 %(keywords)s，但未在天天基金网找到匹配基金', keywords=', '.join(keywords[:5]))
         })
 
     return jsonify({
@@ -142,7 +143,7 @@ def search_fund():
     """手动关键词搜索（用于修正/补充识别结果）"""
     keyword = request.form.get('keyword', '').strip()
     if not keyword:
-        return jsonify({'success': False, 'message': '请输入搜索关键词'})
+        return jsonify({'success': False, 'message': _('请输入搜索关键词')})
     funds = _search_eastmoney(keyword)
     return jsonify({'success': True, 'funds': funds})
 
@@ -152,7 +153,7 @@ def search_fund():
 def import_fund():
     """将选中的基金导入系统"""
     if not current_user.is_main_account:
-        return jsonify({'success': False, 'message': '只有管理员可以导入基金'})
+        return jsonify({'success': False, 'message': _('只有管理员可以导入基金')})
 
     code = request.form.get('code', '').strip()
     name = request.form.get('name', '').strip()
@@ -161,10 +162,10 @@ def import_fund():
     nav_date = request.form.get('nav_date', '').strip()
 
     if not code:
-        return jsonify({'success': False, 'message': '基金代码不能为空'})
+        return jsonify({'success': False, 'message': _('基金代码不能为空')})
 
     if Fund.query.filter_by(code=code).first():
-        return jsonify({'success': False, 'message': f'基金 {code} 已存在于系统中'})
+        return jsonify({'success': False, 'message': _('基金 %(code)s 已存在于系统中', code=code)})
 
     try:
         from datetime import datetime
@@ -177,10 +178,10 @@ def import_fund():
         )
         db.session.add(fund)
         db.session.commit()
-        return jsonify({'success': True, 'message': f'{name} 导入成功'})
+        return jsonify({'success': True, 'message': _('%(name)s 导入成功', name=name)})
     except Exception as e:
         db.session.rollback()
-        return jsonify({'success': False, 'message': f'导入失败: {str(e)}'})
+        return jsonify({'success': False, 'message': _('导入失败: %(error)s', error=str(e))})
 
 
 @bp.route('/image/history')

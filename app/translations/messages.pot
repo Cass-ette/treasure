@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-08-20 01:30+0800\n"
+"POT-Creation-Date: 2026-08-20 01:44+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -147,7 +147,7 @@ msgstr ""
 msgid "获取前三十日平均净值时发生错误: %(error)s"
 msgstr ""
 
-#: app/routes/funds.py:232
+#: app/routes/funds.py:232 app/routes/image.py:165
 msgid "基金代码不能为空"
 msgstr ""
 
@@ -174,6 +174,46 @@ msgstr ""
 #: app/routes/funds.py:251
 #, python-format
 msgid "添加基金时出错: %(error)s"
+msgstr ""
+
+#: app/routes/image.py:104
+msgid "请选择图片文件"
+msgstr ""
+
+#: app/routes/image.py:108
+msgid "不支持的文件类型，请上传 PNG/JPG/JPEG/GIF"
+msgstr ""
+
+#: app/routes/image.py:114
+msgid "未能从图片中识别出任何基金相关信息，请确认图片清晰且包含基金信息"
+msgstr ""
+
+#: app/routes/image.py:130
+#, python-format
+msgid "识别到关键词 %(keywords)s，但未在天天基金网找到匹配基金"
+msgstr ""
+
+#: app/routes/image.py:146
+msgid "请输入搜索关键词"
+msgstr ""
+
+#: app/routes/image.py:156
+msgid "只有管理员可以导入基金"
+msgstr ""
+
+#: app/routes/image.py:168
+#, python-format
+msgid "基金 %(code)s 已存在于系统中"
+msgstr ""
+
+#: app/routes/image.py:181
+#, python-format
+msgid "%(name)s 导入成功"
+msgstr ""
+
+#: app/routes/image.py:184
+#, python-format
+msgid "导入失败: %(error)s"
 msgstr ""
 
 #: app/routes/positions.py:27 app/routes/positions.py:53
@@ -545,6 +585,7 @@ msgstr ""
 msgid "请选择用户"
 msgstr ""
 
+#: app/templates/image_processing/batch_result.html:64
 #: app/templates/manage_positions.html:33
 #: app/templates/manage_positions.html:78
 msgid "基金"
@@ -579,6 +620,107 @@ msgstr ""
 
 #: app/templates/manage_positions.html:99
 msgid "确定要删除该持仓吗？"
+msgstr ""
+
+#: app/templates/image_processing/batch_result.html:3
+#: app/templates/image_processing/batch_result.html:57
+msgid "批量基金信息识别结果"
+msgstr ""
+
+#: app/templates/image_processing/batch_result.html:59
+#, python-format
+msgid "成功识别了 %(num)s 个基金信息"
+msgstr ""
+
+#: app/templates/image_processing/batch_result.html:65
+msgid "添加到基金管理"
+msgstr ""
+
+#: app/templates/image_processing/batch_result.html:68
+#: app/templates/image_processing/result.html:41
+msgid "基金代码："
+msgstr ""
+
+#: app/templates/image_processing/batch_result.html:71
+#: app/templates/image_processing/result.html:45
+msgid "基金名称："
+msgstr ""
+
+#: app/templates/image_processing/batch_result.html:77
+msgid "再次批量识别"
+msgstr ""
+
+#: app/templates/image_processing/batch_result.html:78
+#: app/templates/image_processing/result.html:52
+msgid "查看基金列表"
+msgstr ""
+
+#: app/templates/image_processing/history.html:3
+#: app/templates/image_processing/history.html:25
+msgid "图片处理历史记录"
+msgstr ""
+
+#: app/templates/image_processing/history.html:28
+msgid "暂无图片处理历史记录"
+msgstr ""
+
+#: app/templates/image_processing/history.html:29
+msgid "上传新图片"
+msgstr ""
+
+#: app/templates/image_processing/result.html:3
+#: app/templates/image_processing/result.html:38
+msgid "基金信息识别结果"
+msgstr ""
+
+#: app/templates/image_processing/result.html:41
+#: app/templates/image_processing/result.html:45
+msgid "未识别"
+msgstr ""
+
+#: app/templates/image_processing/result.html:49
+msgid "再次识别"
+msgstr ""
+
+#: app/templates/image_processing/result.html:51
+msgid "直接添加到基金管理"
+msgstr ""
+
+#: app/templates/image_processing/upload.html:3
+#: app/templates/image_processing/upload.html:8
+msgid "图片识别基金"
+msgstr ""
+
+#: app/templates/image_processing/upload.html:10
+msgid "上传截图，自动识别基金信息并从天天基金网查询，选择导入"
+msgstr ""
+
+#: app/templates/image_processing/upload.html:17
+msgid "点击或拖拽图片到此处"
+msgstr ""
+
+#: app/templates/image_processing/upload.html:17
+msgid "支持 PNG / JPG / JPEG / GIF"
+msgstr ""
+
+#: app/templates/image_processing/upload.html:24
+msgid "正在识别图片并搜索基金..."
+msgstr ""
+
+#: app/templates/image_processing/upload.html:30
+msgid "识别到的关键词："
+msgstr ""
+
+#: app/templates/image_processing/upload.html:35
+msgid "手动输入基金代码或名称补充搜索"
+msgstr ""
+
+#: app/templates/image_processing/upload.html:36
+msgid "搜索"
+msgstr ""
+
+#: app/templates/image_processing/upload.html:39
+msgid "未找到匹配基金，可尝试手动搜索"
 msgstr ""
 
 #: app/templates/reports/fund_chart.html:3

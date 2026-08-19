@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}批量基金信息识别结果{% endblock %}
+{% block title %}{{ _('批量基金信息识别结果') }}{% endblock %}
 
 {% block css %}
 <style>
@@ -54,28 +54,28 @@
 
 {% block content %}
 <div class="result-container">
-    <h2 class="text-center mb-4" id="page-title">批量基金信息识别结果</h2>
+    <h2 class="text-center mb-4" id="page-title">{{ _('批量基金信息识别结果') }}</h2>
     
-    <p class="text-center mb-4" id="result-count">成功识别了 <strong>{{ funds|length }}</strong> 个基金信息</p>
+    <p class="text-center mb-4" id="result-count">{{ _('成功识别了 %(num)s 个基金信息', num='<strong>' ~ (funds|length|string) ~ '</strong>')|safe }}</p>
     
     {% for fund in funds %}
     <div class="fund-card">
         <div class="fund-header">
-            <h4 class="fund-title" id="fund-title-{{ loop.index }}">基金 {{ loop.index }}</h4>
-            <a href="{{ url_for('funds.add_fund_from_recognition', code=fund.code, name=fund.name) }}" class="btn btn-success btn-sm" id="add-fund-btn-{{ loop.index }}">添加到基金管理</a>
+            <h4 class="fund-title" id="fund-title-{{ loop.index }}">{{ _('基金') }} {{ loop.index }}</h4>
+            <a href="{{ url_for('funds.add_fund_from_recognition', code=fund.code, name=fund.name) }}" class="btn btn-success btn-sm" id="add-fund-btn-{{ loop.index }}">{{ _('添加到基金管理') }}</a>
         </div>
         <div class="fund-info">
-            <span class="fund-info-label" id="fund-code-label-{{ loop.index }}">基金代码：</span>{{ fund.code }}
+            <span class="fund-info-label" id="fund-code-label-{{ loop.index }}">{{ _('基金代码：') }}</span>{{ fund.code }}
         </div>
         <div class="fund-info">
-            <span class="fund-info-label" id="fund-name-label-{{ loop.index }}">基金名称：</span>{{ fund.name }}
+            <span class="fund-info-label" id="fund-name-label-{{ loop.index }}">{{ _('基金名称：') }}</span>{{ fund.name }}
         </div>
     </div>
     {% endfor %}
     
     <div class="batch-actions">
-        <a href="{{ url_for('image.upload_image') }}" class="btn btn-primary" id="batch-recognize-btn">再次批量识别</a>
-        <a href="{{ url_for('funds.manage_funds') }}" class="btn btn-secondary" id="view-funds-btn">查看基金列表</a>
+        <a href="{{ url_for('image.upload_image') }}" class="btn btn-primary" id="batch-recognize-btn">{{ _('再次批量识别') }}</a>
+        <a href="{{ url_for('funds.manage_funds') }}" class="btn btn-secondary" id="view-funds-btn">{{ _('查看基金列表') }}</a>
     </div>
 </div>
 

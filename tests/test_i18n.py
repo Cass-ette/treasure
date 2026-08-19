@@ -155,3 +155,31 @@ class TestPositionsI18n:
         resp = i18n_client.get('/manage_positions')
         assert resp.status_code == 200
         assert b'Position Management' in resp.data
+
+
+class TestImageI18n:
+    def test_upload_page_en(self, i18n_app, i18n_client):
+        from app.models import User
+        from app.extensions import db
+        with i18n_app.app_context():
+            db.create_all()
+            u = User(username='i18nadmin5', password=generate_password_hash('pw123', method='pbkdf2:sha256'), is_main_account=True)
+            db.session.add(u); db.session.commit()
+        i18n_client.post('/login', data={'username': 'i18nadmin5', 'password': 'pw123'})
+        i18n_client.set_cookie('locale', 'en')
+        resp = i18n_client.get('/image/upload')
+        assert resp.status_code == 200
+        assert b'Image Recognition Fund' in resp.data
+
+    def test_history_page_en(self, i18n_app, i18n_client):
+        from app.models import User
+        from app.extensions import db
+        with i18n_app.app_context():
+            db.create_all()
+            u = User(username='i18nadmin5', password=generate_password_hash('pw123', method='pbkdf2:sha256'), is_main_account=True)
+            db.session.add(u); db.session.commit()
+        i18n_client.post('/login', data={'username': 'i18nadmin5', 'password': 'pw123'})
+        i18n_client.set_cookie('locale', 'en')
+        resp = i18n_client.get('/image/history')
+        assert resp.status_code == 200
+        assert b'Image Recognition History' in resp.data

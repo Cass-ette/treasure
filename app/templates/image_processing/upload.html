@@ -1,42 +1,42 @@
 {% extends "base.html" %}
 
-{% block title %}图片识别基金{% endblock %}
+{% block title %}{{ _('图片识别基金') }}{% endblock %}
 
 {% block content %}
 <div class="page-container">
     <div class="page-header">
-        <h1><i class="bi bi-image" style="color: var(--color-accent);"></i> 图片识别基金</h1>
+        <h1><i class="bi bi-image" style="color: var(--color-accent);"></i> {{ _('图片识别基金') }}</h1>
     </div>
-    <p class="text-muted mb-4">上传截图，自动识别基金信息并从天天基金网查询，选择导入</p>
+    <p class="text-muted mb-4">{{ _('上传截图，自动识别基金信息并从天天基金网查询，选择导入') }}</p>
 
     <!-- Upload Zone -->
     <div class="upload-zone mb-3" id="upload-zone" onclick="document.getElementById('file-input').click()">
         <input type="file" id="file-input" accept=".png,.jpg,.jpeg,.gif" onchange="onFileSelected(this)">
         <div id="upload-hint">
             <i class="bi bi-cloud-arrow-up" style="font-size: 2.5rem; color: var(--color-text-muted);"></i>
-            <p class="mt-2 mb-0 text-muted">点击或拖拽图片到此处<br><small>支持 PNG / JPG / JPEG / GIF</small></p>
+            <p class="mt-2 mb-0 text-muted">{{ _('点击或拖拽图片到此处') }}<br><small>{{ _('支持 PNG / JPG / JPEG / GIF') }}</small></p>
         </div>
         <img id="preview" class="preview-img" style="display:none">
     </div>
 
     <div id="loading">
         <div class="spinner-border text-primary" role="status"></div>
-        <p class="mt-2">正在识别图片并搜索基金...</p>
+        <p class="mt-2">{{ _('正在识别图片并搜索基金...') }}</p>
     </div>
 
     <!-- Results -->
     <div id="section-results">
         <div id="keywords-box" class="mb-3" style="display:none">
-            <small class="text-muted">识别到的关键词：</small>
+            <small class="text-muted">{{ _('识别到的关键词：') }}</small>
             <div id="keywords"></div>
         </div>
 
         <div id="manual-search">
-            <input type="text" class="form-control form-control-sm" id="manual-input" placeholder="手动输入基金代码或名称补充搜索">
-            <button class="btn btn-accent btn-sm" onclick="manualSearch()">搜索</button>
+            <input type="text" class="form-control form-control-sm" id="manual-input" placeholder="{{ _('手动输入基金代码或名称补充搜索') }}">
+            <button class="btn btn-accent btn-sm" onclick="manualSearch()">{{ _('搜索') }}</button>
         </div>
 
-        <div id="no-funds" class="text-center text-muted py-3" style="display:none">未找到匹配基金，可尝试手动搜索</div>
+        <div id="no-funds" class="text-center text-muted py-3" style="display:none">{{ _('未找到匹配基金，可尝试手动搜索') }}</div>
         <div id="fund-list"></div>
     </div>
 </div>

@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}基金信息识别结果{% endblock %}
+{% block title %}{{ _('基金信息识别结果') }}{% endblock %}
 
 {% block css %}
 <style>
@@ -35,21 +35,21 @@
 
 {% block content %}
 <div class="result-container">
-    <h2 class="text-center mb-4" id="page-title">基金信息识别结果</h2>
+    <h2 class="text-center mb-4" id="page-title">{{ _('基金信息识别结果') }}</h2>
     
     <div class="result-item">
-        <p><span class="result-label" id="fund-code-label">基金代码：</span><span id="fund-code-value">{{ fund_info.code or '未识别' }}</span></p>
+        <p><span class="result-label" id="fund-code-label">{{ _('基金代码：') }}</span><span id="fund-code-value">{{ fund_info.code or _('未识别') }}</span></p>
     </div>
     
     <div class="result-item">
-        <p><span class="result-label" id="fund-name-label">基金名称：</span><span id="fund-name-value">{{ fund_info.name or '未识别' }}</span></p>
+        <p><span class="result-label" id="fund-name-label">{{ _('基金名称：') }}</span><span id="fund-name-value">{{ fund_info.name or _('未识别') }}</span></p>
     </div>
     
     <div class="btn-group">
-        <a href="{{ url_for('image.upload_image') }}" class="btn btn-primary" id="recognize-again-btn">再次识别</a>
+        <a href="{{ url_for('image.upload_image') }}" class="btn btn-primary" id="recognize-again-btn">{{ _('再次识别') }}</a>
         {% if fund_info.code %}
-            <a href="{{ url_for('funds.add_fund_from_recognition', code=fund_info.code, name=fund_info.name) }}" class="btn btn-success" id="add-to-fund-btn">直接添加到基金管理</a>
-            <a href="{{ url_for('funds.manage_funds') }}" class="btn btn-secondary" id="view-funds-btn">查看基金列表</a>
+            <a href="{{ url_for('funds.add_fund_from_recognition', code=fund_info.code, name=fund_info.name) }}" class="btn btn-success" id="add-to-fund-btn">{{ _('直接添加到基金管理') }}</a>
+            <a href="{{ url_for('funds.manage_funds') }}" class="btn btn-secondary" id="view-funds-btn">{{ _('查看基金列表') }}</a>
         {% endif %}
     </div>
 </div>

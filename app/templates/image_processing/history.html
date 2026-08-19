@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}图片处理历史记录{% endblock %}
+{% block title %}{{ _('图片处理历史记录') }}{% endblock %}
 
 {% block css %}
 <style>
@@ -22,11 +22,11 @@
 
 {% block content %}
 <div class="history-container">
-    <h2 class="text-center mb-4">图片处理历史记录</h2>
+    <h2 class="text-center mb-4">{{ _('图片处理历史记录') }}</h2>
     
     <div class="no-history">
-        <p>暂无图片处理历史记录</p>
-        <a href="{{ url_for('image.upload_image') }}" class="btn btn-primary mt-3">上传新图片</a>
+        <p>{{ _('暂无图片处理历史记录') }}</p>
+        <a href="{{ url_for('image.upload_image') }}" class="btn btn-primary mt-3">{{ _('上传新图片') }}</a>
     </div>
     
     <!-- 未来可以扩展为显示历史记录列表 -->

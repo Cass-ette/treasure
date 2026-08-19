@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-08-20 01:30+0800\n"
+"POT-Creation-Date: 2026-08-20 01:44+0800\n"
 "PO-Revision-Date: 2026-08-19 02:18+0800\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: en_US\n"
@@ -23,37 +23,31 @@ msgstr ""
 msgid "只有管理员账户可以执行此操作"
 msgstr "Only the admin account can perform this operation"
 
-
 #: app/routes/accounts.py:23
 msgid "参数不完整"
 msgstr "Incomplete parameters"
-
 
 #: app/routes/accounts.py:28
 msgid "本金不能为负数"
 msgstr "Principal cannot be negative"
 
-
 #: app/routes/accounts.py:33
 msgid "未找到该次级账户"
 msgstr "Sub-account not found"
-
 
 #: app/routes/accounts.py:38
 #, python-format
 msgid "账户 %(username)s 的本金已更新为 %(principal)s"
 msgstr "Principal of account %(username)s has been updated to %(principal)s"
 
-
 #: app/routes/accounts.py:40
 msgid "本金必须为数字"
 msgstr "Principal must be a number"
 
-
 #: app/routes/accounts.py:42
+#, python-format
 msgid "更新本金时出错: %(error)s"
 msgstr "Error updating principal: %(error)s"
-
 
 #: app/routes/auth.py:24
 msgid "用户名或密码错误"
@@ -156,7 +150,7 @@ msgstr "Average NAV based on the last %(count)s trading days"
 msgid "获取前三十日平均净值时发生错误: %(error)s"
 msgstr "Error getting 30-day average NAV: %(error)s"
 
-#: app/routes/funds.py:232
+#: app/routes/funds.py:232 app/routes/image.py:165
 msgid "基金代码不能为空"
 msgstr "Fund code cannot be empty"
 
@@ -178,7 +172,7 @@ msgstr "Fund %(code)s"
 #: app/routes/funds.py:249
 #, python-format
 msgid "基金 %(code)s - %(name)s 已成功添加到系统（使用识别信息创建）"
-msgstr ""
+msgstr "Fund %(code)s - %(name)s has been added to the system (created from recognition info)"
 "Fund %(code)s - %(name)s added successfully (created from recognition "
 "info)"
 
@@ -187,46 +181,79 @@ msgstr ""
 msgid "添加基金时出错: %(error)s"
 msgstr "Error adding fund: %(error)s"
 
+#: app/routes/image.py:104
+msgid "请选择图片文件"
+msgstr "Please select an image file"
+
+#: app/routes/image.py:108
+msgid "不支持的文件类型，请上传 PNG/JPG/JPEG/GIF"
+msgstr "Unsupported file type, please upload PNG/JPG/JPEG/GIF"
+
+#: app/routes/image.py:114
+msgid "未能从图片中识别出任何基金相关信息，请确认图片清晰且包含基金信息"
+msgstr "No fund-related information was recognized from the image, please make sure the image is clear and contains fund information"
+
+#: app/routes/image.py:130
+#, python-format
+msgid "识别到关键词 %(keywords)s，但未在天天基金网找到匹配基金"
+msgstr "Recognized keywords %(keywords)s, but no matching funds were found on Eastmoney"
+
+#: app/routes/image.py:146
+msgid "请输入搜索关键词"
+msgstr "Please enter a search keyword"
+
+#: app/routes/image.py:156
+msgid "只有管理员可以导入基金"
+msgstr "Only the administrator can import funds"
+
+#: app/routes/image.py:168
+#, python-format
+msgid "基金 %(code)s 已存在于系统中"
+msgstr "Fund %(code)s already exists in the system"
+
+#: app/routes/image.py:181
+#, python-format
+msgid "%(name)s 导入成功"
+msgstr "%(name)s imported successfully"
+
+#: app/routes/image.py:184
+#, python-format
+msgid "导入失败: %(error)s"
+msgstr "Import failed: %(error)s"
+
 #: app/routes/positions.py:27 app/routes/positions.py:53
 #: app/routes/positions.py:83
 msgid "未找到该持仓"
 msgstr "Position not found"
 
-
 #: app/routes/positions.py:38
 msgid "所有字段为必填项"
 msgstr "All fields are required"
-
 
 #: app/routes/positions.py:46
 msgid "份额和成本价必须为数字"
 msgstr "Shares and cost price must be numbers"
 
-
 #: app/routes/positions.py:59
 msgid "持仓信息更新成功"
 msgstr "Position updated successfully"
-
 
 #: app/routes/positions.py:62
 msgid "该用户已持有该基金"
 msgstr "This user already holds this fund"
 
-
 #: app/routes/positions.py:65
 msgid "持仓添加成功"
 msgstr "Position added successfully"
-
 
 #: app/routes/positions.py:89
 msgid "持仓删除成功"
 msgstr "Position deleted successfully"
 
-
 #: app/routes/positions.py:91
+#, python-format
 msgid "删除持仓失败: %(error)s"
 msgstr "Failed to delete position: %(error)s"
-
 
 #: app/static/js/i18n.js:31 app/templates/base.html:102
 #: app/templates/base.html:105
@@ -254,7 +281,6 @@ msgstr "Fund Management"
 #: app/templates/manage_positions.html:7
 msgid "持仓管理"
 msgstr "Position Management"
-
 
 #: app/templates/base.html:51 app/templates/crawl_fund_nav.html:3
 #: app/templates/crawl_fund_nav.html:7
@@ -360,7 +386,6 @@ msgstr "NAV Date"
 msgid "操作"
 msgstr "Actions"
 
-
 #: app/templates/crawl_fund_nav.html:76
 msgid "爬取"
 msgstr "Fetch"
@@ -435,7 +460,6 @@ msgstr "Weight"
 msgid "暂无持仓数据"
 msgstr "No position data yet"
 
-
 #: app/templates/dashboard.html:126
 msgid "次级账户管理"
 msgstr "Sub-accounts"
@@ -482,7 +506,6 @@ msgstr "Confirm"
 #: app/templates/manage_positions.html:60
 msgid "取消"
 msgstr "Cancel"
-
 
 #: app/templates/login.html:3 app/templates/login.html:31
 msgid "登录"
@@ -532,7 +555,6 @@ msgstr "30-Day Average NAV"
 msgid "编辑"
 msgstr "Edit"
 
-
 #: app/templates/manage_funds.html:106
 msgid "该基金有相关持仓，无法删除"
 msgstr "This fund has associated positions and cannot be deleted"
@@ -541,7 +563,6 @@ msgstr "This fund has associated positions and cannot be deleted"
 #: app/templates/manage_positions.html:99
 msgid "删除"
 msgstr "Delete"
-
 
 #: app/templates/manage_funds.html:110
 msgid "确定要删除这个基金吗？删除后无法恢复！"
@@ -555,40 +576,34 @@ msgstr "No fund data"
 msgid "编辑持仓"
 msgstr "Edit Position"
 
-
 #: app/templates/manage_positions.html:14
 #: app/templates/manage_positions.html:57
 msgid "添加持仓"
 msgstr "Add Position"
-
 
 #: app/templates/manage_positions.html:22
 #: app/templates/manage_positions.html:77
 msgid "用户"
 msgstr "User"
 
-
 #: app/templates/manage_positions.html:24
 msgid "请选择用户"
 msgstr "Select a user"
 
-
+#: app/templates/image_processing/batch_result.html:64
 #: app/templates/manage_positions.html:33
 #: app/templates/manage_positions.html:78
 msgid "基金"
 msgstr "Fund"
 
-
 #: app/templates/manage_positions.html:35
 msgid "请选择基金"
 msgstr "Select a fund"
-
 
 #: app/templates/manage_positions.html:44
 #: app/templates/manage_positions.html:79
 msgid "持有份额"
 msgstr "Shares Held"
-
 
 #: app/templates/manage_positions.html:49
 #: app/templates/manage_positions.html:80 app/templates/reports/user.html:83
@@ -596,26 +611,122 @@ msgstr "Shares Held"
 msgid "成本价"
 msgstr "Cost Price"
 
-
 #: app/templates/manage_positions.html:57
 msgid "更新持仓"
 msgstr "Update Position"
-
 
 #: app/templates/manage_positions.html:70
 msgid "持仓列表"
 msgstr "Position List"
 
-
 #: app/templates/manage_positions.html:81
 msgid "创建时间"
 msgstr "Created At"
-
 
 #: app/templates/manage_positions.html:99
 msgid "确定要删除该持仓吗？"
 msgstr "Are you sure you want to delete this position?"
 
+#: app/templates/image_processing/batch_result.html:3
+#: app/templates/image_processing/batch_result.html:57
+msgid "批量基金信息识别结果"
+msgstr "Batch Fund Information Recognition Results"
+
+#: app/templates/image_processing/batch_result.html:59
+#, python-format
+msgid "成功识别了 %(num)s 个基金信息"
+msgstr "Successfully recognized %(num)s fund records"
+
+#: app/templates/image_processing/batch_result.html:65
+msgid "添加到基金管理"
+msgstr "Add to Fund Management"
+
+#: app/templates/image_processing/batch_result.html:68
+#: app/templates/image_processing/result.html:41
+msgid "基金代码："
+msgstr "Fund Code:"
+
+#: app/templates/image_processing/batch_result.html:71
+#: app/templates/image_processing/result.html:45
+msgid "基金名称："
+msgstr "Fund Name:"
+
+#: app/templates/image_processing/batch_result.html:77
+msgid "再次批量识别"
+msgstr "Batch Recognize Again"
+
+#: app/templates/image_processing/batch_result.html:78
+#: app/templates/image_processing/result.html:52
+msgid "查看基金列表"
+msgstr "View Fund List"
+
+#: app/templates/image_processing/history.html:3
+#: app/templates/image_processing/history.html:25
+msgid "图片处理历史记录"
+msgstr "Image Recognition History"
+
+#: app/templates/image_processing/history.html:28
+msgid "暂无图片处理历史记录"
+msgstr "No image recognition history yet"
+
+#: app/templates/image_processing/history.html:29
+msgid "上传新图片"
+msgstr "Upload New Image"
+
+#: app/templates/image_processing/result.html:3
+#: app/templates/image_processing/result.html:38
+msgid "基金信息识别结果"
+msgstr "Fund Information Recognition Result"
+
+#: app/templates/image_processing/result.html:41
+#: app/templates/image_processing/result.html:45
+msgid "未识别"
+msgstr "Not recognized"
+
+#: app/templates/image_processing/result.html:49
+msgid "再次识别"
+msgstr "Recognize Again"
+
+#: app/templates/image_processing/result.html:51
+msgid "直接添加到基金管理"
+msgstr "Add Directly to Fund Management"
+
+#: app/templates/image_processing/upload.html:3
+#: app/templates/image_processing/upload.html:8
+msgid "图片识别基金"
+msgstr "Image Recognition Fund"
+
+#: app/templates/image_processing/upload.html:10
+msgid "上传截图，自动识别基金信息并从天天基金网查询，选择导入"
+msgstr "Upload a screenshot to automatically recognize fund information, search on Eastmoney, and choose what to import"
+
+#: app/templates/image_processing/upload.html:17
+msgid "点击或拖拽图片到此处"
+msgstr "Click or drag an image here"
+
+#: app/templates/image_processing/upload.html:17
+msgid "支持 PNG / JPG / JPEG / GIF"
+msgstr "Supports PNG / JPG / JPEG / GIF"
+
+#: app/templates/image_processing/upload.html:24
+msgid "正在识别图片并搜索基金..."
+msgstr "Recognizing image and searching funds..."
+
+#: app/templates/image_processing/upload.html:30
+msgid "识别到的关键词："
+msgstr "Recognized keywords:"
+
+#: app/templates/image_processing/upload.html:35
+msgid "手动输入基金代码或名称补充搜索"
+msgstr "Enter a fund code or name to search manually"
+
+#: app/templates/image_processing/upload.html:36
+msgid "搜索"
+msgstr "Search"
+
+#: app/templates/image_processing/upload.html:39
+msgid "未找到匹配基金，可尝试手动搜索"
+msgstr "No matching funds found, try manual search"
 
 #: app/templates/reports/fund_chart.html:3
 #, python-format
