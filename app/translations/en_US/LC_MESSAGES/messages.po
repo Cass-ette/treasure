@@ -71,6 +71,8 @@ msgid ""
 "\n"
 "失败：%(funds)s"
 msgstr ""
+"\n"
+"Failed: %(funds)s"
 
 #: app/routes/funds.py:147
 #, python-format
