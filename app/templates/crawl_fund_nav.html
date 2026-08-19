@@ -1,30 +1,30 @@
 {% extends "base.html" %}
 
-{% block title %}净值更新 - Treasure{% endblock %}
+{% block title %}{{ _('净值更新') }} - Treasure{% endblock %}
 
 {% block content %}
 <div class="page-header">
-    <h1><i class="bi bi-arrow-repeat" style="color: var(--color-accent);"></i> 净值更新</h1>
+    <h1><i class="bi bi-arrow-repeat" style="color: var(--color-accent);"></i> {{ _('净值更新') }}</h1>
 </div>
 
 <!-- Action Card -->
 <div class="card mb-4">
     <div class="card-header">
-        <i class="bi bi-cloud-download me-1"></i> 选择基金爬取最新净值
+        <i class="bi bi-cloud-download me-1"></i> {{ _('选择基金爬取最新净值') }}
     </div>
     <div class="card-body">
         <form method="POST">
             <div class="mb-3">
-                <label class="form-label" for="fund_id">选择基金</label>
+                <label class="form-label" for="fund_id">{{ _('选择基金') }}</label>
                 <select class="form-select" id="fund_id" name="fund_id">
-                    <option value="">-- 请选择基金 --</option>
+                    <option value="">{{ _('-- 请选择基金 --') }}</option>
                     {% for fund in funds %}
                     <option value="{{ fund.id }}">
                         {{ fund.code }} - {{ fund.name }}
                         {% if fund.latest_nav %}
-                            (当前净值: {{ fund.latest_nav }}, 更新时间: {{ fund.nav_date.strftime('%Y-%m-%d') if fund.nav_date else '暂无' }})
+                            ({{ _('当前净值') }}: {{ fund.latest_nav }}, {{ _('更新时间') }}: {{ fund.nav_date.strftime('%Y-%m-%d') if fund.nav_date else _('暂无') }})
                         {% else %}
-                            (暂无净值数据)
+                            ({{ _('暂无净值数据') }})
                         {% endif %}
                     </option>
                     {% endfor %}
@@ -32,11 +32,11 @@
             </div>
             <div class="d-flex gap-2">
                 <button type="submit" class="btn btn-accent">
-                    <i class="bi bi-download"></i> 爬取选中基金净值
+                    <i class="bi bi-download"></i> {{ _('爬取选中基金净值') }}
                 </button>
                 <button type="submit" class="btn btn-outline-primary" name="batch" value="true"
-                        onclick="return confirm('确定要爬取所有基金的净值吗？这可能需要一些时间。');">
-                    <i class="bi bi-arrow-repeat"></i> 批量爬取所有基金净值
+                        onclick="return confirm('{{ _('确定要爬取所有基金的净值吗？这可能需要一些时间。') }}');">
+                    <i class="bi bi-arrow-repeat"></i> {{ _('批量爬取所有基金净值') }}
                 </button>
             </div>
         </form>
@@ -46,19 +46,19 @@
 <!-- Fund Status Table -->
 <div class="card">
     <div class="card-header">
-        <i class="bi bi-list-ul me-1"></i> 基金列表 (含当前净值信息)
+        <i class="bi bi-list-ul me-1"></i> {{ _('基金列表') }} ({{ _('含当前净值信息') }})
     </div>
     <div class="card-body p-0">
         <div class="data-table-wrap">
             <table class="data-table">
                 <thead>
                     <tr>
-                        <th>基金代码</th>
-                        <th>基金名称</th>
-                        <th>基金类型</th>
-                        <th>最新净值</th>
-                        <th>净值日期</th>
-                        <th>操作</th>
+                        <th>{{ _('基金代码') }}</th>
+                        <th>{{ _('基金名称') }}</th>
+                        <th>{{ _('基金类型') }}</th>
+                        <th>{{ _('最新净值') }}</th>
+                        <th>{{ _('净值日期') }}</th>
+                        <th>{{ _('操作') }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -67,20 +67,20 @@
                         <td><code>{{ fund.code }}</code></td>
                         <td>{{ fund.name }}</td>
                         <td>{{ fund.fund_type }}</td>
-                        <td>{{ fund.latest_nav if fund.latest_nav else '暂无' }}</td>
-                        <td>{{ fund.nav_date.strftime('%Y-%m-%d') if fund.nav_date else '暂无' }}</td>
+                        <td>{{ fund.latest_nav if fund.latest_nav else _('暂无') }}</td>
+                        <td>{{ fund.nav_date.strftime('%Y-%m-%d') if fund.nav_date else _('暂无') }}</td>
                         <td>
                             <form method="POST" class="d-inline">
                                 <input type="hidden" name="fund_id" value="{{ fund.id }}">
                                 <button type="submit" class="btn btn-sm btn-accent">
-                                    <i class="bi bi-download"></i> 爬取
+                                    <i class="bi bi-download"></i> {{ _('爬取') }}
                                 </button>
                             </form>
                         </td>
                     </tr>
                     {% else %}
                     <tr>
-                        <td colspan="6" class="text-center text-muted py-3">暂无基金数据，请先添加基金</td>
+                        <td colspan="6" class="text-center text-muted py-3">{{ _('暂无基金数据，请先添加基金') }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>

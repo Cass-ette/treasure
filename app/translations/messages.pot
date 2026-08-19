@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-08-20 00:57+0800\n"
+"POT-Creation-Date: 2026-08-20 01:07+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,6 +19,134 @@ msgstr ""
 
 #: app/routes/auth.py:24
 msgid "用户名或密码错误"
+msgstr ""
+
+#: app/routes/funds.py:16
+msgid "只有管理员账户可以访问此页面"
+msgstr ""
+
+#: app/routes/funds.py:32 app/routes/funds.py:68 app/routes/funds.py:103
+msgid "未找到该基金"
+msgstr ""
+
+#: app/routes/funds.py:44
+msgid "基金代码为必填项"
+msgstr ""
+
+#: app/routes/funds.py:54
+#, python-format
+msgid "基金 %(code)s - %(name)s 已通过爬虫自动添加"
+msgstr ""
+
+#: app/routes/funds.py:62
+msgid "该基金代码已存在"
+msgstr ""
+
+#: app/routes/funds.py:75
+msgid "基金信息更新成功"
+msgstr ""
+
+#: app/routes/funds.py:85
+msgid "基金添加成功"
+msgstr ""
+
+#: app/routes/funds.py:110
+msgid "基金删除成功"
+msgstr ""
+
+#: app/routes/funds.py:113
+#, python-format
+msgid "删除基金失败: %(error)s"
+msgstr ""
+
+#: app/routes/funds.py:138
+#, python-format
+msgid "批量更新完成：成功 %(success_count)s 个，失败 %(fail_count)s 个"
+msgstr ""
+
+#: app/routes/funds.py:140
+#, python-format
+msgid ""
+"\n"
+"失败：%(funds)s"
+msgstr ""
+
+#: app/routes/funds.py:147
+#, python-format
+msgid "基金 %(code)s - %(name)s 净值更新成功"
+msgstr ""
+
+#: app/routes/funds.py:149
+#, python-format
+msgid "基金 %(code)s - %(name)s 净值更新失败"
+msgstr ""
+
+#: app/routes/funds.py:160 app/routes/funds.py:195
+msgid "只有管理员账户可以执行此操作"
+msgstr ""
+
+#: app/routes/funds.py:164
+msgid "基金代码必须是6位数字"
+msgstr ""
+
+#: app/routes/funds.py:186
+msgid "无法获取该基金信息，请检查基金代码是否正确"
+msgstr ""
+
+#: app/routes/funds.py:188
+#, python-format
+msgid "获取基金信息时发生错误: %(error)s"
+msgstr ""
+
+#: app/routes/funds.py:199
+msgid "基金ID必须是有效的数字"
+msgstr ""
+
+#: app/routes/funds.py:204
+msgid "基金不存在"
+msgstr ""
+
+#: app/routes/funds.py:208
+msgid "暂无净值历史数据"
+msgstr ""
+
+#: app/routes/funds.py:215
+#, python-format
+msgid "基于最近%(count)s个交易日计算的平均净值"
+msgstr ""
+
+#: app/routes/funds.py:218
+#, python-format
+msgid "获取前三十日平均净值时发生错误: %(error)s"
+msgstr ""
+
+#: app/routes/funds.py:232
+msgid "基金代码不能为空"
+msgstr ""
+
+#: app/routes/funds.py:237
+#, python-format
+msgid "基金 %(code)s - %(name)s 已存在于系统中"
+msgstr ""
+
+#: app/routes/funds.py:244
+#, python-format
+msgid "基金 %(code)s - %(name)s 已成功添加到系统"
+msgstr ""
+
+#: app/routes/funds.py:246
+#, python-format
+msgid "基金%(code)s"
+msgstr ""
+
+#: app/routes/funds.py:249
+#, python-format
+msgid "基金 %(code)s - %(name)s 已成功添加到系统（使用识别信息创建）"
+msgstr ""
+
+#: app/routes/funds.py:251
+#, python-format
+msgid "添加基金时出错: %(error)s"
 msgstr ""
 
 #: app/static/js/i18n.js:31 app/templates/base.html:102
@@ -38,7 +166,8 @@ msgstr ""
 msgid "仪表盘"
 msgstr ""
 
-#: app/templates/base.html:41
+#: app/templates/base.html:41 app/templates/manage_funds.html:3
+#: app/templates/manage_funds.html:7
 msgid "基金管理"
 msgstr ""
 
@@ -46,7 +175,8 @@ msgstr ""
 msgid "持仓管理"
 msgstr ""
 
-#: app/templates/base.html:51
+#: app/templates/base.html:51 app/templates/crawl_fund_nav.html:3
+#: app/templates/crawl_fund_nav.html:7
 msgid "净值更新"
 msgstr ""
 
@@ -65,6 +195,95 @@ msgstr ""
 
 #: app/templates/base.html:79
 msgid "退出登录"
+msgstr ""
+
+#: app/templates/crawl_fund_nav.html:13
+msgid "选择基金爬取最新净值"
+msgstr ""
+
+#: app/templates/crawl_fund_nav.html:18
+msgid "选择基金"
+msgstr ""
+
+#: app/templates/crawl_fund_nav.html:20
+msgid "-- 请选择基金 --"
+msgstr ""
+
+#: app/templates/crawl_fund_nav.html:25
+msgid "当前净值"
+msgstr ""
+
+#: app/templates/crawl_fund_nav.html:25
+msgid "更新时间"
+msgstr ""
+
+#: app/templates/crawl_fund_nav.html:25 app/templates/crawl_fund_nav.html:70
+#: app/templates/crawl_fund_nav.html:71
+msgid "暂无"
+msgstr ""
+
+#: app/templates/crawl_fund_nav.html:27
+msgid "暂无净值数据"
+msgstr ""
+
+#: app/templates/crawl_fund_nav.html:35
+msgid "爬取选中基金净值"
+msgstr ""
+
+#: app/templates/crawl_fund_nav.html:38
+msgid "确定要爬取所有基金的净值吗？这可能需要一些时间。"
+msgstr ""
+
+#: app/templates/crawl_fund_nav.html:39
+msgid "批量爬取所有基金净值"
+msgstr ""
+
+#: app/templates/crawl_fund_nav.html:49 app/templates/manage_funds.html:75
+msgid "基金列表"
+msgstr ""
+
+#: app/templates/crawl_fund_nav.html:49
+msgid "含当前净值信息"
+msgstr ""
+
+#: app/templates/crawl_fund_nav.html:56 app/templates/manage_funds.html:27
+#: app/templates/manage_funds.html:82
+msgid "基金代码"
+msgstr ""
+
+#: app/templates/crawl_fund_nav.html:57 app/templates/dashboard.html:87
+#: app/templates/manage_funds.html:32 app/templates/manage_funds.html:83
+#: app/templates/reports/user.html:81 app/templates/reports/user_detail.html:87
+msgid "基金名称"
+msgstr ""
+
+#: app/templates/crawl_fund_nav.html:58 app/templates/manage_funds.html:37
+#: app/templates/manage_funds.html:84 app/templates/reports/fund_chart.html:25
+msgid "基金类型"
+msgstr ""
+
+#: app/templates/crawl_fund_nav.html:59 app/templates/manage_funds.html:42
+#: app/templates/manage_funds.html:85 app/templates/reports/fund_chart.html:31
+#: app/templates/reports/user.html:84 app/templates/reports/user_detail.html:90
+msgid "最新净值"
+msgstr ""
+
+#: app/templates/crawl_fund_nav.html:60 app/templates/manage_funds.html:47
+#: app/templates/manage_funds.html:86 app/templates/reports/fund_chart.html:37
+msgid "净值日期"
+msgstr ""
+
+#: app/templates/crawl_fund_nav.html:61 app/templates/dashboard.html:135
+#: app/templates/manage_funds.html:88 app/templates/reports/main.html:68
+msgid "操作"
+msgstr ""
+
+#: app/templates/crawl_fund_nav.html:76
+msgid "爬取"
+msgstr ""
+
+#: app/templates/crawl_fund_nav.html:83
+msgid "暂无基金数据，请先添加基金"
 msgstr ""
 
 #: app/templates/dashboard.html:8
@@ -104,11 +323,6 @@ msgstr ""
 
 #: app/templates/dashboard.html:81
 msgid "持仓概览"
-msgstr ""
-
-#: app/templates/dashboard.html:87 app/templates/reports/user.html:81
-#: app/templates/reports/user_detail.html:87
-msgid "基金名称"
 msgstr ""
 
 #: app/templates/dashboard.html:88 app/templates/reports/user.html:85
@@ -156,10 +370,6 @@ msgstr ""
 msgid "状态"
 msgstr ""
 
-#: app/templates/dashboard.html:135 app/templates/reports/main.html:68
-msgid "操作"
-msgstr ""
-
 #: app/templates/dashboard.html:144
 msgid "活跃"
 msgstr ""
@@ -184,7 +394,7 @@ msgstr ""
 msgid "确认修改"
 msgstr ""
 
-#: app/templates/dashboard.html:184
+#: app/templates/dashboard.html:184 app/templates/manage_funds.html:58
 msgid "取消"
 msgstr ""
 
@@ -206,6 +416,50 @@ msgstr ""
 
 #: app/templates/login.html:29
 msgid "请输入密码"
+msgstr ""
+
+#: app/templates/manage_funds.html:17
+msgid "编辑基金"
+msgstr ""
+
+#: app/templates/manage_funds.html:17
+msgid "添加新基金"
+msgstr ""
+
+#: app/templates/manage_funds.html:55
+msgid "保存修改"
+msgstr ""
+
+#: app/templates/manage_funds.html:55
+msgid "添加基金"
+msgstr ""
+
+#: app/templates/manage_funds.html:69
+msgid "删除基金前，请确保该基金没有关联的持仓记录。"
+msgstr ""
+
+#: app/templates/manage_funds.html:87
+msgid "前三十日平均净值"
+msgstr ""
+
+#: app/templates/manage_funds.html:104
+msgid "编辑"
+msgstr ""
+
+#: app/templates/manage_funds.html:106
+msgid "该基金有相关持仓，无法删除"
+msgstr ""
+
+#: app/templates/manage_funds.html:106 app/templates/manage_funds.html:110
+msgid "删除"
+msgstr ""
+
+#: app/templates/manage_funds.html:110
+msgid "确定要删除这个基金吗？删除后无法恢复！"
+msgstr ""
+
+#: app/templates/manage_funds.html:118
+msgid "暂无基金数据"
 msgstr ""
 
 #: app/templates/reports/fund_chart.html:3
@@ -231,19 +485,6 @@ msgstr ""
 #: app/templates/reports/fund_chart.html:17 app/templates/reports/user.html:12
 #: app/templates/reports/user_detail.html:18
 msgid "90天"
-msgstr ""
-
-#: app/templates/reports/fund_chart.html:25
-msgid "基金类型"
-msgstr ""
-
-#: app/templates/reports/fund_chart.html:31 app/templates/reports/user.html:84
-#: app/templates/reports/user_detail.html:90
-msgid "最新净值"
-msgstr ""
-
-#: app/templates/reports/fund_chart.html:37
-msgid "净值日期"
 msgstr ""
 
 #: app/templates/reports/fund_chart.html:43

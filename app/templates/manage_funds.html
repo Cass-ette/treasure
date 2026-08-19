@@ -1,10 +1,10 @@
 {% extends "base.html" %}
 
-{% block title %}基金管理 - Treasure{% endblock %}
+{% block title %}{{ _('基金管理') }} - Treasure{% endblock %}
 
 {% block content %}
 <div class="page-header">
-    <h1><i class="bi bi-collection" style="color: var(--color-accent);"></i> 基金管理</h1>
+    <h1><i class="bi bi-collection" style="color: var(--color-accent);"></i> {{ _('基金管理') }}</h1>
 </div>
 
 <!-- Collapsible Add/Edit Form -->
@@ -14,7 +14,7 @@
          aria-expanded="{{ 'true' if editing_fund else 'false' }}">
         <span>
             <i class="bi {{ 'bi-pencil-square' if editing_fund else 'bi-plus-circle' }} me-1"></i>
-            {{ '编辑基金' if editing_fund else '添加新基金' }}
+            {{ _('编辑基金') if editing_fund else _('添加新基金') }}
         </span>
         <i class="bi bi-chevron-down"></i>
     </div>
@@ -24,27 +24,27 @@
                 <input type="hidden" name="fund_id" value="{{ editing_fund.id if editing_fund else '' }}">
                 <div class="row g-3">
                     <div class="col-md-6">
-                        <label class="form-label" for="code">基金代码 *</label>
+                        <label class="form-label" for="code">{{ _('基金代码') }} *</label>
                         <input type="text" class="form-control" id="code" name="code"
                                value="{{ editing_fund.code if editing_fund else '' }}" required>
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label" for="name">基金名称</label>
+                        <label class="form-label" for="name">{{ _('基金名称') }}</label>
                         <input type="text" class="form-control" id="name" name="name"
                                value="{{ editing_fund.name if editing_fund else '' }}">
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label" for="fund_type">基金类型</label>
+                        <label class="form-label" for="fund_type">{{ _('基金类型') }}</label>
                         <input type="text" class="form-control" id="fund_type" name="fund_type"
                                value="{{ editing_fund.fund_type if editing_fund else '' }}">
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label" for="latest_nav">最新净值</label>
+                        <label class="form-label" for="latest_nav">{{ _('最新净值') }}</label>
                         <input type="number" class="form-control" id="latest_nav" name="latest_nav" step="0.0001"
                                value="{{ editing_fund.latest_nav if editing_fund else '' }}">
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label" for="nav_date">净值日期</label>
+                        <label class="form-label" for="nav_date">{{ _('净值日期') }}</label>
                         <input type="date" class="form-control" id="nav_date" name="nav_date"
                                value="{{ editing_fund.nav_date.strftime('%Y-%m-%d') if editing_fund and editing_fund.nav_date else '' }}">
                     </div>
@@ -52,10 +52,10 @@
                 <div class="mt-3 d-flex gap-2">
                     <button type="submit" class="btn btn-accent">
                         <i class="bi {{ 'bi-check-lg' if editing_fund else 'bi-plus-lg' }}"></i>
-                        {{ '保存修改' if editing_fund else '添加基金' }}
+                        {{ _('保存修改') if editing_fund else _('添加基金') }}
                     </button>
                     {% if editing_fund %}
-                    <a href="{{ url_for('funds.manage_funds') }}" class="btn btn-outline-secondary">取消</a>
+                    <a href="{{ url_for('funds.manage_funds') }}" class="btn btn-outline-secondary">{{ _('取消') }}</a>
                     {% endif %}
                 </div>
             </form>
@@ -66,26 +66,26 @@
 <!-- Tip -->
 <div class="alert alert-info d-flex align-items-center mb-4">
     <i class="bi bi-info-circle me-2"></i>
-    删除基金前，请确保该基金没有关联的持仓记录。
+    {{ _('删除基金前，请确保该基金没有关联的持仓记录。') }}
 </div>
 
 <!-- Fund List -->
 <div class="card">
     <div class="card-header">
-        <i class="bi bi-list-ul me-1"></i> 基金列表
+        <i class="bi bi-list-ul me-1"></i> {{ _('基金列表') }}
     </div>
     <div class="card-body p-0">
         <div class="data-table-wrap">
             <table class="data-table">
                 <thead>
                     <tr>
-                        <th>基金代码</th>
-                        <th>基金名称</th>
-                        <th>基金类型</th>
-                        <th>最新净值</th>
-                        <th>净值日期</th>
-                        <th>前三十日平均净值</th>
-                        <th>操作</th>
+                        <th>{{ _('基金代码') }}</th>
+                        <th>{{ _('基金名称') }}</th>
+                        <th>{{ _('基金类型') }}</th>
+                        <th>{{ _('最新净值') }}</th>
+                        <th>{{ _('净值日期') }}</th>
+                        <th>{{ _('前三十日平均净值') }}</th>
+                        <th>{{ _('操作') }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -101,13 +101,13 @@
                         </td>
                         <td>
                             <div class="d-flex gap-1 flex-nowrap">
-                                <a href="{{ url_for('funds.manage_funds', edit=fund.id) }}" class="btn btn-sm btn-outline-primary">编辑</a>
+                                <a href="{{ url_for('funds.manage_funds', edit=fund.id) }}" class="btn btn-sm btn-outline-primary">{{ _('编辑') }}</a>
                                 {% if fund.positions and fund.positions|length > 0 %}
-                                <button class="btn btn-sm btn-outline-secondary" title="该基金有相关持仓，无法删除" disabled>删除</button>
+                                <button class="btn btn-sm btn-outline-secondary" title="{{ _('该基金有相关持仓，无法删除') }}" disabled>{{ _('删除') }}</button>
                                 {% else %}
                                 <form action="{{ url_for('funds.delete_fund', fund_id=fund.id) }}" method="post" class="d-inline">
                                     <button type="submit" class="btn btn-sm btn-outline-danger"
-                                            onclick="return confirm('确定要删除这个基金吗？删除后无法恢复！')">删除</button>
+                                            onclick="return confirm('{{ _('确定要删除这个基金吗？删除后无法恢复！') }}')">{{ _('删除') }}</button>
                                 </form>
                                 {% endif %}
                             </div>
@@ -115,7 +115,7 @@
                     </tr>
                     {% else %}
                     <tr>
-                        <td colspan="7" class="text-center text-muted py-3">暂无基金数据</td>
+                        <td colspan="7" class="text-center text-muted py-3">{{ _('暂无基金数据') }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
