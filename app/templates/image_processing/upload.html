@@ -100,7 +100,7 @@ function processFile(file) {
     .catch(function() {
         document.getElementById('loading').style.display = 'none';
         document.getElementById('section-results').style.display = 'block';
-        document.getElementById('no-funds').textContent = '识别失败，请重试';
+        document.getElementById('no-funds').textContent = t('识别失败，请重试');
         document.getElementById('no-funds').style.display = 'block';
     });
 }
@@ -129,7 +129,7 @@ function renderFunds(funds, append) {
 
     if (!funds || funds.length === 0) {
         if (!append) {
-            noFunds.textContent = '未找到匹配基金，可尝试手动搜索';
+            noFunds.textContent = t('未找到匹配基金，可尝试手动搜索');
             noFunds.style.display = 'block';
         }
         return;
@@ -145,17 +145,17 @@ function renderFunds(funds, append) {
         card.id = 'fund-' + fund.code;
 
         var action = fund.in_system
-            ? '<span class="badge-in-system">已导入</span>'
+            ? '<span class="badge-in-system">' + t('已导入') + '</span>'
             : '<button class="btn btn-accent btn-sm" id="btn-' + fund.code + '" onclick="importFund(\'' +
               fund.code + '\',\'' + escHtml(fund.name) + '\',\'' + escHtml(fund.type||'') + '\',\'' +
-              (fund.nav||'') + '\',\'' + (fund.nav_date||'') + '\')">导入</button>';
+              (fund.nav||'') + '\',\'' + (fund.nav_date||'') + '\')">' + t('导入') + '</button>';
 
         card.innerHTML =
             '<div class="fund-info">' +
             '  <div><span class="fund-name">' + escHtml(fund.name) + '</span> <span class="fund-code">' + fund.code + '</span></div>' +
             '  <div class="fund-meta">' +
             (fund.type ? fund.type + ' · ' : '') +
-            (fund.nav ? '净值 ' + fund.nav + ' · ' : '') +
+            (fund.nav ? t('净值') + ' ' + fund.nav + ' · ' : '') +
             (fund.nav_date || '') +
             (fund.company ? ' · ' + fund.company : '') +
             '  </div>' +
@@ -169,7 +169,7 @@ function renderFunds(funds, append) {
 function importFund(code, name, type, nav, nav_date) {
     var btn = document.getElementById('btn-' + code);
     btn.disabled = true;
-    btn.textContent = '导入中...';
+    btn.textContent = t('导入中...');
 
     var fd = new FormData();
     fd.append('code', code);
@@ -182,12 +182,12 @@ function importFund(code, name, type, nav, nav_date) {
     .then(function(r) { return r.json(); })
     .then(function(data) {
         if (data.success) {
-            btn.outerHTML = '<span class="badge-in-system">已导入</span>';
+            btn.outerHTML = '<span class="badge-in-system">' + t('已导入') + '</span>';
             document.getElementById('fund-' + code).classList.add('in-system');
         } else {
             alert(data.message);
             btn.disabled = false;
-            btn.textContent = '导入';
+            btn.textContent = t('导入');
         }
     });
 }

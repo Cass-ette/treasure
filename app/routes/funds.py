@@ -243,7 +243,7 @@ def add_fund_from_recognition():
             if added:
                 flash(_('基金 %(code)s - %(name)s 已成功添加到系统', code=added.code, name=added.name), 'success')
             else:
-                new_fund = Fund(code=fund_code, name=fund_name or _('基金%(code)s', code=fund_code), fund_type='未知')
+                new_fund = Fund(code=fund_code, name=fund_name or ('基金%(code)s' % {'code': fund_code}), fund_type='未知')
                 db.session.add(new_fund)
                 db.session.commit()
                 flash(_('基金 %(code)s - %(name)s 已成功添加到系统（使用识别信息创建）', code=new_fund.code, name=new_fund.name), 'success')

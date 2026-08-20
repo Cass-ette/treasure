@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-08-21 01:13+0800\n"
+"POT-Creation-Date: 2026-08-21 02:06+0800\n"
 "PO-Revision-Date: 2026-08-19 00:54+0800\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: zh_Hans_CN\n"
@@ -1176,3 +1176,20 @@ msgstr ""
 #~ msgid "集中度(±5%)"
 #~ msgstr ""
 
+
+
+#: app/templates/image_processing/upload.html (inline JS, manual entry)
+msgid "识别失败，请重试"
+msgstr ""
+
+#: app/templates/image_processing/upload.html (inline JS, manual entry)
+msgid "已导入"
+msgstr ""
+
+#: app/templates/image_processing/upload.html (inline JS, manual entry)
+msgid "导入中..."
+msgstr ""
+
+#: app/templates/image_processing/upload.html (inline JS, manual entry)
+msgid "导入"
+msgstr ""

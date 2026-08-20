@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-08-21 01:13+0800\n"
+"POT-Creation-Date: 2026-08-21 02:06+0800\n"
 "PO-Revision-Date: 2026-08-19 02:18+0800\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: en_US\n"
@@ -1205,3 +1205,20 @@ msgstr "%(username)s's Investment Report"
 #~ msgid "集中度(±5%)"
 #~ msgstr "Concentration (±5%)"
 
+
+
+#: app/templates/image_processing/upload.html (inline JS, manual entry)
+msgid "识别失败，请重试"
+msgstr "Recognition failed, please retry"
+
+#: app/templates/image_processing/upload.html (inline JS, manual entry)
+msgid "已导入"
+msgstr "Imported"
+
+#: app/templates/image_processing/upload.html (inline JS, manual entry)
+msgid "导入中..."
+msgstr "Importing..."
+
+#: app/templates/image_processing/upload.html (inline JS, manual entry)
+msgid "导入"
+msgstr "Import"
