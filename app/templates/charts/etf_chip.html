@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}{{ symbol }} 筹码峰 - Treasure{% endblock %}
+{% block title %}{{ symbol }} {{ _('筹码峰') }} - Treasure{% endblock %}
 
 {% block content %}
 <div class="page-header">
@@ -10,50 +10,50 @@
     </h1>
     <div class="toolbar">
         <button onclick="history.back()" class="btn btn-sm btn-outline-secondary">
-            <i class="bi bi-arrow-left"></i> 返回
+            <i class="bi bi-arrow-left"></i> {{ _('返回') }}
         </button>
-        <a href="{{ url_for('charts.etf_chip_page', symbol=symbol, days=60) }}" class="btn btn-sm btn-outline-secondary">60天</a>
-        <a href="{{ url_for('charts.etf_chip_page', symbol=symbol, days=180) }}" class="btn btn-sm btn-outline-secondary">180天</a>
-        <a href="{{ url_for('charts.etf_chip_page', symbol=symbol, days=250) }}" class="btn btn-sm btn-accent">250天</a>
+        <a href="{{ url_for('charts.etf_chip_page', symbol=symbol, days=60) }}" class="btn btn-sm btn-outline-secondary">60{{ _('天') }}</a>
+        <a href="{{ url_for('charts.etf_chip_page', symbol=symbol, days=180) }}" class="btn btn-sm btn-outline-secondary">180{{ _('天') }}</a>
+        <a href="{{ url_for('charts.etf_chip_page', symbol=symbol, days=250) }}" class="btn btn-sm btn-accent">250{{ _('天') }}</a>
     </div>
 </div>
 
 <div class="card mb-3" id="metricsCard" style="display:none">
     <div class="card-body">
         <div class="row text-center">
-            <div class="col"><div class="text-muted small">获利盘</div><div class="fw-bold" id="m-profit">-</div></div>
-            <div class="col"><div class="text-muted small">集中度(±5%)</div><div class="fw-bold" id="m-conc">-</div></div>
-            <div class="col"><div class="text-muted small">平均成本</div><div class="fw-bold" id="m-avgcost">-</div></div>
-            <div class="col"><div class="text-muted small">平均获利</div><div class="fw-bold" id="m-avgprofit">-</div></div>
-            <div class="col"><div class="text-muted small">主峰</div><div class="fw-bold" id="m-peak1">-</div></div>
-            <div class="col"><div class="text-muted small">次峰</div><div class="fw-bold" id="m-peak2">-</div></div>
-            <div class="col"><div class="text-muted small">现价</div><div class="fw-bold" id="m-price">-</div></div>
-            <div class="col"><div class="text-muted small">涨跌幅</div><div class="fw-bold" id="m-chg">-</div></div>
+            <div class="col"><div class="text-muted small">{{ _('获利盘') }}</div><div class="fw-bold" id="m-profit">-</div></div>
+            <div class="col"><div class="text-muted small">{{ _('集中度') }}(±5%)</div><div class="fw-bold" id="m-conc">-</div></div>
+            <div class="col"><div class="text-muted small">{{ _('平均成本') }}</div><div class="fw-bold" id="m-avgcost">-</div></div>
+            <div class="col"><div class="text-muted small">{{ _('平均获利') }}</div><div class="fw-bold" id="m-avgprofit">-</div></div>
+            <div class="col"><div class="text-muted small">{{ _('主峰') }}</div><div class="fw-bold" id="m-peak1">-</div></div>
+            <div class="col"><div class="text-muted small">{{ _('次峰') }}</div><div class="fw-bold" id="m-peak2">-</div></div>
+            <div class="col"><div class="text-muted small">{{ _('现价') }}</div><div class="fw-bold" id="m-price">-</div></div>
+            <div class="col"><div class="text-muted small">{{ _('涨跌幅') }}</div><div class="fw-bold" id="m-chg">-</div></div>
         </div>
     </div>
 </div>
 
 <div class="card mb-3">
     <div class="card-header d-flex justify-content-between align-items-center">
-        <span><i class="bi bi-graph-up me-1"></i> K线 + 筹码分布</span>
+        <span><i class="bi bi-graph-up me-1"></i> {{ _('K线 + 筹码分布') }}</span>
         <div class="d-flex gap-3 align-items-center flex-wrap" style="font-size:0.85rem">
             <div class="d-flex align-items-center gap-2">
-                <span class="text-muted text-nowrap">衰减</span>
+                <span class="text-muted text-nowrap">{{ _('衰减') }}</span>
                 <select id="param-decay" class="form-select form-select-sm" style="width:130px">
-                    <option value="0.97" selected>0.97 (60日)</option>
-                    <option value="0.985">0.985 (90日)</option>
-                    <option value="0.995">0.995 (长效)</option>
+                    <option value="0.97" selected>0.97 ({{ _('60日') }})</option>
+                    <option value="0.985">0.985 ({{ _('90日') }})</option>
+                    <option value="0.995">0.995 ({{ _('长效') }})</option>
                 </select>
             </div>
             <div class="d-flex align-items-center gap-2">
-                <span class="text-muted text-nowrap">桶数</span>
+                <span class="text-muted text-nowrap">{{ _('桶数') }}</span>
                 <select id="param-bins" class="form-select form-select-sm" style="width:90px">
                     <option value="40">40</option>
                     <option value="80" selected>80</option>
                     <option value="120">120</option>
                 </select>
             </div>
-            <button id="btn-refresh" class="btn btn-sm btn-accent">刷新</button>
+            <button id="btn-refresh" class="btn btn-sm btn-accent">{{ _('刷新') }}</button>
         </div>
     </div>
     <div class="card-body p-2">
@@ -62,10 +62,10 @@
 </div>
 
 <div class="card">
-    <div class="card-header"><i class="bi bi-table me-1"></i> Top 价位分布</div>
+    <div class="card-header"><i class="bi bi-table me-1"></i> {{ _('Top 价位分布') }}</div>
     <div class="card-body p-2">
         <table class="table table-sm mb-0" id="binsTable">
-            <thead><tr><th>价位区间</th><th>权重</th><th>占比</th></tr></thead>
+            <thead><tr><th>{{ _('价位区间') }}</th><th>{{ _('权重') }}</th><th>{{ _('占比') }}</th></tr></thead>
             <tbody></tbody>
         </table>
     </div>

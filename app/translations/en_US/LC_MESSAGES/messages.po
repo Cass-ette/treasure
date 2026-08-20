@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-08-20 01:44+0800\n"
+"POT-Creation-Date: 2026-08-21 00:25+0800\n"
 "PO-Revision-Date: 2026-08-19 02:18+0800\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: en_US\n"
@@ -48,6 +48,33 @@ msgstr "Principal must be a number"
 #, python-format
 msgid "更新本金时出错: %(error)s"
 msgstr "Error updating principal: %(error)s"
+
+#: app/routes/ai_assistant.py:112
+msgid "消息不能为空"
+msgstr "Message cannot be empty"
+
+#: app/routes/ai_assistant.py:118
+#, python-format
+msgid "未配置 %(name)s API Key，请在设置中配置"
+msgstr "%(name)s API Key not configured, please configure it in Settings"
+
+#: app/routes/ai_assistant.py:136
+msgid "AI 请求超时，请重试"
+msgstr "AI request timed out, please retry"
+
+#: app/routes/ai_assistant.py:138
+#, python-format
+msgid "AI 请求失败: %(error)s"
+msgstr "AI request failed: %(error)s"
+
+#: app/routes/ai_assistant.py:140
+msgid "AI 返回格式异常"
+msgstr "Unexpected AI response format"
+
+#: app/routes/ai_assistant.py:191 app/routes/ai_assistant.py:223
+#: app/routes/ai_assistant.py:232
+msgid "对话不存在"
+msgstr "Conversation not found"
 
 #: app/routes/auth.py:24
 msgid "用户名或密码错误"
@@ -172,9 +199,12 @@ msgstr "Fund %(code)s"
 #: app/routes/funds.py:249
 #, python-format
 msgid "基金 %(code)s - %(name)s 已成功添加到系统（使用识别信息创建）"
-msgstr "Fund %(code)s - %(name)s has been added to the system (created from recognition info)"
-"Fund %(code)s - %(name)s added successfully (created from recognition "
-"info)"
+msgstr ""
+"Fund %(code)s - %(name)s has been added to the system (created from "
+"recognition info)Fund %(code)s - %(name)s has been added to the system "
+"(created from recognition info)Fund %(code)s - %(name)s has been added to"
+" the system (created from recognition info)Fund %(code)s - %(name)s added"
+" successfully (created from recognition info)"
 
 #: app/routes/funds.py:251
 #, python-format
@@ -191,12 +221,21 @@ msgstr "Unsupported file type, please upload PNG/JPG/JPEG/GIF"
 
 #: app/routes/image.py:114
 msgid "未能从图片中识别出任何基金相关信息，请确认图片清晰且包含基金信息"
-msgstr "No fund-related information was recognized from the image, please make sure the image is clear and contains fund information"
+msgstr ""
+"No fund information recognized from the image, please make sure the image"
+" is clear and contains fund informationNo fund information recognized "
+"from the image, please make sure the image is clear and contains fund "
+"informationNo fund-related information was recognized from the image, "
+"please make sure the image is clear and contains fund information"
 
 #: app/routes/image.py:130
 #, python-format
 msgid "识别到关键词 %(keywords)s，但未在天天基金网找到匹配基金"
-msgstr "Recognized keywords %(keywords)s, but no matching funds were found on Eastmoney"
+msgstr ""
+"Recognized keywords %(keywords)s, but no matching fund found on Tiantian "
+"FundRecognized keywords %(keywords)s, but no matching fund found on "
+"Tiantian FundRecognized keywords %(keywords)s, but no matching funds were"
+" found on Eastmoney"
 
 #: app/routes/image.py:146
 msgid "请输入搜索关键词"
@@ -267,6 +306,107 @@ msgstr "Red up, green down"
 #: app/static/js/i18n.js:31 app/templates/base.html:107
 msgid "绿涨红跌"
 msgstr "Green up, red down"
+
+#: app/templates/ai_assistant.html:3 app/templates/ai_assistant.html:166
+msgid "AI 分析助手"
+msgstr "AI Analysis Assistant"
+
+#: app/templates/ai_assistant.html:172
+msgid "未配置任何 AI 密钥。请点击「设置」按钮配置 API Key，或设置环境变量后重启应用。"
+msgstr ""
+"No AI key configured. Click the Settings button to configure an API Key, "
+"or set environment variables and restart the app.No AI key configured. "
+"Click the \"Settings\" button to configure an API Key, or set environment"
+" variables and restart the app."
+
+#: app/templates/ai_assistant.html:182
+msgid "导出投资数据"
+msgstr "Export investment data"
+
+#: app/templates/ai_assistant.html:183
+msgid "导出数据"
+msgstr "Export data"
+
+#: app/templates/ai_assistant.html:185
+msgid "API Key 设置"
+msgstr "API Key Settings"
+
+#: app/templates/ai_assistant.html:186
+msgid "设置"
+msgstr "Settings"
+
+#: app/templates/ai_assistant.html:189 app/templates/ai_assistant.html:272
+msgid "对话历史"
+msgstr "Conversation history"
+
+#: app/templates/ai_assistant.html:190
+msgid "历史"
+msgstr "History"
+
+#: app/templates/ai_assistant.html:192
+msgid "保存当前对话"
+msgstr "Save current conversation"
+
+#: app/templates/ai_assistant.html:193 app/templates/ai_assistant.html:263
+msgid "保存"
+msgstr "Save"
+
+#: app/templates/ai_assistant.html:195
+msgid "新建对话"
+msgstr "New conversation"
+
+#: app/templates/ai_assistant.html:196
+msgid "新对话"
+msgstr "New conversation"
+
+#: app/templates/ai_assistant.html:207
+msgid "你好！我是你的投资分析助手。我可以帮你分析持仓、解读走势、评估风险。试试问我："
+msgstr ""
+"Hello! I am your investment analysis assistant. I can help you analyze "
+"positions, interpret trends, and assess risks. Try asking me:Hello! I am "
+"your investment analysis assistant. I can help you analyze positions, "
+"interpret trends, and assess risks. Try asking me:"
+
+#: app/templates/ai_assistant.html:209
+msgid "分析我的持仓表现"
+msgstr "Analyze my portfolio performance"
+
+#: app/templates/ai_assistant.html:210
+msgid "哪只基金收益最好？"
+msgstr "Which fund performs best?"
+
+#: app/templates/ai_assistant.html:211
+msgid "我的投资有什么风险？"
+msgstr "What risks do my investments have?"
+
+#: app/templates/ai_assistant.html:212
+msgid "给我一些调仓建议"
+msgstr "Give me some rebalancing suggestions"
+
+#: app/templates/ai_assistant.html:227
+msgid "输入你的问题..."
+msgstr "Type your question..."
+
+#: app/templates/ai_assistant.html:239
+msgid "AI 助手设置"
+msgstr "AI Assistant Settings"
+
+#: app/templates/ai_assistant.html:246 app/templates/ai_assistant.html:251
+msgid "已配置"
+msgstr "Configured"
+
+#: app/templates/ai_assistant.html:246 app/templates/ai_assistant.html:251
+msgid "未配置，留空不修改"
+msgstr "Not configured, leave blank to keep unchanged"
+
+#: app/templates/ai_assistant.html:254
+msgid "默认模型"
+msgstr "Default model"
+
+#: app/templates/ai_assistant.html:262 app/templates/dashboard.html:184
+#: app/templates/manage_funds.html:58 app/templates/manage_positions.html:60
+msgid "取消"
+msgstr "Cancel"
 
 #: app/templates/base.html:35 app/templates/dashboard.html:3
 msgid "仪表盘"
@@ -402,7 +542,8 @@ msgstr "Investment dashboard"
 msgid "ETF 代码（如 562500）"
 msgstr "ETF code (e.g. 562500)"
 
-#: app/templates/dashboard.html:13 app/templates/reports/user_detail.html:124
+#: app/templates/charts/etf_chip.html:3 app/templates/dashboard.html:13
+#: app/templates/reports/user_detail.html:124
 msgid "筹码峰"
 msgstr "Chip peaks"
 
@@ -452,7 +593,7 @@ msgstr "Market value"
 msgid "盈亏"
 msgstr "P&L"
 
-#: app/templates/dashboard.html:92
+#: app/templates/charts/etf_chip.html:68 app/templates/dashboard.html:92
 msgid "占比"
 msgstr "Weight"
 
@@ -501,11 +642,6 @@ msgstr "New principal amount"
 #: app/templates/dashboard.html:183
 msgid "确认修改"
 msgstr "Confirm"
-
-#: app/templates/dashboard.html:184 app/templates/manage_funds.html:58
-#: app/templates/manage_positions.html:60
-msgid "取消"
-msgstr "Cancel"
 
 #: app/templates/login.html:3 app/templates/login.html:31
 msgid "登录"
@@ -627,6 +763,89 @@ msgstr "Created At"
 msgid "确定要删除该持仓吗？"
 msgstr "Are you sure you want to delete this position?"
 
+#: app/templates/charts/etf_chip.html:13
+#: app/templates/reports/fund_chart.html:13
+#: app/templates/reports/user_detail.html:13
+msgid "返回"
+msgstr "Back"
+
+#: app/templates/charts/etf_chip.html:15 app/templates/charts/etf_chip.html:16
+#: app/templates/charts/etf_chip.html:17
+msgid "天"
+msgstr "d"
+
+#: app/templates/charts/etf_chip.html:24
+msgid "获利盘"
+msgstr "Profit ratio"
+
+#: app/templates/charts/etf_chip.html:25
+msgid "集中度"
+msgstr "Concentration"
+
+#: app/templates/charts/etf_chip.html:26
+msgid "平均成本"
+msgstr "Avg cost"
+
+#: app/templates/charts/etf_chip.html:27
+msgid "平均获利"
+msgstr "Avg profit"
+
+#: app/templates/charts/etf_chip.html:28
+msgid "主峰"
+msgstr "Main peak"
+
+#: app/templates/charts/etf_chip.html:29
+msgid "次峰"
+msgstr "Secondary peak"
+
+#: app/templates/charts/etf_chip.html:30
+msgid "现价"
+msgstr "Current price"
+
+#: app/templates/charts/etf_chip.html:31
+msgid "涨跌幅"
+msgstr "Change percent"
+
+#: app/templates/charts/etf_chip.html:38
+msgid "K线 + 筹码分布"
+msgstr "K-line + Chip Distribution"
+
+#: app/templates/charts/etf_chip.html:41
+msgid "衰减"
+msgstr "Decay"
+
+#: app/templates/charts/etf_chip.html:43
+msgid "60日"
+msgstr "60 days"
+
+#: app/templates/charts/etf_chip.html:44
+msgid "90日"
+msgstr "90 days"
+
+#: app/templates/charts/etf_chip.html:45
+msgid "长效"
+msgstr "Long-term"
+
+#: app/templates/charts/etf_chip.html:49
+msgid "桶数"
+msgstr "Bins"
+
+#: app/templates/charts/etf_chip.html:56
+msgid "刷新"
+msgstr "Refresh"
+
+#: app/templates/charts/etf_chip.html:65
+msgid "Top 价位分布"
+msgstr "Top Price Levels"
+
+#: app/templates/charts/etf_chip.html:68
+msgid "价位区间"
+msgstr "Price Range"
+
+#: app/templates/charts/etf_chip.html:68
+msgid "权重"
+msgstr "Weight"
+
 #: app/templates/image_processing/batch_result.html:3
 #: app/templates/image_processing/batch_result.html:57
 msgid "批量基金信息识别结果"
@@ -698,7 +917,12 @@ msgstr "Image Recognition Fund"
 
 #: app/templates/image_processing/upload.html:10
 msgid "上传截图，自动识别基金信息并从天天基金网查询，选择导入"
-msgstr "Upload a screenshot to automatically recognize fund information, search on Eastmoney, and choose what to import"
+msgstr ""
+"Upload a screenshot to automatically recognize fund information, query "
+"Tiantian Fund, and choose what to importUpload a screenshot to "
+"automatically recognize fund information, query Tiantian Fund, and choose"
+" what to importUpload a screenshot to automatically recognize fund "
+"information, search on Eastmoney, and choose what to import"
 
 #: app/templates/image_processing/upload.html:17
 msgid "点击或拖拽图片到此处"
@@ -732,11 +956,6 @@ msgstr "No matching funds found, try manual search"
 #, python-format
 msgid "%(name)s 走势"
 msgstr "%(name)s Trend"
-
-#: app/templates/reports/fund_chart.html:13
-#: app/templates/reports/user_detail.html:13
-msgid "返回"
-msgstr "Back"
 
 #: app/templates/reports/fund_chart.html:15 app/templates/reports/user.html:10
 #: app/templates/reports/user_detail.html:16
@@ -788,7 +1007,7 @@ msgstr "Period change"
 
 #: app/templates/reports/fund_chart.html:81
 msgid "区间涨跌幅"
-msgstr "Period change %"
+msgstr "Period change percent"
 
 #: app/templates/reports/fund_chart.html:85
 msgid "交易日数"
@@ -900,4 +1119,7 @@ msgstr "Details"
 #, python-format
 msgid "%(username)s 的投资报告"
 msgstr "%(username)s's Investment Report"
+
+#~ msgid "集中度(±5%)"
+#~ msgstr "Concentration (±5%)"
 

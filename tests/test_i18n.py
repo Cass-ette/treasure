@@ -183,3 +183,40 @@ class TestImageI18n:
         resp = i18n_client.get('/image/history')
         assert resp.status_code == 200
         assert b'Image Recognition History' in resp.data
+
+
+class TestAiChartsI18n:
+    def test_ai_assistant_page_en(self, i18n_app, i18n_client):
+        from app.models import User
+        from app.extensions import db
+        with i18n_app.app_context():
+            db.create_all()
+            u = User(username='i18nadmin6', password=generate_password_hash('pw123', method='pbkdf2:sha256'), is_main_account=True)
+            db.session.add(u); db.session.commit()
+        i18n_client.post('/login', data={'username': 'i18nadmin6', 'password': 'pw123'})
+        i18n_client.set_cookie('locale', 'en')
+        resp = i18n_client.get('/ai')
+        assert resp.status_code == 200
+        assert b'AI Analysis Assistant' in resp.data
+        assert b'Export data' in resp.data
+
+    def test_etf_chip_page_en(self, i18n_app, i18n_client):
+        from app.models import User
+        from app.extensions import db
+        with i18n_app.app_context():
+            db.create_all()
+            u = User(username='i18nadmin7', password=generate_password_hash('pw123', method='pbkdf2:sha256'), is_main_account=True)
+            db.session.add(u); db.session.commit()
+        i18n_client.post('/login', data={'username': 'i18nadmin7', 'password': 'pw123'})
+        i18n_client.set_cookie('locale', 'en')
+        # symbol 校验失败会 404，但 404 页面不含筹码峰文案；直接断言英文文案出现在 200 页面
+        # 用 mock 不值得，改为检查模板渲染：通过 test_request_context 渲染模板
+        with i18n_app.test_request_context('/charts/etf/562500/chip', headers={'Accept-Language': 'en-US'}):
+            from flask import render_template
+            from unittest.mock import patch
+            with patch('app.routes.charts.quote_provider.fetch_etf_quote', return_value=None), \
+                 patch('app.routes.charts.quote_provider.get_cached_etf_name', return_value='Robot ETF'), \
+                 patch('app.routes.charts._validate_symbol', return_value='SH562500'):
+                html = render_template('charts/etf_chip.html', symbol='SH562500', raw_symbol='562500', quote=None, etf_name='Robot ETF')
+        assert b'K-line + Chip Distribution' in html.encode()
+        assert b'Profit ratio' in html.encode()

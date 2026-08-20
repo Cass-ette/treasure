@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}AI 分析助手 - Treasure{% endblock %}
+{% block title %}{{ _('AI 分析助手') }} - Treasure{% endblock %}
 
 {% block css %}
 <style>
@@ -163,13 +163,13 @@
 
 {% block content %}
 <div class="page-header">
-    <h1><i class="bi bi-robot" style="color: var(--color-accent);"></i> AI 分析助手</h1>
+    <h1><i class="bi bi-robot" style="color: var(--color-accent);"></i> {{ _('AI 分析助手') }}</h1>
 </div>
 
 {% if not has_key %}
 <div class="alert alert-warning" id="noKeyAlert">
     <i class="bi bi-exclamation-triangle me-1"></i>
-    未配置任何 AI 密钥。请点击「设置」按钮配置 API Key，或设置环境变量后重启应用。
+    {{ _('未配置任何 AI 密钥。请点击「设置」按钮配置 API Key，或设置环境变量后重启应用。') }}
 </div>
 {% endif %}
 
@@ -179,21 +179,21 @@
         <option value="deepseek" {{ 'selected' if preferred_model == 'deepseek' }}>DeepSeek</option>
         <option value="claude" {{ 'selected' if preferred_model == 'claude' }}>Claude</option>
     </select>
-    <button class="btn btn-sm btn-outline-secondary" onclick="exportContext()" title="导出投资数据">
-        <i class="bi bi-download"></i> 导出数据
+    <button class="btn btn-sm btn-outline-secondary" onclick="exportContext()" title="{{ _('导出投资数据') }}">
+        <i class="bi bi-download"></i> {{ _('导出数据') }}
     </button>
-    <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#settingsModal" title="API Key 设置">
-        <i class="bi bi-gear"></i> 设置
+    <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#settingsModal" title="{{ _('API Key 设置') }}">
+        <i class="bi bi-gear"></i> {{ _('设置') }}
     </button>
     <div class="ms-auto d-flex gap-1">
-        <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="offcanvas" data-bs-target="#historyPanel" title="对话历史">
-            <i class="bi bi-clock-history"></i> 历史
+        <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="offcanvas" data-bs-target="#historyPanel" title="{{ _('对话历史') }}">
+            <i class="bi bi-clock-history"></i> {{ _('历史') }}
         </button>
-        <button class="btn btn-sm btn-outline-secondary" onclick="saveConversation()" title="保存当前对话">
-            <i class="bi bi-save"></i> 保存
+        <button class="btn btn-sm btn-outline-secondary" onclick="saveConversation()" title="{{ _('保存当前对话') }}">
+            <i class="bi bi-save"></i> {{ _('保存') }}
         </button>
-        <button class="btn btn-sm btn-outline-primary" onclick="newConversation()" title="新建对话">
-            <i class="bi bi-plus-lg"></i> 新对话
+        <button class="btn btn-sm btn-outline-primary" onclick="newConversation()" title="{{ _('新建对话') }}">
+            <i class="bi bi-plus-lg"></i> {{ _('新对话') }}
         </button>
     </div>
 </div>
@@ -204,12 +204,12 @@
         <div class="msg msg-ai" id="welcomeMsg">
             <div class="msg-icon"><i class="bi bi-robot"></i></div>
             <div class="msg-bubble">
-                你好！我是你的投资分析助手。我可以帮你分析持仓、解读走势、评估风险。试试问我：
+                {{ _('你好！我是你的投资分析助手。我可以帮你分析持仓、解读走势、评估风险。试试问我：') }}
                 <div class="suggestions">
-                    <button class="suggestion-btn" onclick="askSuggestion(this)">分析我的持仓表现</button>
-                    <button class="suggestion-btn" onclick="askSuggestion(this)">哪只基金收益最好？</button>
-                    <button class="suggestion-btn" onclick="askSuggestion(this)">我的投资有什么风险？</button>
-                    <button class="suggestion-btn" onclick="askSuggestion(this)">给我一些调仓建议</button>
+                    <button class="suggestion-btn" onclick="askSuggestion(this)">{{ _('分析我的持仓表现') }}</button>
+                    <button class="suggestion-btn" onclick="askSuggestion(this)">{{ _('哪只基金收益最好？') }}</button>
+                    <button class="suggestion-btn" onclick="askSuggestion(this)">{{ _('我的投资有什么风险？') }}</button>
+                    <button class="suggestion-btn" onclick="askSuggestion(this)">{{ _('给我一些调仓建议') }}</button>
                 </div>
             </div>
         </div>
@@ -224,7 +224,7 @@
     </div>
     <div class="chat-input-area">
         <textarea class="form-control" id="chatInput" rows="1"
-                  placeholder="输入你的问题..." {{ 'disabled' if not has_key }}></textarea>
+                  placeholder="{{ _('输入你的问题...') }}" {{ 'disabled' if not has_key }}></textarea>
         <button class="btn btn-accent" id="sendBtn" onclick="sendMessage()" {{ 'disabled' if not has_key }}>
             <i class="bi bi-send"></i>
         </button>
@@ -236,22 +236,22 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="bi bi-gear me-1"></i>AI 助手设置</h5>
+                <h5 class="modal-title"><i class="bi bi-gear me-1"></i>{{ _('AI 助手设置') }}</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <div class="mb-3">
                     <label class="form-label">DeepSeek API Key</label>
                     <input type="password" class="form-control" id="settingDeepseekKey"
-                           placeholder="{{ '已配置' if has_deepseek_key else '未配置，留空不修改' }}">
+                           placeholder="{{ _('已配置') if has_deepseek_key else _('未配置，留空不修改') }}">
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Claude API Key</label>
                     <input type="password" class="form-control" id="settingClaudeKey"
-                           placeholder="{{ '已配置' if has_claude_key else '未配置，留空不修改' }}">
+                           placeholder="{{ _('已配置') if has_claude_key else _('未配置，留空不修改') }}">
                 </div>
                 <div class="mb-3">
-                    <label class="form-label">默认模型</label>
+                    <label class="form-label">{{ _('默认模型') }}</label>
                     <select class="form-select" id="settingDefaultModel">
                         <option value="deepseek" {{ 'selected' if preferred_model == 'deepseek' }}>DeepSeek</option>
                         <option value="claude" {{ 'selected' if preferred_model == 'claude' }}>Claude</option>
@@ -259,8 +259,8 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
-                <button type="button" class="btn btn-accent" onclick="saveSettings()">保存</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ _('取消') }}</button>
+                <button type="button" class="btn btn-accent" onclick="saveSettings()">{{ _('保存') }}</button>
             </div>
         </div>
     </div>
@@ -269,7 +269,7 @@
 <!-- 对话历史侧栏 -->
 <div class="offcanvas offcanvas-end" tabindex="-1" id="historyPanel">
     <div class="offcanvas-header">
-        <h5 class="offcanvas-title"><i class="bi bi-clock-history me-1"></i>对话历史</h5>
+        <h5 class="offcanvas-title"><i class="bi bi-clock-history me-1"></i>{{ _('对话历史') }}</h5>
         <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
     </div>
     <div class="offcanvas-body p-0" id="convList">

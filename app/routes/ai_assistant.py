@@ -1,6 +1,7 @@
 """AI 分析助手蓝图（多模型支持：DeepSeek / Claude）"""
 import requests as http_requests
 from flask import Blueprint, render_template, request, jsonify, current_app, Response
+from flask_babel import _
 from flask_login import login_required, current_user
 from app.extensions import db
 from app.models import User, Fund, Position, Profit, FundNavHistory, Agreement
@@ -108,13 +109,13 @@ def chat():
     user_message = data.get('message', '').strip()
     model = data.get('model', 'deepseek')
     if not user_message:
-        return jsonify({'error': '消息不能为空'}), 400
+        return jsonify({'error': _('消息不能为空')}), 400
 
     provider = 'claude' if model == 'claude' else 'deepseek'
     api_key = _get_api_key(provider)
     if not api_key:
         name = 'Claude' if provider == 'claude' else 'DeepSeek'
-        return jsonify({'error': f'未配置 {name} API Key，请在设置中配置'}), 400
+        return jsonify({'error': _('未配置 %(name)s API Key，请在设置中配置', name=name)}), 400
 
     context = _build_investment_context()
     system_prompt = f"""你是一个专业的投资分析助手。用户正在使用一个基金投资管理系统。
@@ -132,11 +133,11 @@ def chat():
             reply = _call_deepseek(api_key, system_prompt, user_message)
         return jsonify({'reply': reply})
     except http_requests.exceptions.Timeout:
-        return jsonify({'error': 'AI 请求超时，请重试'}), 504
+        return jsonify({'error': _('AI 请求超时，请重试')}), 504
     except http_requests.exceptions.RequestException as e:
-        return jsonify({'error': f'AI 请求失败: {str(e)}'}), 500
+        return jsonify({'error': _('AI 请求失败: %(error)s', error=str(e))}), 500
     except (KeyError, IndexError):
-        return jsonify({'error': 'AI 返回格式异常'}), 500
+        return jsonify({'error': _('AI 返回格式异常')}), 500
 
 
 # ── 设置 ─────────────────────────────────────────────────
@@ -187,7 +188,7 @@ def save_conversation():
     if conv_id:
         conv = ChatConversation.query.filter_by(id=conv_id, user_id=current_user.id).first()
         if not conv:
-            return jsonify({'error': '对话不存在'}), 404
+            return jsonify({'error': _('对话不存在')}), 404
         conv.title = title
         conv.model = model
         conv.set_messages(messages)
@@ -219,7 +220,7 @@ def list_conversations():
 def get_conversation(conv_id):
     conv = ChatConversation.query.filter_by(id=conv_id, user_id=current_user.id).first()
     if not conv:
-        return jsonify({'error': '对话不存在'}), 404
+        return jsonify({'error': _('对话不存在')}), 404
     return jsonify(conv.to_dict())
 
 
@@ -228,7 +229,7 @@ def get_conversation(conv_id):
 def delete_conversation(conv_id):
     conv = ChatConversation.query.filter_by(id=conv_id, user_id=current_user.id).first()
     if not conv:
-        return jsonify({'error': '对话不存在'}), 404
+        return jsonify({'error': _('对话不存在')}), 404
     db.session.delete(conv)
     db.session.commit()
     return jsonify({'ok': True})

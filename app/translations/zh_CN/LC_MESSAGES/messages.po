@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-08-20 01:44+0800\n"
+"POT-Creation-Date: 2026-08-21 00:25+0800\n"
 "PO-Revision-Date: 2026-08-19 00:54+0800\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: zh_Hans_CN\n"
@@ -47,6 +47,33 @@ msgstr ""
 #: app/routes/accounts.py:42
 #, python-format
 msgid "更新本金时出错: %(error)s"
+msgstr ""
+
+#: app/routes/ai_assistant.py:112
+msgid "消息不能为空"
+msgstr ""
+
+#: app/routes/ai_assistant.py:118
+#, python-format
+msgid "未配置 %(name)s API Key，请在设置中配置"
+msgstr ""
+
+#: app/routes/ai_assistant.py:136
+msgid "AI 请求超时，请重试"
+msgstr ""
+
+#: app/routes/ai_assistant.py:138
+#, python-format
+msgid "AI 请求失败: %(error)s"
+msgstr ""
+
+#: app/routes/ai_assistant.py:140
+msgid "AI 返回格式异常"
+msgstr ""
+
+#: app/routes/ai_assistant.py:191 app/routes/ai_assistant.py:223
+#: app/routes/ai_assistant.py:232
+msgid "对话不存在"
 msgstr ""
 
 #: app/routes/auth.py:24
@@ -264,6 +291,99 @@ msgstr ""
 msgid "绿涨红跌"
 msgstr ""
 
+#: app/templates/ai_assistant.html:3 app/templates/ai_assistant.html:166
+msgid "AI 分析助手"
+msgstr ""
+
+#: app/templates/ai_assistant.html:172
+msgid "未配置任何 AI 密钥。请点击「设置」按钮配置 API Key，或设置环境变量后重启应用。"
+msgstr ""
+
+#: app/templates/ai_assistant.html:182
+msgid "导出投资数据"
+msgstr ""
+
+#: app/templates/ai_assistant.html:183
+msgid "导出数据"
+msgstr ""
+
+#: app/templates/ai_assistant.html:185
+msgid "API Key 设置"
+msgstr ""
+
+#: app/templates/ai_assistant.html:186
+msgid "设置"
+msgstr ""
+
+#: app/templates/ai_assistant.html:189 app/templates/ai_assistant.html:272
+msgid "对话历史"
+msgstr ""
+
+#: app/templates/ai_assistant.html:190
+msgid "历史"
+msgstr ""
+
+#: app/templates/ai_assistant.html:192
+msgid "保存当前对话"
+msgstr ""
+
+#: app/templates/ai_assistant.html:193 app/templates/ai_assistant.html:263
+msgid "保存"
+msgstr ""
+
+#: app/templates/ai_assistant.html:195
+msgid "新建对话"
+msgstr ""
+
+#: app/templates/ai_assistant.html:196
+msgid "新对话"
+msgstr ""
+
+#: app/templates/ai_assistant.html:207
+msgid "你好！我是你的投资分析助手。我可以帮你分析持仓、解读走势、评估风险。试试问我："
+msgstr ""
+
+#: app/templates/ai_assistant.html:209
+msgid "分析我的持仓表现"
+msgstr ""
+
+#: app/templates/ai_assistant.html:210
+msgid "哪只基金收益最好？"
+msgstr ""
+
+#: app/templates/ai_assistant.html:211
+msgid "我的投资有什么风险？"
+msgstr ""
+
+#: app/templates/ai_assistant.html:212
+msgid "给我一些调仓建议"
+msgstr ""
+
+#: app/templates/ai_assistant.html:227
+msgid "输入你的问题..."
+msgstr ""
+
+#: app/templates/ai_assistant.html:239
+msgid "AI 助手设置"
+msgstr ""
+
+#: app/templates/ai_assistant.html:246 app/templates/ai_assistant.html:251
+msgid "已配置"
+msgstr ""
+
+#: app/templates/ai_assistant.html:246 app/templates/ai_assistant.html:251
+msgid "未配置，留空不修改"
+msgstr ""
+
+#: app/templates/ai_assistant.html:254
+msgid "默认模型"
+msgstr ""
+
+#: app/templates/ai_assistant.html:262 app/templates/dashboard.html:184
+#: app/templates/manage_funds.html:58 app/templates/manage_positions.html:60
+msgid "取消"
+msgstr ""
+
 #: app/templates/base.html:35 app/templates/dashboard.html:3
 msgid "仪表盘"
 msgstr ""
@@ -398,7 +518,8 @@ msgstr ""
 msgid "ETF 代码（如 562500）"
 msgstr ""
 
-#: app/templates/dashboard.html:13 app/templates/reports/user_detail.html:124
+#: app/templates/charts/etf_chip.html:3 app/templates/dashboard.html:13
+#: app/templates/reports/user_detail.html:124
 msgid "筹码峰"
 msgstr ""
 
@@ -448,7 +569,7 @@ msgstr ""
 msgid "盈亏"
 msgstr ""
 
-#: app/templates/dashboard.html:92
+#: app/templates/charts/etf_chip.html:68 app/templates/dashboard.html:92
 msgid "占比"
 msgstr ""
 
@@ -496,11 +617,6 @@ msgstr ""
 
 #: app/templates/dashboard.html:183
 msgid "确认修改"
-msgstr ""
-
-#: app/templates/dashboard.html:184 app/templates/manage_funds.html:58
-#: app/templates/manage_positions.html:60
-msgid "取消"
 msgstr ""
 
 #: app/templates/login.html:3 app/templates/login.html:31
@@ -623,6 +739,89 @@ msgstr ""
 msgid "确定要删除该持仓吗？"
 msgstr ""
 
+#: app/templates/charts/etf_chip.html:13
+#: app/templates/reports/fund_chart.html:13
+#: app/templates/reports/user_detail.html:13
+msgid "返回"
+msgstr ""
+
+#: app/templates/charts/etf_chip.html:15 app/templates/charts/etf_chip.html:16
+#: app/templates/charts/etf_chip.html:17
+msgid "天"
+msgstr ""
+
+#: app/templates/charts/etf_chip.html:24
+msgid "获利盘"
+msgstr ""
+
+#: app/templates/charts/etf_chip.html:25
+msgid "集中度"
+msgstr ""
+
+#: app/templates/charts/etf_chip.html:26
+msgid "平均成本"
+msgstr ""
+
+#: app/templates/charts/etf_chip.html:27
+msgid "平均获利"
+msgstr ""
+
+#: app/templates/charts/etf_chip.html:28
+msgid "主峰"
+msgstr ""
+
+#: app/templates/charts/etf_chip.html:29
+msgid "次峰"
+msgstr ""
+
+#: app/templates/charts/etf_chip.html:30
+msgid "现价"
+msgstr ""
+
+#: app/templates/charts/etf_chip.html:31
+msgid "涨跌幅"
+msgstr ""
+
+#: app/templates/charts/etf_chip.html:38
+msgid "K线 + 筹码分布"
+msgstr ""
+
+#: app/templates/charts/etf_chip.html:41
+msgid "衰减"
+msgstr ""
+
+#: app/templates/charts/etf_chip.html:43
+msgid "60日"
+msgstr ""
+
+#: app/templates/charts/etf_chip.html:44
+msgid "90日"
+msgstr ""
+
+#: app/templates/charts/etf_chip.html:45
+msgid "长效"
+msgstr ""
+
+#: app/templates/charts/etf_chip.html:49
+msgid "桶数"
+msgstr ""
+
+#: app/templates/charts/etf_chip.html:56
+msgid "刷新"
+msgstr ""
+
+#: app/templates/charts/etf_chip.html:65
+msgid "Top 价位分布"
+msgstr ""
+
+#: app/templates/charts/etf_chip.html:68
+msgid "价位区间"
+msgstr ""
+
+#: app/templates/charts/etf_chip.html:68
+msgid "权重"
+msgstr ""
+
 #: app/templates/image_processing/batch_result.html:3
 #: app/templates/image_processing/batch_result.html:57
 msgid "批量基金信息识别结果"
@@ -727,11 +926,6 @@ msgstr ""
 #: app/templates/reports/fund_chart.html:3
 #, python-format
 msgid "%(name)s 走势"
-msgstr ""
-
-#: app/templates/reports/fund_chart.html:13
-#: app/templates/reports/user_detail.html:13
-msgid "返回"
 msgstr ""
 
 #: app/templates/reports/fund_chart.html:15 app/templates/reports/user.html:10
@@ -896,4 +1090,7 @@ msgstr ""
 #, python-format
 msgid "%(username)s 的投资报告"
 msgstr ""
+
+#~ msgid "集中度(±5%)"
+#~ msgstr ""
 
