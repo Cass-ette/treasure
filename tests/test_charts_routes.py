@@ -14,7 +14,8 @@ def charts_db(charts_app):
     from app.extensions import db
     with charts_app.app_context():
         db.create_all()
-        yield db
+    yield db
+    with charts_app.app_context():
         db.session.rollback()
         db.drop_all()
 
@@ -25,15 +26,16 @@ def charts_client(charts_app, charts_db):
 
 
 @pytest.fixture
-def admin_user(charts_db):
+def admin_user(charts_db, charts_app):
     from app.models import User
-    u = User(
-        username='admin',
-        password=generate_password_hash('admin123', method='pbkdf2:sha256'),
-        is_main_account=True,
-    )
-    charts_db.session.add(u)
-    charts_db.session.commit()
+    with charts_app.app_context():
+        u = User(
+            username='admin',
+            password=generate_password_hash('admin123', method='pbkdf2:sha256'),
+            is_main_account=True,
+        )
+        charts_db.session.add(u)
+        charts_db.session.commit()
     return u
 
 
@@ -109,8 +111,8 @@ class TestChipDataAPI:
         assert 'concentration' in data['metrics']
         assert 'profit_ratio' in data['metrics']
 
-    def test_no_kline_data_returns_404(self, logged_in_client, monkeypatch):
-        """远端拉不到任何 K 线 → 404。"""
+    def test_no_kline_data_returns_404_with_friendly_error(self, logged_in_client, monkeypatch):
+        """远端拉不到任何 K 线 → 404 + 友好提示（供前端展示）。"""
         from app.services import quote_provider
         from app.services.quote_provider import ETFQuote
 
@@ -124,6 +126,29 @@ class TestChipDataAPI:
 
         resp = logged_in_client.get('/charts/api/etf/999999/chip-data')
         assert resp.status_code == 404
+        body = resp.get_json()
+        assert body is not None
+        assert 'error' in body
+        assert '场内 ETF' in body['error']
+
+    def test_no_kline_data_error_translated(self, logged_in_client, monkeypatch):
+        """友好错误信息随语言切换。"""
+        from app.services import quote_provider
+        from app.services.quote_provider import ETFQuote
+
+        monkeypatch.setattr(quote_provider, 'fetch_etf_daily_kline', lambda s, days=250: [])
+        fake_quote = ETFQuote(
+            symbol='SH999999', name='XXX', market='SH',
+            latest=1.0, open=1.0, high=1.0, low=1.0, prev_close=1.0,
+            change_amount=0, change_pct=0, volume=0, amount=0,
+        )
+        monkeypatch.setattr(quote_provider, 'fetch_etf_quote', lambda s: fake_quote)
+
+        logged_in_client.set_cookie('locale', 'en')
+        resp = logged_in_client.get('/charts/api/etf/999999/chip-data')
+        assert resp.status_code == 404
+        body = resp.get_json()
+        assert 'ETF' in body['error'] and 'exchange' in body['error'].lower()
 
     def test_custom_params_passed_through(self, logged_in_client, monkeypatch):
         """URL 参数 decay/bins 透传给算法。"""

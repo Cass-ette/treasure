@@ -28,7 +28,14 @@ function loadData() {
 
     fetch(url)
         .then(r => {
-            if (!r.ok) throw new Error('HTTP ' + r.status);
+            if (!r.ok) {
+                // 尝试读取服务端友好错误信息
+                return r.json().then(body => {
+                    throw new Error(body && body.error ? body.error : 'HTTP ' + r.status);
+                }).catch(err => {
+                    throw (err instanceof SyntaxError) ? new Error('HTTP ' + r.status) : err;
+                });
+            }
             return r.json();
         })
         .then(data => {

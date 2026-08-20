@@ -1,6 +1,7 @@
 """场内 ETF 技术分析蓝图：筹码峰等."""
 import re
 from flask import Blueprint, render_template, request, jsonify, abort
+from flask_babel import gettext as _
 from flask_login import login_required
 
 from app.services import quote_provider, chip_distribution
@@ -59,7 +60,7 @@ def etf_chip_data(symbol: str):
 
     bars = quote_provider.fetch_etf_daily_kline(symbol, days=days)
     if not bars:
-        abort(404)
+        return jsonify({'error': _('该代码无历史数据，请确认是否为场内 ETF')}), 404
 
     quote = quote_provider.fetch_etf_quote(symbol)
     cached_name = quote_provider.get_cached_etf_name(symbol)
