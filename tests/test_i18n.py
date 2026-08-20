@@ -220,3 +220,73 @@ class TestAiChartsI18n:
                 html = render_template('charts/etf_chip.html', symbol='SH562500', raw_symbol='562500', quote=None, etf_name='Robot ETF')
         assert b'K-line + Chip Distribution' in html.encode()
         assert b'Profit ratio' in html.encode()
+
+
+class TestSpecCoverage:
+    """spec 覆盖：I18N 注入兜底 / flash 翻译 / jsonify 翻译 / .mo 同步."""
+
+    def test_missing_key_falls_back(self, i18n_client):
+        """I18N 字典注入且已翻译键有非空英文值；缺失键兜底由 JS t() 保证。"""
+        import json
+        import re
+        i18n_client.set_cookie('locale', 'en')
+        resp = i18n_client.get('/login')
+        data = resp.data.decode()
+        m = re.search(r'window\.I18N = (\{.*?\});', data, re.S)
+        assert m, 'window.I18N 未注入'
+        d = json.loads(m.group(1))
+        # 已翻译键（登录）应有非空英文值
+        assert d.get('登录'), '登录 键缺失或为空'
+        assert d['登录'] != '登录'
+        assert d['登录'] == 'Sign in'
+        # 缺失键：字典无此键，JS t() 应回退到键本身
+        assert '__nonexistent_key__' not in d
+        js = i18n_client.get('/static/js/i18n.js').data.decode()
+        assert 'return (window.I18N || {})[k] || k' in js, 'JS t() 兜底逻辑缺失'
+
+    def test_flash_messages_translated(self, i18n_app, i18n_client):
+        from app.extensions import db
+        from app.models import User
+        with i18n_app.app_context():
+            db.create_all()
+            u = User(username='i18nflash', password=generate_password_hash('pw123', method='pbkdf2:sha256'), is_main_account=True)
+            db.session.add(u)
+            db.session.commit()
+        i18n_client.set_cookie('locale', 'en')
+        resp = i18n_client.post('/login', data={'username': 'i18nflash', 'password': 'wrong'}, follow_redirects=True)
+        assert resp.status_code == 200
+        assert b'Invalid username or password' in resp.data
+
+    def test_json_api_messages_translated(self, i18n_app, i18n_client):
+        """funds.py /get_fund_info 对非法代码返回 jsonify 消息，en 下不含中文。"""
+        from app.extensions import db
+        from app.models import User
+        with i18n_app.app_context():
+            db.create_all()
+            u = User(username='i18njson', password=generate_password_hash('pw123', method='pbkdf2:sha256'), is_main_account=True)
+            db.session.add(u)
+            db.session.commit()
+        i18n_client.post('/login', data={'username': 'i18njson', 'password': 'pw123'})
+        i18n_client.set_cookie('locale', 'en')
+        resp = i18n_client.get('/get_fund_info', query_string={'code': 'abc'})
+        assert resp.status_code == 200
+        body = resp.get_json()
+        assert body['success'] is False
+        assert body['message'] == 'Fund code must be 6 digits'
+        assert not any('一' <= ch <= '鿿' for ch in body['message'])
+
+    def test_po_mo_synced(self):
+        """抽查关键 msgid 在 en 的 .mo 里存在且已翻译（防漏编译）。"""
+        import pathlib
+        from babel.messages.mofile import read_mo
+        from app.babel import _ensure_mo_compiled
+        _ensure_mo_compiled()
+        mo_path = pathlib.Path(__file__).parent.parent / 'app/translations/en_US/LC_MESSAGES/messages.mo'
+        assert mo_path.exists(), '.mo 未生成'
+        with open(mo_path, 'rb') as f:
+            catalog = read_mo(f)
+        assert '登录' in catalog
+        assert '用户名' in catalog
+        assert catalog['登录'].string == 'Sign in'
+        assert catalog['用户名'].string == 'Username'
+        assert catalog['用户名或密码错误'].string == 'Invalid username or password'
