@@ -41,14 +41,14 @@ function initFundCodeLookup() {
                     if (data.name) nameInput.value = data.name;
                     if (data.latest_nav) navInput.value = data.latest_nav;
                     if (data.nav_date) dateInput.value = data.nav_date;
-                    showNotification('基金信息获取成功', 'success');
+                    showNotification(t('基金信息获取成功'), 'success');
                 } else {
-                    showNotification(data.message || '获取基金信息失败', 'warning');
+                    showNotification(data.message || t('获取基金信息失败'), 'warning');
                 }
             })
             .catch(function () {
                 spinner.style.display = 'none';
-                showNotification('获取基金信息时发生错误', 'danger');
+                showNotification(t('获取基金信息时发生错误'), 'danger');
             });
     }, 500);
 
@@ -67,10 +67,10 @@ function fetchAverageNavs() {
             .then(function (data) {
                 cell.textContent = (data.success && data.average_nav)
                     ? data.average_nav.toFixed(4)
-                    : '暂无数据';
+                    : t('暂无数据');
             })
             .catch(function () {
-                cell.textContent = '获取失败';
+                cell.textContent = t('获取失败');
             });
     });
 }

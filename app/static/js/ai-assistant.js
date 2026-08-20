@@ -54,7 +54,7 @@ function sendMessage() {
     .then(function (data) {
         setLoading(false);
         if (data.error) {
-            appendMessage('抱歉，出现错误: ' + data.error, 'ai');
+            appendMessage(t('抱歉，出现错误') + ': ' + data.error, 'ai');
         } else {
             chatHistory.push({ role: 'assistant', content: data.reply });
             appendMessage(data.reply, 'ai');
@@ -62,7 +62,7 @@ function sendMessage() {
     })
     .catch(function () {
         setLoading(false);
-        appendMessage('网络请求失败，请重试。', 'ai');
+        appendMessage(t('网络请求失败，请重试。'), 'ai');
     });
 }
 
@@ -118,12 +118,12 @@ function newConversation() {
 
 function saveConversation() {
     if (chatHistory.length === 0) {
-        alert('当前没有对话内容可保存');
+        alert(t('当前没有对话内容可保存'));
         return;
     }
 
     var defaultTitle = chatHistory[0].content.substring(0, 30);
-    var title = prompt('对话标题', defaultTitle);
+    var title = prompt(t('对话标题'), defaultTitle);
     if (title === null) return;
 
     fetch('/ai/conversations/save', {
@@ -182,7 +182,7 @@ function loadConversation(id) {
 
 function deleteConversation(id, evt) {
     evt.stopPropagation();
-    if (!confirm('确定删除这条对话？')) return;
+    if (!confirm(t('确定删除这条对话？'))) return;
 
     fetch('/ai/conversations/' + id, { method: 'DELETE' })
     .then(function (r) { return r.json(); })
@@ -212,7 +212,7 @@ function renderConvList() {
     if (!container) return;
 
     if (!conversations || conversations.length === 0) {
-        container.innerHTML = '<div class="text-center text-muted py-4">暂无保存的对话</div>';
+        container.innerHTML = '<div class="text-center text-muted py-4">' + t('暂无保存的对话') + '</div>';
         return;
     }
 
@@ -246,7 +246,7 @@ function saveSettings() {
         if (data.ok) {
             location.reload();
         } else {
-            alert(data.error || '保存失败');
+            alert(data.error || t('保存失败'));
         }
     });
 }

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-08-21 00:25+0800\n"
+"POT-Creation-Date: 2026-08-21 01:13+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -277,6 +277,86 @@ msgstr ""
 msgid "删除持仓失败: %(error)s"
 msgstr ""
 
+#: app/static/js/ai-assistant.js:57
+msgid "抱歉，出现错误"
+msgstr ""
+
+#: app/static/js/ai-assistant.js:65
+msgid "网络请求失败，请重试。"
+msgstr ""
+
+#: app/static/js/ai-assistant.js:121
+msgid "当前没有对话内容可保存"
+msgstr ""
+
+#: app/static/js/ai-assistant.js:126
+msgid "对话标题"
+msgstr ""
+
+#: app/static/js/ai-assistant.js:185
+msgid "确定删除这条对话？"
+msgstr ""
+
+#: app/static/js/ai-assistant.js:215
+msgid "暂无保存的对话"
+msgstr ""
+
+#: app/static/js/ai-assistant.js:249
+msgid "保存失败"
+msgstr ""
+
+#: app/static/js/etf_chip.js:44
+msgid "数据加载失败"
+msgstr ""
+
+#: app/static/js/etf_chip.js:80 app/templates/charts/etf_chip.html:28
+msgid "主峰"
+msgstr ""
+
+#: app/static/js/etf_chip.js:80 app/templates/charts/etf_chip.html:29
+msgid "次峰"
+msgstr ""
+
+#: app/static/js/etf_chip.js:80
+msgid "峰"
+msgstr ""
+
+#: app/static/js/etf_chip.js:93 app/templates/charts/etf_chip.html:30
+msgid "现价"
+msgstr ""
+
+#: app/static/js/etf_chip.js:101 app/templates/charts/etf_chip.html:26
+msgid "平均成本"
+msgstr ""
+
+#: app/static/js/etf_chip.js:122 app/static/js/etf_chip.js:157
+msgid "日K"
+msgstr ""
+
+#: app/static/js/etf_chip.js:122 app/static/js/etf_chip.js:169
+msgid "筹码"
+msgstr ""
+
+#: app/static/js/fund-management.js:44
+msgid "基金信息获取成功"
+msgstr ""
+
+#: app/static/js/fund-management.js:46
+msgid "获取基金信息失败"
+msgstr ""
+
+#: app/static/js/fund-management.js:51
+msgid "获取基金信息时发生错误"
+msgstr ""
+
+#: app/static/js/fund-management.js:70
+msgid "暂无数据"
+msgstr ""
+
+#: app/static/js/fund-management.js:73
+msgid "获取失败"
+msgstr ""
+
 #: app/static/js/i18n.js:31 app/templates/base.html:102
 #: app/templates/base.html:105
 msgid "跟随语言"
@@ -288,6 +368,28 @@ msgstr ""
 
 #: app/static/js/i18n.js:31 app/templates/base.html:107
 msgid "绿涨红跌"
+msgstr ""
+
+#: app/static/js/reports.js:26
+msgid "累计收益"
+msgstr ""
+
+#: app/static/js/reports.js:36
+msgid "日收益"
+msgstr ""
+
+#: app/static/js/reports.js:89 app/static/js/reports.js:156
+#: app/templates/crawl_fund_nav.html:27
+msgid "暂无净值数据"
+msgstr ""
+
+#: app/static/js/reports.js:95 app/static/js/reports.js:164
+msgid "加载失败"
+msgstr ""
+
+#: app/static/js/reports.js:131 app/static/js/reports.js:185
+#: app/static/js/reports.js:204
+msgid "净值"
 msgstr ""
 
 #: app/templates/ai_assistant.html:3 app/templates/ai_assistant.html:166
@@ -442,10 +544,6 @@ msgstr ""
 #: app/templates/crawl_fund_nav.html:25 app/templates/crawl_fund_nav.html:70
 #: app/templates/crawl_fund_nav.html:71
 msgid "暂无"
-msgstr ""
-
-#: app/templates/crawl_fund_nav.html:27
-msgid "暂无净值数据"
 msgstr ""
 
 #: app/templates/crawl_fund_nav.html:35
@@ -757,24 +855,8 @@ msgstr ""
 msgid "集中度"
 msgstr ""
 
-#: app/templates/charts/etf_chip.html:26
-msgid "平均成本"
-msgstr ""
-
 #: app/templates/charts/etf_chip.html:27
 msgid "平均获利"
-msgstr ""
-
-#: app/templates/charts/etf_chip.html:28
-msgid "主峰"
-msgstr ""
-
-#: app/templates/charts/etf_chip.html:29
-msgid "次峰"
-msgstr ""
-
-#: app/templates/charts/etf_chip.html:30
-msgid "现价"
 msgstr ""
 
 #: app/templates/charts/etf_chip.html:31

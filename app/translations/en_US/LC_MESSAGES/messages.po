@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-08-21 00:25+0800\n"
+"POT-Creation-Date: 2026-08-21 01:13+0800\n"
 "PO-Revision-Date: 2026-08-19 02:18+0800\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: en_US\n"
@@ -294,6 +294,86 @@ msgstr "Position deleted successfully"
 msgid "删除持仓失败: %(error)s"
 msgstr "Failed to delete position: %(error)s"
 
+#: app/static/js/ai-assistant.js:57
+msgid "抱歉，出现错误"
+msgstr "Sorry, an error occurred"
+
+#: app/static/js/ai-assistant.js:65
+msgid "网络请求失败，请重试。"
+msgstr "Network request failed, please retry."
+
+#: app/static/js/ai-assistant.js:121
+msgid "当前没有对话内容可保存"
+msgstr "No conversation content to save"
+
+#: app/static/js/ai-assistant.js:126
+msgid "对话标题"
+msgstr "Conversation title"
+
+#: app/static/js/ai-assistant.js:185
+msgid "确定删除这条对话？"
+msgstr "Delete this conversation?"
+
+#: app/static/js/ai-assistant.js:215
+msgid "暂无保存的对话"
+msgstr "No saved conversations"
+
+#: app/static/js/ai-assistant.js:249
+msgid "保存失败"
+msgstr "Save failed"
+
+#: app/static/js/etf_chip.js:44
+msgid "数据加载失败"
+msgstr "Data loading failed"
+
+#: app/static/js/etf_chip.js:80 app/templates/charts/etf_chip.html:28
+msgid "主峰"
+msgstr "Main peak"
+
+#: app/static/js/etf_chip.js:80 app/templates/charts/etf_chip.html:29
+msgid "次峰"
+msgstr "Secondary peak"
+
+#: app/static/js/etf_chip.js:80
+msgid "峰"
+msgstr "Peak"
+
+#: app/static/js/etf_chip.js:93 app/templates/charts/etf_chip.html:30
+msgid "现价"
+msgstr "Current price"
+
+#: app/static/js/etf_chip.js:101 app/templates/charts/etf_chip.html:26
+msgid "平均成本"
+msgstr "Avg cost"
+
+#: app/static/js/etf_chip.js:122 app/static/js/etf_chip.js:157
+msgid "日K"
+msgstr "Daily K"
+
+#: app/static/js/etf_chip.js:122 app/static/js/etf_chip.js:169
+msgid "筹码"
+msgstr "Chips"
+
+#: app/static/js/fund-management.js:44
+msgid "基金信息获取成功"
+msgstr "Fund information retrieved successfully"
+
+#: app/static/js/fund-management.js:46
+msgid "获取基金信息失败"
+msgstr "Failed to get fund information"
+
+#: app/static/js/fund-management.js:51
+msgid "获取基金信息时发生错误"
+msgstr "Error getting fund information"
+
+#: app/static/js/fund-management.js:70
+msgid "暂无数据"
+msgstr "No data"
+
+#: app/static/js/fund-management.js:73
+msgid "获取失败"
+msgstr "Failed to load"
+
 #: app/static/js/i18n.js:31 app/templates/base.html:102
 #: app/templates/base.html:105
 msgid "跟随语言"
@@ -306,6 +386,28 @@ msgstr "Red up, green down"
 #: app/static/js/i18n.js:31 app/templates/base.html:107
 msgid "绿涨红跌"
 msgstr "Green up, red down"
+
+#: app/static/js/reports.js:26
+msgid "累计收益"
+msgstr "Cumulative profit"
+
+#: app/static/js/reports.js:36
+msgid "日收益"
+msgstr "Daily profit"
+
+#: app/static/js/reports.js:89 app/static/js/reports.js:156
+#: app/templates/crawl_fund_nav.html:27
+msgid "暂无净值数据"
+msgstr "No NAV data"
+
+#: app/static/js/reports.js:95 app/static/js/reports.js:164
+msgid "加载失败"
+msgstr "Loading failed"
+
+#: app/static/js/reports.js:131 app/static/js/reports.js:185
+#: app/static/js/reports.js:204
+msgid "净值"
+msgstr "NAV"
 
 #: app/templates/ai_assistant.html:3 app/templates/ai_assistant.html:166
 msgid "AI 分析助手"
@@ -468,10 +570,6 @@ msgstr "Updated"
 #: app/templates/crawl_fund_nav.html:71
 msgid "暂无"
 msgstr "N/A"
-
-#: app/templates/crawl_fund_nav.html:27
-msgid "暂无净值数据"
-msgstr "No NAV data"
 
 #: app/templates/crawl_fund_nav.html:35
 msgid "爬取选中基金净值"
@@ -782,25 +880,9 @@ msgstr "Profit ratio"
 msgid "集中度"
 msgstr "Concentration"
 
-#: app/templates/charts/etf_chip.html:26
-msgid "平均成本"
-msgstr "Avg cost"
-
 #: app/templates/charts/etf_chip.html:27
 msgid "平均获利"
 msgstr "Avg profit"
-
-#: app/templates/charts/etf_chip.html:28
-msgid "主峰"
-msgstr "Main peak"
-
-#: app/templates/charts/etf_chip.html:29
-msgid "次峰"
-msgstr "Secondary peak"
-
-#: app/templates/charts/etf_chip.html:30
-msgid "现价"
-msgstr "Current price"
 
 #: app/templates/charts/etf_chip.html:31
 msgid "涨跌幅"

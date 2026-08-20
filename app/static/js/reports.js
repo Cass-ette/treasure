@@ -23,7 +23,7 @@ function initProfitChart() {
             labels: data.dates,
             datasets: [
                 {
-                    label: '累计收益',
+                    label: t('累计收益'),
                     data: data.cumulativeProfits,
                     borderColor: '#3B82F6',
                     backgroundColor: 'rgba(59, 130, 246, 0.08)',
@@ -33,7 +33,7 @@ function initProfitChart() {
                     borderWidth: 2
                 },
                 {
-                    label: '日收益',
+                    label: t('日收益'),
                     data: data.dailyProfits,
                     borderColor: '#10B981',
                     backgroundColor: 'rgba(16, 185, 129, 0.08)',
@@ -86,13 +86,13 @@ function fetchNavAndDraw(canvas, fundId, days) {
         .then(function (r) { return r.json(); })
         .then(function (data) {
             if (!data.dates || !data.dates.length) {
-                canvas.parentNode.innerHTML = '<div class="text-center text-muted py-3" style="font-size:0.85rem">暂无净值数据</div>';
+                canvas.parentNode.innerHTML = '<div class="text-center text-muted py-3" style="font-size:0.85rem">' + t('暂无净值数据') + '</div>';
                 return;
             }
             drawNavChart(canvas, data);
         })
         .catch(function () {
-            canvas.parentNode.innerHTML = '<div class="text-center text-muted py-3" style="font-size:0.85rem">加载失败</div>';
+            canvas.parentNode.innerHTML = '<div class="text-center text-muted py-3" style="font-size:0.85rem">' + t('加载失败') + '</div>';
         });
 }
 
@@ -128,7 +128,7 @@ function drawNavChart(canvas, data) {
                 tooltip: {
                     callbacks: {
                         title: function (ctx) { return ctx[0].label; },
-                        label: function (ctx) { return '净值: ' + ctx.raw.toFixed(4); }
+                        label: function (ctx) { return t('净值') + ': ' + ctx.raw.toFixed(4); }
                     }
                 }
             },
@@ -153,7 +153,7 @@ function initSingleFundChart() {
         .then(function (data) {
             if (!data.dates || !data.dates.length) {
                 document.getElementById('fundNavChart').parentNode.innerHTML =
-                    '<div class="text-center text-muted py-5">暂无净值数据</div>';
+                    '<div class="text-center text-muted py-5">' + t('暂无净值数据') + '</div>';
                 return;
             }
             drawFullNavChart(data);
@@ -161,7 +161,7 @@ function initSingleFundChart() {
         })
         .catch(function () {
             document.getElementById('fundNavChart').parentNode.innerHTML =
-                '<div class="text-center text-muted py-5">加载失败</div>';
+                '<div class="text-center text-muted py-5">' + t('加载失败') + '</div>';
         });
 }
 
@@ -182,7 +182,7 @@ function drawFullNavChart(data) {
         data: {
             labels: data.dates,
             datasets: [{
-                label: data.fund_name + ' 净值',
+                label: data.fund_name + ' ' + t('净值'),
                 data: data.navs,
                 borderColor: color,
                 backgroundColor: color.replace(')', ', 0.06)').replace('rgb', 'rgba'),
@@ -201,7 +201,7 @@ function drawFullNavChart(data) {
                 legend: { display: false },
                 tooltip: {
                     callbacks: {
-                        label: function (ctx) { return '净值: ' + ctx.raw.toFixed(4); }
+                        label: function (ctx) { return t('净值') + ': ' + ctx.raw.toFixed(4); }
                     }
                 }
             },

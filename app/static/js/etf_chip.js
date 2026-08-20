@@ -41,7 +41,7 @@ function loadData() {
             if (chartInstance) {
                 chartInstance.clear();
                 chartInstance.setOption({
-                    title: { text: '数据加载失败: ' + err.message, left: 'center', top: 'center', textStyle: { color: '#dc3545' } }
+                    title: { text: t('数据加载失败') + ': ' + err.message, left: 'center', top: 'center', textStyle: { color: '#dc3545' } }
                 });
             }
         });
@@ -77,7 +77,7 @@ function renderChart(data) {
     const peakLines = peaks.slice(0, 3).map((p, i) => ({
         yAxis: p.price,
         label: {
-            formatter: (i === 0 ? '主峰 ' : (i === 1 ? '次峰 ' : '峰 ')) + p.price.toFixed(3),
+            formatter: (i === 0 ? t('主峰') : (i === 1 ? t('次峰') : t('峰'))) + ' ' + p.price.toFixed(3),
             position: 'insideEndTop'
         },
         lineStyle: {
@@ -90,7 +90,7 @@ function renderChart(data) {
     // current price line
     peakLines.push({
         yAxis: data.current_price,
-        label: { formatter: '现价 ' + data.current_price.toFixed(3), position: 'insideStartTop' },
+        label: { formatter: t('现价') + ' ' + data.current_price.toFixed(3), position: 'insideStartTop' },
         lineStyle: { color: '#198754', type: 'solid', width: 2 }
     });
 
@@ -98,7 +98,7 @@ function renderChart(data) {
     if (data.metrics.avg_cost) {
         peakLines.push({
             yAxis: data.metrics.avg_cost,
-            label: { formatter: '平均成本 ' + data.metrics.avg_cost.toFixed(3), position: 'insideEndTop' },
+            label: { formatter: t('平均成本') + ' ' + data.metrics.avg_cost.toFixed(3), position: 'insideEndTop' },
             lineStyle: { color: '#ffc107', type: 'dashed', width: 1.5 }
         });
     }
@@ -119,7 +119,7 @@ function renderChart(data) {
 
     const option = {
         tooltip: { trigger: 'axis', axisPointer: { type: 'cross' } },
-        legend: { data: ['日K', 'MA20', '筹码'], top: 5, right: '30%' },
+        legend: { data: [t('日K'), 'MA20', t('筹码')], top: 5, right: '30%' },
         axisPointer: { link: [{ yAxisAxisIndex: [0, 1] }] },
         grid: [
             { left: 55, right: '42%', top: 40, bottom: 65 },
@@ -154,7 +154,7 @@ function renderChart(data) {
         ],
         series: [
             {
-                name: '日K', type: 'candlestick', data: candleData,
+                name: t('日K'), type: 'candlestick', data: candleData,
                 itemStyle: {
                     color: '#dc3545', color0: '#198754',
                     borderColor: '#dc3545', borderColor0: '#198754'
@@ -166,7 +166,7 @@ function renderChart(data) {
                 lineStyle: { color: '#fd7e14', width: 1 }, symbol: 'none'
             },
             {
-                name: '筹码', type: 'line', xAxisIndex: 1, yAxisIndex: 1,
+                name: t('筹码'), type: 'line', xAxisIndex: 1, yAxisIndex: 1,
                 data: distData, smooth: true, symbol: 'none',
                 lineStyle: { width: 1.5, color: '#0d9488' },
                 areaStyle: {

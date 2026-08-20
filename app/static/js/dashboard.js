@@ -79,46 +79,6 @@ function initTableSort() {
     if (header) header.addEventListener('click', sortDesc);
 }
 
-// ── Language Translations (ID-based) ──
-var LANG = {
-    'main-title':        { zh: '投资管理仪表盘',   en: 'Investment Dashboard' },
-    'principal-label':   { zh: '总本金',           en: 'Total Principal' },
-    'market-value-label':{ zh: '总市值',           en: 'Total Market Value' },
-    'profit-label':      { zh: '总盈亏',           en: 'Total Profit/Loss' },
-    'yield-label':       { zh: '收益率',           en: 'Yield Rate' },
-    'positions-title':   { zh: '持仓概览',         en: 'Position Overview' },
-    'chart-title':       { zh: '持仓分布',         en: 'Allocation' },
-    'th-fund':           { zh: '基金名称',         en: 'Fund Name' },
-    'th-cost':           { zh: '成本',             en: 'Cost' },
-    'th-value':          { zh: '市值',             en: 'Market Value' },
-    'th-profit':         { zh: '盈亏',             en: 'Profit/Loss' },
-    'th-return':         { zh: '收益率',           en: 'Return' },
-    'th-weight':         { zh: '占比',             en: 'Weight' },
-    'sub-title':         { zh: '次级账户管理',     en: 'Sub-account Management' },
-    'th-user':           { zh: '用户名',           en: 'Username' },
-    'th-principal':      { zh: '本金',             en: 'Principal' },
-    'th-status':         { zh: '状态',             en: 'Status' },
-    'th-action':         { zh: '操作',             en: 'Action' },
-    'modal-title':       { zh: '修改次级账户本金', en: 'Edit Sub-account Principal' }
-};
-
-function setLanguage(lang) {
-    Object.keys(LANG).forEach(function (id) {
-        var el = document.getElementById(id);
-        if (!el) return;
-        // Preserve child elements (e.g. sort icon)
-        var children = Array.from(el.children);
-        el.textContent = LANG[id][lang];
-        children.forEach(function (c) { el.appendChild(c); });
-    });
-    document.querySelectorAll('.status-text').forEach(function (el) {
-        el.textContent = lang === 'zh' ? '活跃' : 'Active';
-    });
-    document.querySelectorAll('.btn-edit-principal').forEach(function (el) {
-        el.textContent = lang === 'zh' ? '修改本金' : 'Edit';
-    });
-}
-
 // ── Bootstrap Modal for editing principal ──
 window.showEditPrincipalModal = function (accountId, username, principal) {
     document.getElementById('modal-account-id').value = accountId;
