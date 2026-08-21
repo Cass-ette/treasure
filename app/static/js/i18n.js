@@ -23,6 +23,8 @@ window.setColorMode = function (mode) {
         el.setAttribute('data-color-mode', mode);
     }
     updateColorLabel(mode);
+    // 通知图表等 JS 组件按新配色重绘
+    window.dispatchEvent(new CustomEvent('colorModeChange'));
 };
 
 function updateColorLabel(mode) {

@@ -16,8 +16,20 @@ function initChipChart() {
     document.getElementById('btn-refresh').addEventListener('click', loadData);
     document.getElementById('param-decay').addEventListener('change', loadData);
     document.getElementById('param-bins').addEventListener('change', loadData);
+    // 颜色模式切换时用已缓存数据重绘（不重新请求）
+    window.addEventListener('colorModeChange', () => {
+        if (currentData) { renderChart(currentData); renderMetrics(currentData); }
+    });
 
     loadData();
+}
+
+// 涨跌配色：cn 红涨绿跌 / intl 绿涨红跌（跟 data-color-mode）
+function upDownColors() {
+    var mode = document.documentElement.getAttribute('data-color-mode') || 'cn';
+    return mode === 'intl'
+        ? { up: '#198754', down: '#dc3545' }
+        : { up: '#dc3545', down: '#198754' };
 }
 
 function loadData() {
@@ -58,6 +70,7 @@ function renderChart(data) {
     const klines = data.klines;
     const dist = data.distribution;
     const peaks = data.peaks;
+    const ud = upDownColors();
 
     // candlestick data: [open, close, low, high]
     const candleData = klines.map(k => [k.open, k.close, k.low, k.high]);
@@ -163,8 +176,8 @@ function renderChart(data) {
             {
                 name: t('日K'), type: 'candlestick', data: candleData,
                 itemStyle: {
-                    color: '#dc3545', color0: '#198754',
-                    borderColor: '#dc3545', borderColor0: '#198754'
+                    color: ud.up, color0: ud.down,
+                    borderColor: ud.up, borderColor0: ud.down
                 },
                 markLine: { symbol: ['none', 'none'], data: peakLines, animation: false, label: { fontSize: 10 } }
             },
@@ -197,6 +210,7 @@ function renderMetrics(data) {
     const card = document.getElementById('metricsCard');
     if (!card) return;
     card.style.display = '';
+    const ud = upDownColors();
     document.getElementById('m-profit').textContent = (data.metrics.profit_ratio * 100).toFixed(1) + '%';
     document.getElementById('m-conc').textContent = (data.metrics.concentration * 100).toFixed(1) + '%';
     const avgCostEl = document.getElementById('m-avgcost');
@@ -205,7 +219,7 @@ function renderMetrics(data) {
     if (data.metrics.avg_profit_pct !== null && data.metrics.avg_profit_pct !== undefined) {
         const ap = data.metrics.avg_profit_pct;
         avgProfitEl.textContent = (ap >= 0 ? '+' : '') + ap.toFixed(2) + '%';
-        avgProfitEl.style.color = ap >= 0 ? '#dc3545' : '#198754';
+        avgProfitEl.style.color = ap >= 0 ? ud.up : ud.down;
     } else {
         avgProfitEl.textContent = '-';
         avgProfitEl.style.color = '';
@@ -216,7 +230,7 @@ function renderMetrics(data) {
     const chg = data.change_pct || 0;
     const chgEl = document.getElementById('m-chg');
     chgEl.textContent = (chg >= 0 ? '+' : '') + chg.toFixed(2) + '%';
-    chgEl.style.color = chg >= 0 ? '#dc3545' : '#198754';
+    chgEl.style.color = chg >= 0 ? ud.up : ud.down;
 }
 
 function renderBinsTable(data) {
