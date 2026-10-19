@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _('股票筛选') }} - Treasure{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1><i class="bi bi-funnel" style="color: var(--color-accent);"></i> {{ _('股票筛选') }}</h1>
+    <button id="btn-screen" class="btn btn-accent"><i class="bi bi-search"></i> {{ _('开始筛选') }}</button>
+</div>
+
+<div class="alert alert-info small">
+    <i class="bi bi-info-circle me-1"></i>{{ _('基于公开行情快照，适合做初步筛选；数据可能有延迟，不构成投资建议。财务指标由行情接口提供，缺失值不会被强行填补。') }}
+</div>
+
+<form id="screen-form" class="card mb-3">
+    <div class="card-body">
+        <div class="row g-2 align-items-end">
+            <div class="col-6 col-md-2">
+                <label class="form-label small" for="screen-market">{{ _('市场') }}</label>
+                <select id="screen-market" name="market" class="form-select form-select-sm">
+                    <option value="all">{{ _('沪深全市场') }}</option>
+                    <option value="sh">{{ _('沪市') }}</option>
+                    <option value="sz">{{ _('深市') }}</option>
+                    <option value="main">{{ _('沪深主板') }}</option>
+                    <option value="gem">{{ _('创业板') }}</option>
+                    <option value="star">{{ _('科创板') }}</option>
+                </select>
+            </div>
+            <div class="col-6 col-md-2">
+                <label class="form-label small" for="screen-keyword">{{ _('代码或名称') }}</label>
+                <input id="screen-keyword" name="keyword" class="form-control form-control-sm" placeholder="{{ _('如 002624 或 完美') }}">
+            </div>
+            <div class="col-6 col-md-2">
+                <label class="form-label small" for="screen-sort">{{ _('排序') }}</label>
+                <select id="screen-sort" name="sort" class="form-select form-select-sm">
+                    <option value="change_pct">{{ _('涨跌幅') }}</option>
+                    <option value="amount">{{ _('成交额') }}</option>
+                    <option value="turnover_rate">{{ _('换手率') }}</option>
+                    <option value="total_market_cap">{{ _('总市值') }}</option>
+                    <option value="pe">PE</option>
+                    <option value="pb">PB</option>
+                    <option value="price">{{ _('价格') }}</option>
+                </select>
+            </div>
+            <div class="col-6 col-md-2">
+                <label class="form-label small" for="screen-order">{{ _('方向') }}</label>
+                <select id="screen-order" name="order" class="form-select form-select-sm">
+                    <option value="desc">{{ _('从高到低') }}</option>
+                    <option value="asc">{{ _('从低到高') }}</option>
+                </select>
+            </div>
+            <div class="col-12 col-md-4 d-flex align-items-center pb-1">
+                <div class="form-check">
+                    <input id="screen-exclude" name="exclude_special" class="form-check-input" type="checkbox" checked>
+                    <label class="form-check-label small" for="screen-exclude">{{ _('排除 ST/退市整理') }}</label>
+                </div>
+                <button id="btn-reset" type="button" class="btn btn-sm btn-outline-secondary ms-auto"><i class="bi bi-arrow-counterclockwise"></i> {{ _('重置') }}</button>
+            </div>
+        </div>
+
+        <hr class="my-3">
+        <div class="row g-2">
+            {% for field, label, placeholder in [
+                ('price', _('价格'), '0 - 1000'),
+                ('change', _('涨跌幅') ~ ' %', '-10 - 10'),
+                ('turnover', _('换手率') ~ ' %', '0 - 20'),
+                ('amount', _('成交额 万元'), '10000 -'),
+                ('pe', _('PE'), '0 - 50'),
+                ('pb', _('PB'), '0 - 10'),
+                ('market_cap', _('总市值 亿元'), '10 - 1000')
+            ] %}
+            <div class="col-6 col-md-3">
+                <label class="form-label small">{{ label }}</label>
+                <div class="input-group input-group-sm">
+                    <input type="number" step="any" min="0" class="form-control" name="min_{{ field }}" placeholder="{{ _('最低') }}">
+                    <input type="number" step="any" min="0" class="form-control" name="max_{{ field }}" placeholder="{{ _('最高') }}">
+                </div>
+                <div class="form-text">{{ placeholder }}</div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</form>
+
+<div id="screen-status" class="d-flex justify-content-between align-items-center small text-muted mb-2" role="status">
+    <span>{{ _('尚未筛选') }}</span><span></span>
+</div>
+<div class="table-responsive card">
+    <table class="table table-sm table-hover align-middle mb-0" id="screen-table">
+        <thead><tr>
+            <th>{{ _('代码') }}</th><th>{{ _('名称') }}</th><th>{{ _('价格') }}</th>
+            <th>{{ _('涨跌幅') }}</th><th>{{ _('换手率') }}</th><th>{{ _('成交额') }}</th>
+            <th>PE</th><th>PB</th><th>{{ _('总市值') }}</th>
+        </tr></thead>
+        <tbody><tr><td colspan="9" class="text-center text-muted py-4">{{ _('点击开始筛选') }}</td></tr></tbody>
+    </table>
+</div>
+{% endblock %}
+
+{% block js %}
+<script src="{{ url_for('static', filename='js/stock_screener.js') }}"></script>
+{% endblock %}
