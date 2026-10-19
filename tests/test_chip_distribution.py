@@ -3,6 +3,7 @@ import pytest
 from datetime import date, timedelta
 
 from app.services.quote_provider import ETFDailyBar
+from app.services.chip_distribution import estimate_chip_distribution
 
 
 def _make_bar(d_offset: int, high: float, low: float, close: float = None,
@@ -266,3 +267,79 @@ class TestAvgCost:
         pct = (current - avg) / avg * 100
         # 现价在区间顶部，平均获利应为正
         assert pct > 0
+
+
+class TestTurnoverModel:
+    @staticmethod
+    def bar(day, price, rate, volume=1000):
+        return ETFDailyBar(f'2026-01-{day:02}', price, price, price, price, volume, volume * price, rate)
+
+    def test_recurrence_conserves_mass_and_uses_turnover_not_volume(self):
+        bars = [self.bar(1, 10, 5), self.bar(2, 20, 50, 1_000_000), self.bar(3, 30, 25, 1)]
+        result = estimate_chip_distribution(bars, bin_count=200)
+        mass = lambda price: sum(w for lo, hi, w in result.distribution if lo <= price < hi)
+        assert mass(10) == pytest.approx(0.375)
+        assert mass(20) == pytest.approx(0.375)
+        assert mass(30) == pytest.approx(0.25)
+        assert sum(w for _, _, w in result.distribution) == pytest.approx(1)
+        assert result.metadata['initial_mass_remaining'] == pytest.approx(0.375)
+        assert result.metadata['turnover_coverage'] == 1
+        assert estimate_chip_distribution(list(reversed(bars)), bin_count=200) == result
+
+    @pytest.mark.parametrize('shape,expected', [
+        ('uniform', [0.25] * 4),
+        ('triangular', [1/4, 5/12, 1/4, 1/12]),
+    ])
+    def test_daily_pdf_is_integrated_over_bins(self, shape, expected):
+        bar = ETFDailyBar('2026-01-01', 10, 14, 10, 10, 1000, 10000, 2)
+        result = estimate_chip_distribution([bar], bin_count=4, shape=shape, price_padding=0)
+        assert [w for _, _, w in result.distribution] == pytest.approx(expected)
+        assert result.metadata['daily_shape'] == shape
+
+    def test_zero_turnover_and_suspension_leave_previous_costs(self):
+        bars = [self.bar(1, 10, 2), self.bar(2, 20, 0), self.bar(3, 30, None, volume=0)]
+        result = estimate_chip_distribution(bars)
+        assert result.metadata['method'] == 'turnover'
+        assert result.metadata['skipped_days'] == 1
+        assert result.metadata['initial_mass_remaining'] == 1
+        assert sum(w for lo, hi, w in result.distribution if hi < 15) == pytest.approx(1)
+
+    def test_turnover_above_100_percent_replaces_without_negative_mass(self):
+        result = estimate_chip_distribution([self.bar(1, 10, 2), self.bar(2, 20, 150)])
+        assert result.metadata['capped_turnover_days'] == 1
+        assert result.metadata['initial_mass_remaining'] == 0
+        assert all(w >= 0 for _, _, w in result.distribution)
+        assert sum(w for lo, hi, w in result.distribution if lo > 15) == pytest.approx(1)
+
+    @pytest.mark.parametrize('missing', [None, -1, float('nan'), float('inf')])
+    @pytest.mark.parametrize('method', ['auto', 'turnover'])
+    def test_missing_turnover_falls_back_for_entire_window(self, missing, method):
+        from app.services.chip_distribution import compute_chip_distribution
+        bars = [self.bar(1, 10, 5), self.bar(2, 20, missing)]
+        result = estimate_chip_distribution(bars, method=method)
+        assert result.metadata['method'] == 'legacy'
+        assert result.metadata['fallback_reason'] == 'missing_turnover'
+        assert result.metadata['turnover_coverage'] == 0.5
+        assert result.distribution == compute_chip_distribution(bars)
+
+    def test_legacy_selection_preserves_old_model_even_with_turnover(self):
+        from app.services.chip_distribution import compute_chip_distribution
+        bars = [self.bar(1, 10, 5), self.bar(2, 20, 5)]
+        result = estimate_chip_distribution(bars, method='legacy', decay=0.985)
+        assert result.distribution == compute_chip_distribution(bars, decay=0.985)
+        assert result.metadata['daily_shape'] == 'uniform'
+        assert result.metadata['fallback_reason'] is None
+
+    def test_one_price_and_long_series_remain_normalized(self):
+        bars = [self.bar(1, 10, 5)] * 400
+        result = estimate_chip_distribution(bars)
+        assert sum(w for _, _, w in result.distribution) == pytest.approx(1)
+        assert len([w for _, _, w in result.distribution if w > 0]) == 1
+        assert result.metadata['initial_mass_remaining'] == pytest.approx(0.95 ** 399)
+
+    def test_invalid_or_untraded_history_is_empty(self):
+        bad = self.bar(1, 10, 5)
+        bad.close = float('nan')
+        result = estimate_chip_distribution([bad, self.bar(2, 20, None, volume=0)])
+        assert result.distribution == []
+        assert result.metadata['active_days'] == 0

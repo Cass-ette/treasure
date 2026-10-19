@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 let chartInstance = null;
 let currentData = null;
+let dataRequest = null;
 
 function initChipChart() {
     const el = document.getElementById('mainChart');
@@ -14,8 +15,15 @@ function initChipChart() {
     window.addEventListener('resize', () => chartInstance && chartInstance.resize());
 
     document.getElementById('btn-refresh').addEventListener('click', loadData);
-    document.getElementById('param-decay').addEventListener('change', loadData);
+    document.getElementById('param-decay').addEventListener('change', function () {
+        // 衰减只属于旧模型；直接调它时切换到旧模型，避免点击后看不到变化。
+        const model = document.getElementById('param-model');
+        if (model.value === 'auto') model.value = 'legacy';
+        loadData();
+    });
     document.getElementById('param-bins').addEventListener('change', loadData);
+    document.getElementById('param-model').addEventListener('change', loadData);
+    document.getElementById('param-shape').addEventListener('change', loadData);
     // 颜色模式切换时用已缓存数据重绘（不重新请求）
     window.addEventListener('colorModeChange', () => {
         if (currentData) { renderChart(currentData); renderMetrics(currentData); }
@@ -32,38 +40,65 @@ function upDownColors() {
         : { up: '#dc3545', down: '#198754' };
 }
 
-function loadData() {
+async function loadData() {
+    if (dataRequest) dataRequest.abort();
+    const controller = new AbortController();
+    dataRequest = controller;
     const ctx = window.CHART_CTX;
-    const decay = document.getElementById('param-decay').value;
-    const bins = document.getElementById('param-bins').value;
-    const url = ctx.dataUrl + '?decay=' + decay + '&bins=' + bins;
-
-    fetch(url)
-        .then(r => {
-            if (!r.ok) {
-                // 尝试读取服务端友好错误信息
-                return r.json().then(body => {
-                    throw new Error(body && body.error ? body.error : 'HTTP ' + r.status);
-                }).catch(err => {
-                    throw (err instanceof SyntaxError) ? new Error('HTTP ' + r.status) : err;
-                });
-            }
-            return r.json();
-        })
-        .then(data => {
-            currentData = data;
-            renderChart(data);
-            renderMetrics(data);
-            renderBinsTable(data);
-        })
-        .catch(err => {
-            if (chartInstance) {
-                chartInstance.clear();
-                chartInstance.setOption({
-                    title: { text: t('数据加载失败') + ': ' + err.message, left: 'center', top: 'center', textStyle: { color: '#dc3545' } }
-                });
-            }
+    const params = new URLSearchParams({
+        days: ctx.days,
+        decay: document.getElementById('param-decay').value,
+        bins: document.getElementById('param-bins').value,
+        model: document.getElementById('param-model').value,
+        shape: document.getElementById('param-shape').value
+    });
+    chartInstance.showLoading();
+    document.getElementById('model-status').textContent = t('正在计算筹码分布…');
+    try {
+        const response = await fetch(ctx.dataUrl + '?' + params, { signal: controller.signal });
+        const data = await response.json();
+        if (controller.signal.aborted) return;
+        if (!response.ok) throw new Error(data.error || 'HTTP ' + response.status);
+        if (!data.distribution.length) throw new Error(t('无有效成交数据，无法估算筹码'));
+        currentData = data;
+        renderChart(data);
+        renderMetrics(data);
+        renderBinsTable(data);
+        renderModel(data);
+    } catch (err) {
+        if (controller.signal.aborted) return;
+        currentData = null;
+        document.getElementById('metricsCard').style.display = 'none';
+        document.querySelector('#binsTable tbody').innerHTML = '';
+        document.getElementById('model-status').textContent = t('数据加载失败') + ': ' + err.message;
+        document.getElementById('model-detail').textContent = '';
+        chartInstance.clear();
+        chartInstance.setOption({
+            title: { text: t('数据加载失败'), left: 'center', top: 'center', textStyle: { color: '#dc3545' } }
         });
+    } finally {
+        if (dataRequest === controller) chartInstance.hideLoading();
+    }
+}
+
+function renderModel(data) {
+    const model = data.model;
+    const turnover = model.method === 'turnover';
+    const shape = model.daily_shape === 'triangular' ? t('三角分布') : t('均匀分布');
+    document.getElementById('model-status').textContent =
+        t('实际模型') + ': ' + (turnover ? t('换手率递推') : t('固定衰减')) + ' · ' + shape;
+    const details = [
+        t('换手率覆盖') + ': ' + model.turnover_days + '/' + model.active_days + ' ' + t('交易日'),
+        t('数据截至') + ': ' + model.end_date
+    ];
+    if (model.fallback_reason) details.push(t('换手率不完整，已回退旧版算法'));
+    if (turnover) {
+        details.push(t('初始分布残留') + ': ' + (model.initial_mass_remaining * 100).toFixed(2) + '%');
+        if (model.capped_turnover_days) details.push(t('超过100%的换手率按100%处理') + ': ' + model.capped_turnover_days);
+    }
+    document.getElementById('model-detail').textContent = details.join(' · ');
+    document.getElementById('param-decay').disabled = false;
+    document.getElementById('param-shape').disabled = !turnover;
 }
 
 function renderChart(data) {
@@ -78,7 +113,7 @@ function renderChart(data) {
     const maData = computeMA(klasses(klines, 'close'), 20);
 
     // 横向平滑曲线: y 轴价格，x 轴权重（先移动平均去毛刺，同花顺风格）
-    const smoothedWeights = smoothWeights(dist.map(d => d.weight), 5);
+    const smoothedWeights = smoothWeights(dist.map(d => d.share * 100), 5);
     // 首尾补零权重锚点，让曲线贴合坐标轴而不是悬空
     const distPoints = dist.map((d, i) => [smoothedWeights[i], (d.price_low + d.price_high) / 2]);
     distPoints.unshift([0, distPoints[0][1]]);
@@ -154,7 +189,7 @@ function renderChart(data) {
             },
             {
                 type: 'value', gridIndex: 1, scale: true, min: 0,
-                axisLabel: { fontSize: 10, formatter: v => v >= 1000 ? (v / 1000).toFixed(0) + 'k' : v.toFixed(0) },
+                axisLabel: { fontSize: 10, formatter: v => v.toFixed(1) + '%' },
                 splitNumber: 3
             }
         ],
@@ -211,6 +246,7 @@ function renderMetrics(data) {
     if (!card) return;
     card.style.display = '';
     const ud = upDownColors();
+    document.getElementById('m-band').textContent = '±' + (data.parameters.band * 100).toFixed(1) + '%';
     document.getElementById('m-profit').textContent = (data.metrics.profit_ratio * 100).toFixed(1) + '%';
     document.getElementById('m-conc').textContent = (data.metrics.concentration * 100).toFixed(1) + '%';
     const avgCostEl = document.getElementById('m-avgcost');
@@ -237,11 +273,10 @@ function renderBinsTable(data) {
     const tbody = document.querySelector('#binsTable tbody');
     if (!tbody) return;
     const dist = data.distribution.slice().sort((a, b) => b.weight - a.weight).slice(0, 10);
-    const total = data.distribution.reduce((s, d) => s + d.weight, 0) || 1;
     tbody.innerHTML = dist.map(d => {
-        const pct = (d.weight / total * 100).toFixed(1);
+        const pct = (d.share * 100).toFixed(2);
         const range = d.price_low.toFixed(3) + ' - ' + d.price_high.toFixed(3);
-        return '<tr><td>' + range + '</td><td>' + d.weight.toFixed(0) + '</td><td>' + pct + '%</td></tr>';
+        return '<tr><td>' + range + '</td><td>' + pct + '%</td></tr>';
     }).join('');
 }
 

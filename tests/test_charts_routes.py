@@ -110,6 +110,9 @@ class TestChipDataAPI:
         assert 'metrics' in data
         assert 'concentration' in data['metrics']
         assert 'profit_ratio' in data['metrics']
+        assert data['model']['method'] == 'legacy'
+        assert data['model']['fallback_reason'] == 'missing_turnover'
+        assert sum(d['share'] for d in data['distribution']) == pytest.approx(1)
 
     def test_no_kline_data_returns_404_with_friendly_error(self, logged_in_client, monkeypatch):
         """远端拉不到任何 K 线 → 404 + 友好提示（供前端展示）。"""
@@ -183,6 +186,64 @@ class TestChipDataAPI:
         assert resp.status_code == 200
         assert captured['decay'] == 0.99
         assert captured['bin_count'] == 40
+
+    @pytest.mark.parametrize('query', [
+        'days=0', 'days=1251', 'days=abc', 'bins=0', 'bins=241', 'bins=abc',
+        'decay=nan', 'decay=inf', 'decay=0', 'decay=1.1', 'decay=abc',
+        'band=nan', 'band=0', 'band=1', 'model=invalid', 'shape=invalid',
+    ])
+    def test_invalid_parameters_are_rejected_before_fetch(self, logged_in_client, monkeypatch, query):
+        from app.services import quote_provider
+        monkeypatch.setattr(quote_provider, 'fetch_etf_daily_kline',
+                            lambda *a, **k: pytest.fail('Invalid parameters must not fetch'))
+        response = logged_in_client.get('/charts/api/etf/002624/chip-data?' + query)
+        assert response.status_code == 400
+        assert response.get_json()['error']
+
+    def test_turnover_model_returns_provenance_and_allows_legacy_comparison(self, logged_in_client, monkeypatch):
+        from app.services import quote_provider
+        from app.services.quote_provider import ETFDailyBar
+        captured = []
+
+        def history(symbol, days=250):
+            captured.append(days)
+            return [ETFDailyBar('2026-01-01', 10, 12, 9, 11, 100, 10000, 1.5),
+                    ETFDailyBar('2026-01-02', 11, 14, 10, 13, 200, 20000, 5)]
+
+        monkeypatch.setattr(quote_provider, 'fetch_etf_daily_kline', history)
+        monkeypatch.setattr(quote_provider, 'fetch_etf_quote', lambda s: None)
+        data = logged_in_client.get('/charts/api/etf/002624/chip-data?days=60').get_json()
+        assert captured == [60]
+        assert data['model']['method'] == 'turnover'
+        assert data['model']['daily_shape'] == 'triangular'
+        assert data['model']['turnover_days'] == 2
+        assert data['model']['initial_mass_remaining'] == pytest.approx(0.95)
+        assert data['klines'][0]['turnover_rate'] == 1.5
+        assert sum(d['weight'] for d in data['distribution']) == pytest.approx(1)
+        assert data['current_price'] == 13
+        legacy = logged_in_client.get('/charts/api/etf/002624/chip-data?model=legacy').get_json()
+        assert legacy['model']['method'] == 'legacy'
+        assert legacy['model']['fallback_reason'] is None
+
+    def test_empty_traded_distribution_is_valid_json(self, logged_in_client, monkeypatch):
+        from app.services import quote_provider
+        from app.services.quote_provider import ETFDailyBar
+        monkeypatch.setattr(quote_provider, 'fetch_etf_daily_kline', lambda *a, **k: [
+            ETFDailyBar('2026-01-01', 10, 10, 10, 10, 0, 0, None)])
+        monkeypatch.setattr(quote_provider, 'fetch_etf_quote', lambda s: None)
+        data = logged_in_client.get('/charts/api/etf/002624/chip-data').get_json()
+        assert data['distribution'] == []
+        assert data['metrics']['avg_cost'] is None
+        assert data['model']['active_days'] == 0
+
+    def test_page_preserves_requested_trading_window(self, logged_in_client, monkeypatch):
+        from app.services import quote_provider
+        monkeypatch.setattr(quote_provider, 'fetch_etf_quote', lambda s: None)
+        response = logged_in_client.get('/charts/etf/002624/chip?days=60')
+        assert response.status_code == 200
+        assert 'days: 60' in response.text
+        assert 'param-model' in response.text
+        assert 'param-shape' in response.text
 
 
 class TestAkshareTestEndpoint:

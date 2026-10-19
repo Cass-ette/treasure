@@ -19,6 +19,7 @@ class EtfKlineCache(db.Model):
     close = db.Column(db.Float)
     volume = db.Column(db.BigInteger)
     amount = db.Column(db.Float)
+    turnover_rate = db.Column(db.Float)  # percentage, e.g. 1.5 means 1.5%
     name = db.Column(db.String(100))   # ETF 名称（冗余存，取最新行的）
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)

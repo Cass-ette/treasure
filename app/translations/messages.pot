@@ -1171,3 +1171,99 @@ msgstr ""
 msgid "%(username)s 的投资报告"
 msgstr ""
 
+
+#: app/templates/charts/etf_chip.html app/static/js/etf_chip.js app/routes/charts.py
+msgid "交易日"
+msgstr ""
+
+#: app/templates/charts/etf_chip.html app/static/js/etf_chip.js app/routes/charts.py
+msgid "正在计算筹码分布…"
+msgstr ""
+
+#: app/templates/charts/etf_chip.html app/static/js/etf_chip.js app/routes/charts.py
+msgid "筹码为日线数据下的成本分布估算，并非官方持仓。三角分布以 OHLC 均价为峰值，未使用逐笔成交；ETF 申赎、重复换手及窗口前持仓会影响估算。"
+msgstr ""
+
+#: app/templates/charts/etf_chip.html app/static/js/etf_chip.js app/routes/charts.py
+msgid "现价附近占比"
+msgstr ""
+
+#: app/templates/charts/etf_chip.html app/static/js/etf_chip.js app/routes/charts.py
+msgid "模型"
+msgstr ""
+
+#: app/templates/charts/etf_chip.html app/static/js/etf_chip.js app/routes/charts.py
+msgid "自动（优先换手率）"
+msgstr ""
+
+#: app/templates/charts/etf_chip.html app/static/js/etf_chip.js app/routes/charts.py
+msgid "旧版：固定衰减"
+msgstr ""
+
+#: app/templates/charts/etf_chip.html app/static/js/etf_chip.js app/routes/charts.py
+msgid "日内分布"
+msgstr ""
+
+#: app/templates/charts/etf_chip.html app/static/js/etf_chip.js app/routes/charts.py
+msgid "三角分布"
+msgstr ""
+
+#: app/templates/charts/etf_chip.html app/static/js/etf_chip.js app/routes/charts.py
+msgid "均匀分布"
+msgstr ""
+
+#: app/templates/charts/etf_chip.html app/static/js/etf_chip.js app/routes/charts.py
+msgid "旧版衰减"
+msgstr ""
+
+#: app/templates/charts/etf_chip.html app/static/js/etf_chip.js app/routes/charts.py
+msgid "半衰期约23交易日"
+msgstr ""
+
+#: app/templates/charts/etf_chip.html app/static/js/etf_chip.js app/routes/charts.py
+msgid "半衰期约46交易日"
+msgstr ""
+
+#: app/templates/charts/etf_chip.html app/static/js/etf_chip.js app/routes/charts.py
+msgid "半衰期约138交易日"
+msgstr ""
+
+#: app/templates/charts/etf_chip.html app/static/js/etf_chip.js app/routes/charts.py
+msgid "筹码参数无效"
+msgstr ""
+
+#: app/templates/charts/etf_chip.html app/static/js/etf_chip.js app/routes/charts.py
+msgid "无有效成交数据，无法估算筹码"
+msgstr ""
+
+#: app/templates/charts/etf_chip.html app/static/js/etf_chip.js app/routes/charts.py
+msgid "实际模型"
+msgstr ""
+
+#: app/templates/charts/etf_chip.html app/static/js/etf_chip.js app/routes/charts.py
+msgid "换手率递推"
+msgstr ""
+
+#: app/templates/charts/etf_chip.html app/static/js/etf_chip.js app/routes/charts.py
+msgid "固定衰减"
+msgstr ""
+
+#: app/templates/charts/etf_chip.html app/static/js/etf_chip.js app/routes/charts.py
+msgid "换手率覆盖"
+msgstr ""
+
+#: app/templates/charts/etf_chip.html app/static/js/etf_chip.js app/routes/charts.py
+msgid "数据截至"
+msgstr ""
+
+#: app/templates/charts/etf_chip.html app/static/js/etf_chip.js app/routes/charts.py
+msgid "换手率不完整，已回退旧版算法"
+msgstr ""
+
+#: app/templates/charts/etf_chip.html app/static/js/etf_chip.js app/routes/charts.py
+msgid "初始分布残留"
+msgstr ""
+
+#: app/templates/charts/etf_chip.html app/static/js/etf_chip.js app/routes/charts.py
+msgid "超过100%的换手率按100%处理"
+msgstr ""

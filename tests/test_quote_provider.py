@@ -282,6 +282,7 @@ class TestETFDailyKline:
         assert bars[0].low == 1.040
         assert bars[0].volume == 100000
         assert bars[0].amount == 105000
+        assert bars[0].turnover_rate == 1.5  # percent, not fraction
 
     def test_returns_empty_when_response_has_no_data(self, db, monkeypatch):
         """远端返回空数据 → 返回空列表（不抛异常）。"""
@@ -345,9 +346,10 @@ class TestETFDailyKline:
         bars2 = fetch_etf_daily_kline("562500", days=30)
         assert len(bars2) == 1
         assert bars2[0].date == "2026-01-02"
+        assert bars2[0].turnover_rate == 1.5
 
-    def test_incremental_fetch_only_pulls_new_dates(self, db, monkeypatch):
-        """DB 已有最新日期时，只拉取更新的部分。"""
+    def test_refresh_backfills_turnover_and_updates_adjusted_prices(self, db, monkeypatch):
+        """刷新完整窗口，补齐旧缓存换手率，并更新历史前复权价格。"""
         from app.services import quote_provider
         from app.services.quote_provider import fetch_etf_daily_kline
         from app.models.etf_kline_cache import EtfKlineCache
@@ -373,6 +375,7 @@ class TestETFDailyKline:
                     "data": {
                         "code": "562500",
                         "klines": [
+                            "2026-01-02,1.040,1.060,1.070,1.030,100000,105000,3.85,1.90,0.020,1.5",
                             "2026-01-03,1.070,1.090,1.100,1.060,150000,160000,3.74,1.87,0.020,2.0",
                         ],
                     }
@@ -387,8 +390,9 @@ class TestETFDailyKline:
         bars = fetch_etf_daily_kline("562500", days=30)
         # 应有 2 条（原有 + 新增）
         assert len(bars) == 2
-        # beg 参数应从 20260103 开始（DB 里最新日期 + 1）
-        assert captured_params.get("beg") == "20260103"
+        assert captured_params.get("beg") == "19900101"
+        assert bars[0].close == 1.060
+        assert bars[0].turnover_rate == 1.5
 
     def test_normalizes_symbol_to_prefixed_form(self, db, monkeypatch):
         """传入纯数字代码时自动加 SH/SZ 前缀。"""
@@ -495,3 +499,82 @@ class TestKlineFallbackToAkshare:
 
         bars = fetch_etf_daily_kline("562500", days=30)
         assert bars == []
+
+
+class TestTurnoverDataQuality:
+    @pytest.mark.parametrize('value', ['-', '', 'invalid', 'nan', 'inf', '-1'])
+    def test_invalid_turnover_does_not_drop_valid_bar(self, value):
+        from app.services.quote_provider import _parse_kline_line
+        bar = _parse_kline_line('2026-01-02,10,11,12,9,100,10000,0,0,0,' + value)
+        assert bar is not None
+        assert bar[-1] is None
+        assert bar[1:5] == (10, 11, 12, 9)
+
+    def test_stock_price_uses_reported_decimal_precision(self, monkeypatch):
+        from app.services import quote_provider
+
+        class Response:
+            def raise_for_status(self):
+                pass
+
+            def json(self):
+                return {'data': {'f57': '002624', 'f58': '完美世界', 'f59': 2,
+                                 'f43': 1456, 'f60': 1400, 'f169': 56, 'f170': 400,
+                                 'f45': '-', 'f44': 1500}}
+
+        def get(url, params, timeout):
+            assert 'f59' in params['fields'].split(',')
+            return Response()
+
+        monkeypatch.setattr(quote_provider.requests, 'get', get)
+        quote = quote_provider.fetch_etf_quote('002624')
+        assert quote.name == '完美世界'
+        assert quote.latest == 14.56
+        assert quote.change_amount == 0.56
+        assert quote.change_pct == 4
+        assert quote.low == 0
+
+    def test_cache_roundtrip_and_longer_window_refresh(self, db, app, monkeypatch):
+        from app.services import quote_provider
+        requests = []
+
+        def remote(secid, beg, end, limit):
+            requests.append(limit)
+            return ([f'2026-01-{i:02},10,11,12,9,100,10000,0,0,0,{i}.5'
+                     for i in range(1, 4)], 'test')
+
+        monkeypatch.setattr(quote_provider, '_fetch_klines_from_remote', remote)
+        first = quote_provider.fetch_etf_daily_kline('002624', days=2)
+        cached = quote_provider.fetch_etf_daily_kline('002624', days=2)
+        assert cached == first
+        assert cached[-1].turnover_rate == 3.5
+        assert len(requests) == 1
+        quote_provider.fetch_etf_daily_kline('002624', days=60)
+        assert requests == [30, 60]
+
+    def test_partial_refresh_preserves_existing_history(self, db, monkeypatch):
+        from app.services import quote_provider
+        from app.models.etf_kline_cache import EtfKlineCache
+        from datetime import date
+        for day in (1, 2):
+            db.session.add(EtfKlineCache(symbol='SZ002624', date=date(2026, 1, day),
+                                      open=10, high=12, low=9, close=11,
+                                      volume=100, amount=10000, turnover_rate=2))
+        db.session.commit()
+        monkeypatch.setattr(quote_provider, '_fetch_klines_from_remote', lambda *a:
+                            (['2026-01-03,20,21,22,19,100,10000,0,0,0,1'], 'test'))
+        result = quote_provider.fetch_etf_daily_kline('002624')
+        assert [b.date for b in result] == ['2026-01-01', '2026-01-02']
+        assert all(b.close == 11 for b in result)
+
+    def test_fallback_source_does_not_mix_with_cached_adjusted_prices(self, db, monkeypatch):
+        from app.services import quote_provider
+        from app.models.etf_kline_cache import EtfKlineCache
+        from datetime import date
+        db.session.add(EtfKlineCache(symbol='SZ002624', date=date(2026, 1, 1),
+                                  open=10, high=12, low=9, close=11, volume=100, turnover_rate=2))
+        db.session.commit()
+        monkeypatch.setattr(quote_provider, '_fetch_klines_from_remote', lambda *a: None)
+        monkeypatch.setattr(quote_provider, 'fetch_etf_daily_kline_akshare',
+                            lambda *a, **k: pytest.fail('Must preserve one coherent source'))
+        assert quote_provider.fetch_etf_daily_kline('002624')[0].turnover_rate == 2

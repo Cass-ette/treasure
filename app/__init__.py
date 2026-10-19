@@ -37,4 +37,8 @@ def create_app(config_object=None):
     from app.routes import register_blueprints
     register_blueprints(app)
 
+    from app.schema import upgrade_kline_cache
+    with app.app_context():
+        upgrade_kline_cache()
+
     return app

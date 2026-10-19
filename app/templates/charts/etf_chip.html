@@ -12,17 +12,23 @@
         <button onclick="history.back()" class="btn btn-sm btn-outline-secondary">
             <i class="bi bi-arrow-left"></i> {{ _('返回') }}
         </button>
-        <a href="{{ url_for('charts.etf_chip_page', symbol=symbol, days=60) }}" class="btn btn-sm btn-outline-secondary">60{{ _('天') }}</a>
-        <a href="{{ url_for('charts.etf_chip_page', symbol=symbol, days=180) }}" class="btn btn-sm btn-outline-secondary">180{{ _('天') }}</a>
-        <a href="{{ url_for('charts.etf_chip_page', symbol=symbol, days=250) }}" class="btn btn-sm btn-accent">250{{ _('天') }}</a>
+        {% for period in [60, 180, 250] %}
+        <a href="{{ url_for('charts.etf_chip_page', symbol=symbol, days=period) }}" class="btn btn-sm {{ 'btn-accent' if days|default(250) == period else 'btn-outline-secondary' }}">{{ period }}{{ _('交易日') }}</a>
+        {% endfor %}
     </div>
+</div>
+
+<div class="alert alert-info small mb-3">
+    <div id="model-status" class="fw-semibold" role="status">{{ _('正在计算筹码分布…') }}</div>
+    <div id="model-detail"></div>
+    <div class="mt-1">{{ _('筹码为日线数据下的成本分布估算，并非官方持仓。三角分布以 OHLC 均价为峰值，未使用逐笔成交；ETF 申赎、重复换手及窗口前持仓会影响估算。') }}</div>
 </div>
 
 <div class="card mb-3" id="metricsCard" style="display:none">
     <div class="card-body">
         <div class="row text-center">
             <div class="col"><div class="text-muted small">{{ _('获利盘') }}</div><div class="fw-bold" id="m-profit">-</div></div>
-            <div class="col"><div class="text-muted small">{{ _('集中度') }}(±5%)</div><div class="fw-bold" id="m-conc">-</div></div>
+            <div class="col"><div class="text-muted small">{{ _('现价附近占比') }}(<span id="m-band">±5%</span>)</div><div class="fw-bold" id="m-conc">-</div></div>
             <div class="col"><div class="text-muted small">{{ _('平均成本') }}</div><div class="fw-bold" id="m-avgcost">-</div></div>
             <div class="col"><div class="text-muted small">{{ _('平均获利') }}</div><div class="fw-bold" id="m-avgprofit">-</div></div>
             <div class="col"><div class="text-muted small">{{ _('主峰') }}</div><div class="fw-bold" id="m-peak1">-</div></div>
@@ -38,11 +44,25 @@
         <span><i class="bi bi-graph-up me-1"></i> {{ _('K线 + 筹码分布') }}</span>
         <div class="d-flex gap-3 align-items-center flex-wrap" style="font-size:0.85rem">
             <div class="d-flex align-items-center gap-2">
-                <span class="text-muted text-nowrap">{{ _('衰减') }}</span>
-                <select id="param-decay" class="form-select form-select-sm" style="width:130px">
-                    <option value="0.97" selected>0.97 ({{ _('60日') }})</option>
-                    <option value="0.985">0.985 ({{ _('90日') }})</option>
-                    <option value="0.995">0.995 ({{ _('长效') }})</option>
+                <label for="param-model" class="text-muted text-nowrap">{{ _('模型') }}</label>
+                <select id="param-model" class="form-select form-select-sm" style="width:180px">
+                    <option value="auto">{{ _('自动（优先换手率）') }}</option>
+                    <option value="legacy">{{ _('旧版：固定衰减') }}</option>
+                </select>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <label for="param-shape" class="text-muted text-nowrap">{{ _('日内分布') }}</label>
+                <select id="param-shape" class="form-select form-select-sm" style="width:120px">
+                    <option value="triangular">{{ _('三角分布') }}</option>
+                    <option value="uniform">{{ _('均匀分布') }}</option>
+                </select>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <label for="param-decay" class="text-muted text-nowrap">{{ _('旧版衰减') }}</label>
+                <select id="param-decay" class="form-select form-select-sm" style="width:200px">
+                    <option value="0.97" selected>0.97 ({{ _('半衰期约23交易日') }})</option>
+                    <option value="0.985">0.985 ({{ _('半衰期约46交易日') }})</option>
+                    <option value="0.995">0.995 ({{ _('半衰期约138交易日') }})</option>
                 </select>
             </div>
             <div class="d-flex align-items-center gap-2">
@@ -65,7 +85,7 @@
     <div class="card-header"><i class="bi bi-table me-1"></i> {{ _('Top 价位分布') }}</div>
     <div class="card-body p-2">
         <table class="table table-sm mb-0" id="binsTable">
-            <thead><tr><th>{{ _('价位区间') }}</th><th>{{ _('权重') }}</th><th>{{ _('占比') }}</th></tr></thead>
+            <thead><tr><th>{{ _('价位区间') }}</th><th>{{ _('占比') }}</th></tr></thead>
             <tbody></tbody>
         </table>
     </div>
@@ -77,6 +97,7 @@
 <script>
 window.CHART_CTX = {
     symbol: {{ symbol|tojson }},
+    days: {{ days|default(250)|tojson }},
     dataUrl: {{ url_for('charts.etf_chip_data', symbol=raw_symbol)|tojson }}
 };
 </script>

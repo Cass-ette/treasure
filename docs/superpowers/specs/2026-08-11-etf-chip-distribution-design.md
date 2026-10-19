@@ -1,7 +1,7 @@
 # 场内 ETF 筹码峰判断 - 设计文档
 
 **日期**：2026-08-11
-**状态**：已批准，待实现
+**状态**：旧版设计；换手率升级后的行为见 [模型说明](../../chip-model.md)
 **作者**：Cass-ette
 
 ## 背景
@@ -30,8 +30,8 @@ treasure 当前对场内 ETF 的支持有限：
 |---|---|---|
 | 数据源 | 东方财富 `push2his.eastmoney.com/api/qt/stock/kline/get` | 与现有 quote_provider 同源，免费免 key |
 | 复权方式 | 前复权 (`fqt=1`) | 避免分红除权造成假密集区 |
-| 算法 | 指数衰减（`decay=0.97`） | 近期权重大，约 60 日半衰期 |
-| 容器分布 | 每日成交量在 `[low, high]` 均匀分配 | 行业主流，简单；三角分布略贴近但慢 3 倍 |
+| 算法（旧版） | 指数衰减（`decay=0.97`） | 近期权重大，约 23 个交易日半衰期 |
+| 容器分布（旧版） | 每日成交量在 `[low, high]` 均匀分配 | 可计算的价格分配假设，未通过真实持仓验证 |
 | 缓存 | SQLite 持久化（新增表 `etf_kline_cache`） | 部署友好，跨 worker 共享，重启不丢，增量更新 |
 | 图表库 | ECharts 5 (CDN) | 原生 candlestick + 双 grid 同步 Y 轴 |
 | Blueprint | 新建 `charts.py` | 与 funds/positions 解耦，未来分析类页面归属 |

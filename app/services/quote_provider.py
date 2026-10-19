@@ -3,11 +3,14 @@
 Mirrors etf-cli quote capabilities without CLI dependencies.
 """
 from dataclasses import dataclass
-from datetime import date, datetime, timedelta
+from datetime import date
 from typing import Optional
 import logging
+import math
+import time
 import requests
 import json
+from flask import current_app
 
 EASTMONEY_QUOTE_URL = "https://push2.eastmoney.com/api/qt/stock/get"
 EASTMONEY_KLINE_URL = "https://push2his.eastmoney.com/api/qt/stock/kline/get"
@@ -53,8 +56,9 @@ class ETFDailyBar:
     high: float
     low: float
     close: float
-    volume: int        # 成交量（股）
+    volume: int        # 数据源原始成交量：东方财富为手，新浪为股/份；不用于反推成交均价
     amount: float      # 成交额（元）
+    turnover_rate: Optional[float] = None  # 换手率（百分比，如 1.5 表示 1.5%）
 
 
 def _normalize_symbol(symbol: str) -> tuple[str, str, str]:
@@ -81,7 +85,7 @@ def fetch_etf_quote(symbol: str) -> Optional[ETFQuote]:
     secid, market, _ = _normalize_symbol(symbol)
     params = {
         "secid": secid,
-        "fields": "f43,f44,f45,f46,f47,f48,f57,f58,f60,f169,f170",
+        "fields": "f43,f44,f45,f46,f47,f48,f57,f58,f59,f60,f169,f170",
     }
     try:
         resp = requests.get(EASTMONEY_QUOTE_URL, params=params, timeout=10)
@@ -90,13 +94,18 @@ def fetch_etf_quote(symbol: str) -> Optional[ETFQuote]:
         if not data:
             return None
 
+        # f59 是价格小数位数；股票通常为 2，ETF 通常为 3。
+        precision = int(data.get('f59', 3))
+        if not 0 <= precision <= 6:
+            return None
+
         def price(field: str) -> float:
             val = data.get(field)
-            return val / 1000 if val else 0.0
+            return float(val) / (10 ** precision) if val not in (None, '-', '') else 0.0
 
         def pct(field: str) -> float:
             val = data.get(field)
-            return val / 100 if val else 0.0
+            return float(val) / 100 if val not in (None, '-', '') else 0.0
 
         return ETFQuote(
             symbol=data.get("f57", symbol),
@@ -167,11 +176,20 @@ def get_cached_etf_name(symbol: str) -> Optional[str]:
     return None
 
 
+def _optional_turnover(value) -> Optional[float]:
+    """Absent/invalid turnover must not discard an otherwise valid price bar."""
+    try:
+        rate = float(value)
+    except (ValueError, TypeError):
+        return None
+    return rate if math.isfinite(rate) and rate >= 0 else None
+
+
 def _parse_kline_line(line: str) -> Optional[tuple]:
     """解析单行 kline 字符串。
 
     格式：date,open,close,high,low,volume,amount,amplitude,pct_chg,change,turnover
-    返回 (date_str, open, close, high, low, volume, amount) 或 None。
+    返回 (date_str, open, close, high, low, volume, amount, turnover_rate) 或 None。
     """
     parts = line.split(",")
     if len(parts) < 7:
@@ -185,117 +203,100 @@ def _parse_kline_line(line: str) -> Optional[tuple]:
             float(parts[4]),                   # low
             int(float(parts[5])),              # volume
             float(parts[6]),                   # amount
+            _optional_turnover(parts[10]) if len(parts) > 10 else None,
         )
-    except (ValueError, IndexError):
+    except (ValueError, IndexError, OverflowError):
         return None
 
 
+def _cached_bars(symbol: str, days: int) -> list[ETFDailyBar]:
+    from app.models.etf_kline_cache import EtfKlineCache
+    return [
+        ETFDailyBar(
+            date=r.date.isoformat(), open=r.open, high=r.high, low=r.low, close=r.close,
+            volume=r.volume or 0, amount=r.amount or 0.0, turnover_rate=r.turnover_rate,
+        )
+        for r in EtfKlineCache.get_recent(symbol, days)
+    ]
+
+
 def fetch_etf_daily_kline(symbol: str, days: int = 250) -> list[ETFDailyBar]:
-    """拉取场内 ETF 历史 K 线（日 K，前复权），带 DB 缓存。
+    """Fetch a coherent forward-adjusted daily history, including turnover (%).
 
-    流程：
-    1. 查 DB 该 symbol 最新日期
-    2. 若最新日期 == 今天/最近交易日 → 直接返回 DB 中最近 days 条
-    3. 否则调远端拉增量，写 DB
-    4. 远端失败 → 回退用 DB 中已有数据
-
-    Returns: ETFDailyBar 列表，按日期升序。空数据返回 []。
+    Refresh the entire cached window, rather than append potentially differently
+    adjusted prices. This also backfills turnover in pre-upgrade caches. Reuse a
+    snapshot for 15 minutes; retry failures after a minute. A larger requested
+    window refreshes immediately. On failure preserve the last complete snapshot;
+    only use Sina to seed an empty cache, so sources/volume units are never mixed.
     """
+    from app.extensions import db
     from app.models.etf_kline_cache import EtfKlineCache
 
     secid, _, _ = _normalize_symbol(symbol)
     prefixed = _prefixed_symbol(symbol)
+    refreshes = current_app.extensions.setdefault('kline_refreshes', {})
+    previous = refreshes.get(prefixed)
+    now = time.monotonic()
     today = date.today()
+    if previous and previous['date'] == today and days <= previous['days'] and now < previous['until']:
+        return _cached_bars(prefixed, days)
 
-    latest_cached = EtfKlineCache.get_latest_date(prefixed)
-
-    # 缓存命中且为今天：直接返回 DB
-    if latest_cached is not None and latest_cached >= today:
-        rows = EtfKlineCache.get_recent(prefixed, days)
-        return [
-            ETFDailyBar(
-                date=r.date.strftime('%Y-%m-%d'),
-                open=r.open, high=r.high, low=r.low, close=r.close,
-                volume=r.volume or 0, amount=r.amount or 0.0,
-            )
-            for r in rows
-        ]
-
-    # 需要拉增量
-    beg = (latest_cached + timedelta(days=1)).strftime("%Y%m%d") if latest_cached else "19900101"
-    end = today.strftime("%Y%m%d")
-    # 拉取数量：始终拉 days 条上限，保证 DB 里至少有这么多
-    limit = max(days, 30)
-
-    remote_result = _fetch_klines_from_remote(secid, beg, end, limit)
-    klines = remote_result[0] if remote_result else None
-    remote_name = remote_result[1] if remote_result else None
-    if remote_name:
-        _etf_name_cache[prefixed] = remote_name
-
-    if klines is None:
-        # 东财失败 → fallback akshare 新浪源
+    cached_count = EtfKlineCache.query.filter_by(symbol=prefixed).count()
+    limit = max(days, cached_count, 30)
+    remote = _fetch_klines_from_remote(secid, '19900101', today.strftime('%Y%m%d'), limit)
+    remote_name = remote[1] if remote else None
+    snapshot = {}
+    for line in (remote[0] if remote else []):
+        parsed = _parse_kline_line(line)
+        if not parsed:
+            continue
+        d_str, o, c, hi, lo, vol, amt, turnover = parsed
         try:
-            ak_bars = fetch_etf_daily_kline_akshare(symbol, days=days)
-            if ak_bars:
-                from app.extensions import db
-                new_rows = []
-                for b in ak_bars:
-                    d = datetime.strptime(b.date, "%Y-%m-%d").date()
-                    exists = EtfKlineCache.query.filter_by(symbol=prefixed, date=d).first()
-                    if exists:
-                        continue
-                    new_rows.append(EtfKlineCache(
-                        symbol=prefixed, date=d,
-                        open=b.open, high=b.high, low=b.low, close=b.close,
-                        volume=b.volume, amount=b.amount,
-                    ))
-                if new_rows:
-                    db.session.bulk_save_objects(new_rows)
-                    db.session.commit()
-                logger.info("kline fallback to akshare sina: %s (%d bars)", prefixed, len(ak_bars))
-        except Exception as e:
-            logger.warning("akshare fallback failed for %s: %s", prefixed, e)
+            d = date.fromisoformat(d_str)
+        except ValueError:
+            continue
+        if d > today or not all(math.isfinite(v) for v in (o, c, hi, lo, amt)):
+            continue
+        if lo <= 0 or hi < lo or not lo <= o <= hi or not lo <= c <= hi or vol < 0 or amt < 0:
+            continue
+        snapshot[d] = ETFDailyBar(d_str, o, hi, lo, c, vol, amt, turnover)
 
-    if klines is not None:
-        # 写入 DB
-        new_rows = []
-        for line in klines:
-            parsed = _parse_kline_line(line)
-            if not parsed:
-                continue
-            d_str, o, c, hi, lo, vol, amt = parsed
-            try:
-                d = datetime.strptime(d_str, "%Y-%m-%d").date()
-            except ValueError:
-                continue
-            exists = EtfKlineCache.query.filter_by(symbol=prefixed, date=d).first()
-            if exists:
-                continue
-            new_rows.append(EtfKlineCache(
-                symbol=prefixed, date=d,
-                open=o, high=hi, low=lo, close=c,
-                volume=vol, amount=amt,
-                name=remote_name,
-            ))
-        if new_rows:
-            from app.extensions import db
-            db.session.bulk_save_objects(new_rows)
+    # A truncated response must not replace a larger, coherent cached window.
+    if cached_count and len(snapshot) < cached_count:
+        snapshot = {}
+    eastmoney_ok = bool(snapshot)
+    if not snapshot and not cached_count:
+        try:
+            for bar in fetch_etf_daily_kline_akshare(symbol, days=limit):
+                snapshot[date.fromisoformat(bar.date)] = bar
+        except Exception as exc:
+            logger.warning('akshare fallback failed for %s: %s', prefixed, exc)
+
+    if snapshot:
+        # Replace only the market-data cache, atomically; portfolio records are unrelated.
+        old_name = EtfKlineCache.get_latest_name(prefixed)
+        name = remote_name or old_name
+        try:
+            EtfKlineCache.query.filter_by(symbol=prefixed).delete(synchronize_session='fetch')
+            db.session.add_all([
+                EtfKlineCache(
+                    symbol=prefixed, date=d, open=b.open, high=b.high, low=b.low,
+                    close=b.close, volume=b.volume, amount=b.amount,
+                    turnover_rate=b.turnover_rate, name=name,
+                )
+                for d, b in sorted(snapshot.items())
+            ])
             db.session.commit()
-    elif EtfKlineCache.get_latest_date(prefixed) is None:
-        # 东财 + akshare 都失败，且 DB 无数据
-        return []
+        except Exception:
+            db.session.rollback()
+            raise
+        if name:
+            _etf_name_cache[prefixed] = name
 
-    # 返回 DB 中最近 days 条
-    rows = EtfKlineCache.get_recent(prefixed, days)
-    return [
-        ETFDailyBar(
-            date=r.date.strftime('%Y-%m-%d'),
-            open=r.open, high=r.high, low=r.low, close=r.close,
-            volume=r.volume or 0, amount=r.amount or 0.0,
-        )
-        for r in rows
-    ]
+    refreshes[prefixed] = {
+        'date': today, 'days': limit, 'until': now + (900 if eastmoney_ok else 60),
+    }
+    return _cached_bars(prefixed, days)
 
 
 def fetch_etf_daily_kline_akshare(symbol: str, days: int = 250) -> list[ETFDailyBar]:
@@ -324,6 +325,7 @@ def fetch_etf_daily_kline_akshare(symbol: str, days: int = 250) -> list[ETFDaily
             close=float(row['close']),
             volume=int(row['volume']) if row['volume'] else 0,
             amount=float(row['amount']) if row['amount'] else 0.0,
+            turnover_rate=None,
         ))
     bars.sort(key=lambda b: b.date)
     return bars[-days:]
