@@ -4,7 +4,7 @@
 
 {% block content %}
 <div class="page-header">
-    <h1><i class="bi bi-pie-chart" style="color: var(--color-accent);"></i> {{ _('持仓管理') }}</h1>
+    <h1><i class="bi bi-pie-chart"></i> {{ _('持仓管理') }}</h1>
 </div>
 
 <!-- Add/Edit Position Form -->
@@ -76,8 +76,8 @@
                     <tr>
                         <th>{{ _('用户') }}</th>
                         <th>{{ _('基金') }}</th>
-                        <th>{{ _('持有份额') }}</th>
-                        <th>{{ _('成本价') }}</th>
+                        <th class="num">{{ _('持有份额') }}</th>
+                        <th class="num">{{ _('成本价') }}</th>
                         <th>{{ _('创建时间') }}</th>
                         <th>{{ _('操作') }}</th>
                     </tr>
@@ -87,8 +87,8 @@
                     <tr>
                         <td>{{ position.user.username }}</td>
                         <td>{{ position.fund.code }} - {{ position.fund.name }}</td>
-                        <td>{{ position.shares }}</td>
-                        <td>{{ position.cost_price }}</td>
+                        <td class="num">{{ position.shares }}</td>
+                        <td class="num">{{ position.cost_price }}</td>
                         <td>{{ position.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
                         <td>
                             <div class="d-flex gap-1 flex-nowrap">

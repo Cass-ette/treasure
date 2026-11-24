@@ -4,7 +4,7 @@
 
 {% block content %}
 <div class="page-header">
-    <h1><i class="bi bi-collection" style="color: var(--color-accent);"></i> {{ _('基金管理') }}</h1>
+    <h1><i class="bi bi-collection"></i> {{ _('基金管理') }}</h1>
 </div>
 
 <!-- Collapsible Add/Edit Form -->
@@ -82,9 +82,9 @@
                         <th>{{ _('基金代码') }}</th>
                         <th>{{ _('基金名称') }}</th>
                         <th>{{ _('基金类型') }}</th>
-                        <th>{{ _('最新净值') }}</th>
+                        <th class="num">{{ _('最新净值') }}</th>
                         <th>{{ _('净值日期') }}</th>
-                        <th>{{ _('前三十日平均净值') }}</th>
+                        <th class="num">{{ _('前三十日平均净值') }}</th>
                         <th>{{ _('操作') }}</th>
                     </tr>
                 </thead>
@@ -94,9 +94,9 @@
                         <td><code>{{ fund.code }}</code></td>
                         <td>{{ fund.name }}</td>
                         <td>{{ fund.fund_type }}</td>
-                        <td>{{ fund.latest_nav if fund.latest_nav else '-' }}</td>
+                        <td class="num">{{ fund.latest_nav if fund.latest_nav else '-' }}</td>
                         <td>{{ fund.nav_date.strftime('%Y-%m-%d') if fund.nav_date else '-' }}</td>
-                        <td class="avg-nav-cell" data-fund-id="{{ fund.id }}">
+                        <td class="avg-nav-cell num" data-fund-id="{{ fund.id }}">
                             <span class="spinner-inline"></span>
                         </td>
                         <td>

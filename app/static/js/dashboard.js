@@ -5,10 +5,10 @@ document.addEventListener('DOMContentLoaded', function () {
     initTableSort();
 });
 
-// ── Fixed color palette for pie chart ──
+// ── Palette: one accent for the largest holding, neutral slate steps for the rest ──
 var CHART_COLORS = [
-    '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6',
-    '#EC4899', '#06B6D4', '#F97316', '#14B8A6', '#6366F1'
+    '#0D9488', '#1B2A4A', '#3F4E6B', '#606F8C', '#8090AC',
+    '#9AA8C0', '#B2BFD1', '#C8D2DF', '#D9E0EA', '#E6EBF2'
 ];
 
 // ── Doughnut Chart ──
@@ -22,15 +22,22 @@ function initChart() {
         return CHART_COLORS[i % CHART_COLORS.length];
     });
 
+    var totalValue = data.fundValues.reduce(function (a, b) { return a + b; }, 0);
+    var labels = data.fundNames.map(function (name, i) {
+        var pct = totalValue > 0 ? ((data.fundValues[i] / totalValue) * 100).toFixed(2) : '0.00';
+        return name + '  ' + pct + '%';
+    });
+
     new Chart(canvas, {
         type: 'doughnut',
         data: {
-            labels: data.fundNames,
+            labels: labels,
             datasets: [{
                 data: data.fundValues,
                 backgroundColor: colors,
                 borderWidth: 2,
-                borderColor: '#fff'
+                borderColor: '#fff',
+                hoverOffset: 4
             }]
         },
         options: {
@@ -40,15 +47,21 @@ function initChart() {
             plugins: {
                 legend: {
                     position: 'bottom',
-                    labels: { padding: 14, usePointStyle: true }
+                    labels: {
+                        padding: 12,
+                        usePointStyle: true,
+                        pointStyle: 'circle',
+                        boxWidth: 8,
+                        boxHeight: 8,
+                        color: '#4B5565',
+                        font: { size: 11 }
+                    }
                 },
                 tooltip: {
                     callbacks: {
                         label: function (ctx) {
                             var val = ctx.raw || 0;
-                            var total = ctx.dataset.data.reduce(function (a, b) { return a + b; }, 0);
-                            var pct = total > 0 ? ((val / total) * 100).toFixed(1) : '0.0';
-                            return ctx.label + ': ¥' + val.toFixed(2) + ' (' + pct + '%)';
+                            return ' ¥' + val.toFixed(2);
                         }
                     }
                 }

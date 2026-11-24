@@ -5,7 +5,7 @@
 {% block content %}
 <div class="page-header">
     <h1>
-        <i class="bi bi-bar-chart-line" style="color: var(--color-accent);"></i>
+        <i class="bi bi-bar-chart-line"></i>
         {{ etf_name or (quote.name if quote else symbol) }} <code class="ms-1">{{ symbol }}</code>
     </h1>
     <div class="toolbar">
@@ -19,22 +19,22 @@
 </div>
 
 <div class="alert alert-info small mb-3">
-    <div id="model-status" class="fw-semibold" role="status">{{ _('正在计算筹码分布…') }}</div>
-    <div id="model-detail"></div>
+    <div id="model-status" class="fw-medium" role="status">{{ _('正在计算筹码分布…') }}</div>
+    <div id="model-detail" class="text-secondary"></div>
     <div class="mt-1">{{ _('筹码为日线数据下的成本分布估算，并非官方持仓。三角分布以 OHLC 均价为峰值，未使用逐笔成交；ETF 申赎、重复换手及窗口前持仓会影响估算。') }}</div>
 </div>
 
 <div class="card mb-3" id="metricsCard" style="display:none">
     <div class="card-body">
-        <div class="row text-center">
-            <div class="col"><div class="text-muted small">{{ _('获利盘') }}</div><div class="fw-bold" id="m-profit">-</div></div>
-            <div class="col"><div class="text-muted small">{{ _('现价附近占比') }}(<span id="m-band">±5%</span>)</div><div class="fw-bold" id="m-conc">-</div></div>
-            <div class="col"><div class="text-muted small">{{ _('平均成本') }}</div><div class="fw-bold" id="m-avgcost">-</div></div>
-            <div class="col"><div class="text-muted small">{{ _('平均获利') }}</div><div class="fw-bold" id="m-avgprofit">-</div></div>
-            <div class="col"><div class="text-muted small">{{ _('主峰') }}</div><div class="fw-bold" id="m-peak1">-</div></div>
-            <div class="col"><div class="text-muted small">{{ _('次峰') }}</div><div class="fw-bold" id="m-peak2">-</div></div>
-            <div class="col"><div class="text-muted small">{{ _('现价') }}</div><div class="fw-bold" id="m-price">-</div></div>
-            <div class="col"><div class="text-muted small">{{ _('涨跌幅') }}</div><div class="fw-bold" id="m-chg">-</div></div>
+        <div class="chip-metrics">
+            <div class="chip-metric"><div class="chip-metric-label">{{ _('获利盘') }}</div><div class="chip-metric-value" id="m-profit">-</div></div>
+            <div class="chip-metric"><div class="chip-metric-label">{{ _('现价附近占比') }} <span id="m-band">±5%</span></div><div class="chip-metric-value" id="m-conc">-</div></div>
+            <div class="chip-metric"><div class="chip-metric-label">{{ _('平均成本') }}</div><div class="chip-metric-value" id="m-avgcost">-</div></div>
+            <div class="chip-metric"><div class="chip-metric-label">{{ _('平均获利') }}</div><div class="chip-metric-value" id="m-avgprofit">-</div></div>
+            <div class="chip-metric"><div class="chip-metric-label">{{ _('主峰') }}</div><div class="chip-metric-value" id="m-peak1">-</div></div>
+            <div class="chip-metric"><div class="chip-metric-label">{{ _('次峰') }}</div><div class="chip-metric-value" id="m-peak2">-</div></div>
+            <div class="chip-metric"><div class="chip-metric-label">{{ _('现价') }}</div><div class="chip-metric-value" id="m-price">-</div></div>
+            <div class="chip-metric"><div class="chip-metric-label">{{ _('涨跌幅') }}</div><div class="chip-metric-value" id="m-chg">-</div></div>
         </div>
     </div>
 </div>
@@ -42,32 +42,32 @@
 <div class="card mb-3">
     <div class="card-header d-flex justify-content-between align-items-center">
         <span><i class="bi bi-graph-up me-1"></i> {{ _('K线 + 筹码分布') }}</span>
-        <div class="d-flex gap-3 align-items-center flex-wrap" style="font-size:0.85rem">
+        <div class="chip-controls">
             <div class="d-flex align-items-center gap-2">
-                <label for="param-model" class="text-muted text-nowrap">{{ _('模型') }}</label>
-                <select id="param-model" class="form-select form-select-sm" style="width:180px">
+                <label for="param-model" class="chip-control-label">{{ _('模型') }}</label>
+                <select id="param-model" class="form-select form-select-sm chip-select-lg">
                     <option value="auto">{{ _('自动（优先换手率）') }}</option>
                     <option value="legacy">{{ _('旧版：固定衰减') }}</option>
                 </select>
             </div>
             <div class="d-flex align-items-center gap-2">
-                <label for="param-shape" class="text-muted text-nowrap">{{ _('日内分布') }}</label>
-                <select id="param-shape" class="form-select form-select-sm" style="width:120px">
+                <label for="param-shape" class="chip-control-label">{{ _('日内分布') }}</label>
+                <select id="param-shape" class="form-select form-select-sm chip-select-sm">
                     <option value="triangular">{{ _('三角分布') }}</option>
                     <option value="uniform">{{ _('均匀分布') }}</option>
                 </select>
             </div>
             <div class="d-flex align-items-center gap-2">
-                <label for="param-decay" class="text-muted text-nowrap">{{ _('旧版衰减') }}</label>
-                <select id="param-decay" class="form-select form-select-sm" style="width:200px">
+                <label for="param-decay" class="chip-control-label">{{ _('旧版衰减') }}</label>
+                <select id="param-decay" class="form-select form-select-sm chip-select-xl">
                     <option value="0.97" selected>0.97 ({{ _('半衰期约23交易日') }})</option>
                     <option value="0.985">0.985 ({{ _('半衰期约46交易日') }})</option>
                     <option value="0.995">0.995 ({{ _('半衰期约138交易日') }})</option>
                 </select>
             </div>
             <div class="d-flex align-items-center gap-2">
-                <span class="text-muted text-nowrap">{{ _('桶数') }}</span>
-                <select id="param-bins" class="form-select form-select-sm" style="width:90px">
+                <span class="chip-control-label">{{ _('桶数') }}</span>
+                <select id="param-bins" class="form-select form-select-sm chip-select-xs">
                     <option value="40">40</option>
                     <option value="80" selected>80</option>
                     <option value="120">120</option>
@@ -77,7 +77,7 @@
         </div>
     </div>
     <div class="card-body p-2">
-        <div id="mainChart" style="width:100%;height:520px"></div>
+        <div id="mainChart" class="chart-canvas-main"></div>
     </div>
 </div>
 

@@ -101,6 +101,7 @@
                         <li><a class="dropdown-item" href="#" onclick="setLocale('en'); return false;">English</a></li>
                     </ul>
                 </div>
+                {% if current_user.is_authenticated %}
                 <div class="dropdown">
                     <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button"
                             data-bs-toggle="dropdown" aria-expanded="false">
@@ -112,6 +113,7 @@
                         <li><a class="dropdown-item" href="#" onclick="setColorMode('intl'); return false;">{{ _('绿涨红跌') }}</a></li>
                     </ul>
                 </div>
+                {% endif %}
             </div>
         </div>
     </nav>

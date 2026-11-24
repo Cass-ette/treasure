@@ -36,8 +36,8 @@ function initChipChart() {
 function upDownColors() {
     var mode = document.documentElement.getAttribute('data-color-mode') || 'cn';
     return mode === 'intl'
-        ? { up: '#198754', down: '#dc3545' }
-        : { up: '#dc3545', down: '#198754' };
+        ? { up: '#16A34A', down: '#DC2626' }
+        : { up: '#DC2626', down: '#16A34A' };
 }
 
 async function loadData() {
@@ -74,7 +74,7 @@ async function loadData() {
         document.getElementById('model-detail').textContent = '';
         chartInstance.clear();
         chartInstance.setOption({
-            title: { text: t('数据加载失败'), left: 'center', top: 'center', textStyle: { color: '#dc3545' } }
+            title: { text: t('数据加载失败'), left: 'center', top: 'center', textStyle: { color: '#DC2626' } }
         });
     } finally {
         if (dataRequest === controller) chartInstance.hideLoading();
@@ -136,7 +136,7 @@ function renderChart(data) {
             position: 'insideEndTop'
         },
         lineStyle: {
-            color: i === 0 ? '#dc3545' : (i === 1 ? '#fd7e14' : '#6c757d'),
+            color: i === 0 ? '#DC2626' : (i === 1 ? '#0D9488' : '#6B7487'),
             type: 'dashed',
             width: i === 0 ? 2 : 1
         }
@@ -146,7 +146,7 @@ function renderChart(data) {
     peakLines.push({
         yAxis: data.current_price,
         label: { formatter: t('现价') + ' ' + data.current_price.toFixed(3), position: 'insideStartTop' },
-        lineStyle: { color: '#198754', type: 'solid', width: 2 }
+        lineStyle: { color: '#0D9488', type: 'solid', width: 2 }
     });
 
     // 平均成本线（黄虚线）
@@ -154,7 +154,7 @@ function renderChart(data) {
         peakLines.push({
             yAxis: data.metrics.avg_cost,
             label: { formatter: t('平均成本') + ' ' + data.metrics.avg_cost.toFixed(3), position: 'insideEndTop' },
-            lineStyle: { color: '#ffc107', type: 'dashed', width: 1.5 }
+            lineStyle: { color: '#4B5565', type: 'dashed', width: 1 }
         });
     }
 
@@ -162,19 +162,28 @@ function renderChart(data) {
     const chipPriceLines = [{
         yAxis: data.current_price,
         label: { formatter: data.current_price.toFixed(3), position: 'insideStartTop', fontSize: 10 },
-        lineStyle: { color: '#198754', type: 'solid', width: 2 }
+        lineStyle: { color: '#0D9488', type: 'solid', width: 2 }
     }];
     if (data.metrics.avg_cost) {
         chipPriceLines.push({
             yAxis: data.metrics.avg_cost,
             label: { formatter: data.metrics.avg_cost.toFixed(3), position: 'insideEndTop', fontSize: 10 },
-            lineStyle: { color: '#ffc107', type: 'dashed', width: 1.5 }
+            lineStyle: { color: '#4B5565', type: 'dashed', width: 1 }
         });
     }
 
     const option = {
-        tooltip: { trigger: 'axis', axisPointer: { type: 'cross' } },
-        legend: { data: [t('日K'), 'MA20', t('筹码')], top: 5, right: '30%' },
+        textStyle: { fontFamily: getComputedStyle(document.body).fontFamily, color: '#6B7487' },
+        tooltip: {
+            trigger: 'axis', axisPointer: { type: 'cross' },
+            backgroundColor: '#fff', borderColor: '#E3E8EF', textStyle: { color: '#111827', fontSize: 12 },
+            extraCssText: 'box-shadow:0 8px 24px rgba(0,0,0,0.06);border-radius:8px;'
+        },
+        legend: {
+            data: [t('日K'), 'MA20', t('筹码')], top: 5, right: '30%',
+            itemWidth: 12, itemHeight: 8, icon: 'roundRect',
+            textStyle: { color: '#4B5565', fontSize: 12 }
+        },
         axisPointer: { link: [{ yAxisAxisIndex: [0, 1] }] },
         grid: [
             { left: 55, right: '42%', top: 40, bottom: 65 },
@@ -184,19 +193,21 @@ function renderChart(data) {
             {
                 type: 'category', data: dates, scale: true,
                 boundaryGap: false, axisLine: { onZero: false }, splitLine: { show: false },
-                axisLabel: { rotate: 15, fontSize: 10, interval: 'auto' },
+                axisLabel: { rotate: 15, fontSize: 11, color: '#6B7487', interval: 'auto' },
+                axisLine: { lineStyle: { color: '#E3E8EF' } },
                 min: 'dataMin', max: 'dataMax'
             },
             {
                 type: 'value', gridIndex: 1, scale: true, min: 0,
-                axisLabel: { fontSize: 10, formatter: v => v.toFixed(1) + '%' },
+                axisLabel: { fontSize: 11, color: '#6B7487', formatter: v => v.toFixed(1) + '%' },
                 splitNumber: 3
             }
         ],
         yAxis: [
             {
                 scale: true, min: yMin, max: yMax,
-                splitLine: { show: true, lineStyle: { color: '#eee' } }
+                axisLabel: { fontSize: 11, color: '#6B7487' },
+                splitLine: { show: true, lineStyle: { color: '#EEF2F6' } }
             },
             {
                 scale: true, gridIndex: 1, min: yMin, max: yMax,
@@ -205,7 +216,15 @@ function renderChart(data) {
         ],
         dataZoom: [
             { type: 'inside', xAxisIndex: 0, start: 60, end: 100 },
-            { show: true, type: 'slider', xAxisIndex: 0, start: 60, end: 100, bottom: 10, height: 20 }
+            {
+                show: true, type: 'slider', xAxisIndex: 0, start: 60, end: 100, bottom: 8, height: 20,
+                borderColor: '#E3E8EF', fillerColor: 'rgba(13, 148, 136, 0.08)',
+                handleStyle: { color: '#fff', borderColor: '#6B7487' },
+                moveHandleStyle: { color: '#E3E8EF' },
+                dataBackground: { lineStyle: { color: '#E3E8EF' }, areaStyle: { color: '#F5F7FA' } },
+                selectedDataBackground: { lineStyle: { color: '#6B7487' }, areaStyle: { color: '#EEF2F6' } },
+                textStyle: { color: '#6B7487', fontSize: 11 }
+            }
         ],
         series: [
             {
@@ -218,12 +237,12 @@ function renderChart(data) {
             },
             {
                 name: 'MA20', type: 'line', data: maData, smooth: true,
-                lineStyle: { color: '#fd7e14', width: 1 }, symbol: 'none'
+                lineStyle: { color: '#6B7487', width: 1 }, symbol: 'none'
             },
             {
                 name: t('筹码'), type: 'line', xAxisIndex: 1, yAxisIndex: 1,
                 data: distData, smooth: true, symbol: 'none',
-                lineStyle: { width: 1.5, color: '#0d9488' },
+                lineStyle: { width: 1.5, color: '#0D9488' },
                 areaStyle: {
                     color: {
                         type: 'linear', x: 0, y: 0, x2: 1, y2: 0,
@@ -282,9 +301,9 @@ function renderBinsTable(data) {
 
 function peakColor(d, peaks) {
     const center = (d.price_low + d.price_high) / 2;
-    if (peaks.length > 0 && Math.abs(center - peaks[0].price) < (d.price_high - d.price_low)) return '#dc3545';
-    if (peaks.length > 1 && Math.abs(center - peaks[1].price) < (d.price_high - d.price_low)) return '#fd7e14';
-    return '#6c757d';
+    if (peaks.length > 0 && Math.abs(center - peaks[0].price) < (d.price_high - d.price_low)) return '#DC2626';
+    if (peaks.length > 1 && Math.abs(center - peaks[1].price) < (d.price_high - d.price_low)) return '#0D9488';
+    return '#6B7487';
 }
 
 function klasses(arr, key) {

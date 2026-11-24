@@ -12,11 +12,15 @@ pip install -r requirements.txt
 python db_init.py
 python create_admin.py
 
-# 启动应用（macOS 需用 5001 端口，5000 被 AirPlay 占用）
-PORT=5001 python run.py
+# 启动应用
+# macOS 上 5000 被 AirPlay 占用；如本机运行了 TUN 代理（如 mihomo），
+# 5001 也可能被劫持返回 426/403，此时换一个端口即可
+HOST=127.0.0.1 PORT=5077 python run.py
 ```
 
-访问 http://127.0.0.1:5001 ，默认管理员账户：`admin` / `admin123`
+访问 http://127.0.0.1:5077 ，默认管理员账户：`admin` / `admin123`
+
+`HOST` 默认 `0.0.0.0`，`PORT` 默认 `5000`，按需覆盖。
 
 ## 主要功能
 
@@ -41,6 +45,20 @@ export ANTHROPIC_API_KEY=sk-ant-xxx
 ```
 
 也可在 AI 助手页面点击「设置」按钮直接配置，无需重启。
+
+## 界面设计
+
+前端不依赖组件库的默认外观，`app/static/css/style.css` 里维护了一套设计 token：
+
+- **中性色**偏冷灰（`--color-bg` / `--color-surface` / `--color-raised`），文字三级（`--color-text` / `-secondary` / `-muted`）
+- **一个强调色** `--color-accent`（teal），只用在主操作、当前导航和图表里"最重要的那条线"
+- **红绿只表示盈亏**，且随 `data-color-mode` 在 A 股/国际配色之间切换
+- **数字是签名细节**：金额、净值、收益率全部走 `font-mono` + `tabular-nums`，表格数字列右对齐（`.num`）
+- 圆角按层级：控件 8、卡片 12；动效统一 `cubic-bezier(0.22, 1, 0.36, 1)`，只过渡颜色/背景/边框/透明度
+
+图表配色与 token 对齐：饼图用"强调色 + 灰阶"、图例直接带百分比；K 线图的现价线用强调色、成本线用灰虚线、坐标轴和 tooltip 走同一套灰色。
+
+写新页面时沿用 `.page-header` / `.kpi-card` / `.data-table` / `.section-title` / `.chart-box` 这几个结构类，不要重新发明一套。
 
 ## 项目结构
 

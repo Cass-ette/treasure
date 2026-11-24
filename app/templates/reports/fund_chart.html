@@ -5,7 +5,7 @@
 {% block content %}
 <div class="page-header">
     <h1>
-        <i class="bi bi-bar-chart-line" style="color: var(--color-accent);"></i>
+        <i class="bi bi-bar-chart-line"></i>
         {{ fund.name }} <code class="ms-1">{{ fund.code }}</code>
     </h1>
     <div class="toolbar">
@@ -23,25 +23,25 @@
     <div class="col-md-3">
         <div class="kpi-card">
             <div class="kpi-label">{{ _('基金类型') }}</div>
-            <div class="kpi-value" style="font-size: 1.1rem;">{{ fund.fund_type or '-' }}</div>
+            <div class="kpi-value kpi-value-text">{{ fund.fund_type or '-' }}</div>
         </div>
     </div>
     <div class="col-md-3">
         <div class="kpi-card">
             <div class="kpi-label">{{ _('最新净值') }}</div>
-            <div class="kpi-value" style="font-size: 1.1rem;">{{ "%.4f"|format(fund.latest_nav) if fund.latest_nav else '-' }}</div>
+            <div class="kpi-value kpi-value-text">{{ "%.4f"|format(fund.latest_nav) if fund.latest_nav else '-' }}</div>
         </div>
     </div>
     <div class="col-md-3">
         <div class="kpi-card">
             <div class="kpi-label">{{ _('净值日期') }}</div>
-            <div class="kpi-value" style="font-size: 1.1rem;">{{ fund.nav_date.strftime('%Y-%m-%d') if fund.nav_date else '-' }}</div>
+            <div class="kpi-value kpi-value-text">{{ fund.nav_date.strftime('%Y-%m-%d') if fund.nav_date else '-' }}</div>
         </div>
     </div>
     <div class="col-md-3">
         <div class="kpi-card">
             <div class="kpi-label">{{ _('查看范围') }}</div>
-            <div class="kpi-value" style="font-size: 1.1rem;">{{ _('近 %(days)s 个交易日', days=days) }}</div>
+            <div class="kpi-value kpi-value-text">{{ _('近 %(days)s 个交易日', days=days) }}</div>
         </div>
     </div>
 </div>
@@ -50,7 +50,7 @@
 <div class="card mb-4">
     <div class="card-header"><i class="bi bi-graph-up me-1"></i> {{ _('净值走势') }}</div>
     <div class="card-body">
-        <div style="height: 400px;">
+        <div class="chart-canvas-lg">
             <canvas id="fundNavChart"></canvas>
         </div>
     </div>

@@ -5,7 +5,7 @@
 {% block content %}
 <div class="page-container">
     <div class="page-header">
-        <h1><i class="bi bi-image" style="color: var(--color-accent);"></i> {{ _('图片识别基金') }}</h1>
+        <h1><i class="bi bi-image"></i> {{ _('图片识别基金') }}</h1>
     </div>
     <p class="text-muted mb-4">{{ _('上传截图，自动识别基金信息并从天天基金网查询，选择导入') }}</p>
 
@@ -13,7 +13,7 @@
     <div class="upload-zone mb-3" id="upload-zone" onclick="document.getElementById('file-input').click()">
         <input type="file" id="file-input" accept=".png,.jpg,.jpeg,.gif" onchange="onFileSelected(this)">
         <div id="upload-hint">
-            <i class="bi bi-cloud-arrow-up" style="font-size: 2.5rem; color: var(--color-text-muted);"></i>
+            <i class="bi bi-cloud-arrow-up upload-icon"></i>
             <p class="mt-2 mb-0 text-muted">{{ _('点击或拖拽图片到此处') }}<br><small>{{ _('支持 PNG / JPG / JPEG / GIF') }}</small></p>
         </div>
         <img id="preview" class="preview-img" style="display:none">
